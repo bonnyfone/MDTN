@@ -16,9 +16,11 @@ public class Bundle implements Serializable {
 	/** Il PayloadBlock del bundle. */
 	private PayloadBlock bundlePayloadBlock;
 
+	//TODO Il costruttore va rivisto per l'uso pratico che si farà
 	public Bundle(){
 		bundlePrimaryBlock = new PrimaryBlock();
-		bundlePayloadBlock = new PayloadBlock();		
+		bundlePayloadBlock = new PayloadBlock();
+		
 	}
 	
 	//MAIN DI PROVA

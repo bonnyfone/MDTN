@@ -15,13 +15,15 @@ public class CommunicationThread extends Thread {
 	private int id;
 	private Vector<CommunicationThread> other;
 	PrintWriter out;
+	private Server myOwner;
 	
-	public CommunicationThread(Vector<CommunicationThread> altri,int n,Socket socket) {
+	public CommunicationThread(Server myOwner, Vector<CommunicationThread> altri,int n,Socket socket) {
 		super("MDTN:CommunicationThread");
 		setDaemon(true);
 		this.socket = socket;
 		this.id=n;
 		this.other=altri;
+		this.myOwner=myOwner;
 	}
 	
 	public void send(String s){
@@ -58,6 +60,7 @@ public class CommunicationThread extends Thread {
 			for(int i=0;i<other.size();i++){
 				if(other.elementAt(i).equals(this) ){
 					other.remove(i);
+					myOwner.addLog("Client disconnected ("+id+") "+this);
 					System.out.println("Client disconnected ("+id+") "+this);
 				}
 			}

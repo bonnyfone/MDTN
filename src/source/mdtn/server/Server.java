@@ -13,6 +13,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import source.mdtn.util.Timing;
+
 /**
  * Classe principale che rappresenta un <b><i>Server MDTN</i></b>.
  * La classe è un thread, è quindi possibile avviare più istanze parallele del server, in ascolto su porte diverse.
@@ -48,6 +50,7 @@ public class Server extends Thread {
 			System.out.println("In ascolto (porta "+listeningPort+")...");
 			addLog("In ascolto (porta "+listeningPort+")...");
 		} catch (IOException e) {
+			addLog("Could not listen on port: "+listeningPort+".");
 			System.err.println("Could not listen on port: "+listeningPort+".");
 			System.exit(-1);
 		}
@@ -64,12 +67,11 @@ public class Server extends Thread {
 		while (listening){
 			try{
 				numClients++;
-				System.out.println("Pre-accettazione di client "+numClients); //Son
 				addLog("Pre-accettazione di client "+numClients);
-				CommunicationThread a = new CommunicationThread(clients,numClients,serverSocket.accept()); 
+				CommunicationThread a = new CommunicationThread(this,clients,numClients,serverSocket.accept()); 
 				clients.addElement(a);
 				a.start();
-				System.out.println("Connessione accettata!");
+				addLog("Connessione accettata!");
 			}
 			catch(IOException ioe){ioe.printStackTrace();}
 		}
@@ -80,9 +82,12 @@ public class Server extends Thread {
 		} catch (IOException e) {e.printStackTrace();}
 	}
 
-	
+	/**
+	 * Metodo specifico per aggiungere un nuovo log alla lista log del server.
+	 * @param myMessage Un stringa contenente il nuovo log da aggiungere.
+	 */
 	public void addLog(String myMessage){
-		myGui.txtLog.insert(myMessage+"\n", 0);
+		myGui.txtLog.insert(Timing.getTime(2, ":")+ "\t: " +myMessage+"\n", 0);
 	}
 	
 
@@ -97,10 +102,12 @@ public class Server extends Thread {
 		JTextField txtIp;
 
 		public ServerGui(){
+			setTitle("MDTN - Server");
 			setSize(500,500);
 			setLocation(750, 250);
 			
 			txtLog = new JTextArea();
+			txtLog.setTabSize(2);
 			txtIp = new JTextField();
 			JScrollPane scrollingLog = new JScrollPane(txtLog);
 			scrollingLog.setBorder(BorderFactory.createTitledBorder("Logs"));

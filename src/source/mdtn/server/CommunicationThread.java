@@ -13,14 +13,15 @@ import source.mdtn.comm.BundleProtocol;
 public class CommunicationThread extends Thread {
 	private Socket socket = null;
 	private int id;
-	private Vector<CommunicationThread> altri;
+	private Vector<CommunicationThread> other;
 	PrintWriter out;
 	
 	public CommunicationThread(Vector<CommunicationThread> altri,int n,Socket socket) {
-		super("KKMultiServerThread");
+		super("MDTN:CommunicationThread");
+		setDaemon(true);
 		this.socket = socket;
 		this.id=n;
-		this.altri=altri;
+		this.other=altri;
 	}
 	
 	public void send(String s){
@@ -45,18 +46,18 @@ public class CommunicationThread extends Thread {
 				outputLine = kkp.processInput(inputLine);
 				out.println(outputLine);
 				
-				for(int i=0;i<altri.size();i++){
-					if(!(altri.elementAt(i).equals(this)))
-						altri.elementAt(i).send(inputLine);
+				for(int i=0;i<other.size();i++){
+					if(!(other.elementAt(i).equals(this)))
+						other.elementAt(i).send(inputLine);
 				}
 				
 				if (outputLine.equals("Bye"))
 					break;
 			}
 			
-			for(int i=0;i<altri.size();i++){
-				if(altri.elementAt(i).equals(this) ){
-					altri.remove(i);
+			for(int i=0;i<other.size();i++){
+				if(other.elementAt(i).equals(this) ){
+					other.remove(i);
 					System.out.println("Client disconnected ("+id+") "+this);
 				}
 			}

@@ -44,7 +44,8 @@ public class CommunicationThread extends Thread {
 			out.println(outputLine);
 
 			while ((inputLine = in.readLine()) != null) {
-				System.out.println("Recived(id="+id+"): "+inputLine);
+				myOwner.addLog("Received(id="+id+"): "+inputLine);
+				System.out.println("Received(id="+id+"): "+inputLine);
 				outputLine = kkp.processInput(inputLine);
 				out.println(outputLine);
 				

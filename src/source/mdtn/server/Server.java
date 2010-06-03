@@ -1,18 +1,24 @@
 package source.mdtn.server;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.SocketException;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import source.mdtn.util.Networking;
 import source.mdtn.util.Timing;
 
 /**
@@ -22,19 +28,22 @@ import source.mdtn.util.Timing;
 public class Server extends Thread {
 
 	/** Socket del server, ha lo scopo di accogliere le connessioni dei client. */
-	ServerSocket serverSocket;
+	private ServerSocket serverSocket;
 
 	/** Stato del server. Se true, il server è in ascolto per accettare nuove connessioni. */
-	boolean listening = true;
+	private boolean listening = true;
 
-	/** Vettore che rappresenta la lista dei client collegati al server.  */
-	Vector<CommunicationThread> clients = new Vector<CommunicationThread>();
+	/** Stato della connettività Internet */
+	private boolean gotInternet = false;
 
 	/** Contatore dei client che si sono collegati a partire dallo startup del server. */
-	int numClients=0;
+	private int numClients=0;
 	
 	/** Interfaccia grafica del server */
-	ServerGui myGui;
+	private ServerGui myGui;
+	
+	/** Vettore che rappresenta la lista dei client collegati al server.  */
+	private Vector<CommunicationThread> clients = new Vector<CommunicationThread>();
 
 
 	/**
@@ -87,8 +96,9 @@ public class Server extends Thread {
 	 * @param myMessage Un stringa contenente il nuovo log da aggiungere.
 	 */
 	public void addLog(String myMessage){
-		myGui.txtLog.insert(Timing.getTime(2, ":")+ "\t: " +myMessage+"\n", 0);
+		myGui.txtLog.insert(Timing.getTime(2, ":")+ "\t " +myMessage+"\n", 0);
 	}
+	
 	
 
 	/**
@@ -100,24 +110,70 @@ public class Server extends Thread {
 		
 		JTextArea txtLog;
 		JTextField txtIp;
-
+		JLabel labelIp;
+		JLabel labelConn;
+		JLabel labelNumClients;
+		
 		public ServerGui(){
 			setTitle("MDTN - Server");
 			setSize(500,500);
 			setLocation(750, 250);
 			
+			JPanel panelTop = new JPanel();
+			GridLayout topLayout = new GridLayout(0,3);
+			panelTop.setLayout(topLayout);
+			try {
+				//labelIp = new JLabel(InetAddress.getLocalHost().toString());
+				labelIp = new JLabel(Networking.getNetworkAddresses().elementAt(0));
+			} catch (SocketException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			labelIp.setBorder(BorderFactory.createTitledBorder("Ip server"));
+			
+			
+			
+			labelConn = new JLabel("internet");
+			labelConn.setBorder(BorderFactory.createTitledBorder("Internet"));
+
+			labelNumClients = new JLabel("0");
+			labelNumClients.setBorder(BorderFactory.createTitledBorder("N° clients"));
+			
+			panelTop.add(labelIp);
+			panelTop.add(labelConn);
+			panelTop.add(labelNumClients);
+			
 			txtLog = new JTextArea();
 			txtLog.setTabSize(2);
+			txtLog.setBackground(Color.black);
+			txtLog.setForeground(Color.white);
 			txtIp = new JTextField();
+			
 			JScrollPane scrollingLog = new JScrollPane(txtLog);
 			scrollingLog.setBorder(BorderFactory.createTitledBorder("Logs"));
 			
-			add(txtIp, BorderLayout.NORTH);
+			add(panelTop, BorderLayout.NORTH);
 			add(scrollingLog,BorderLayout.CENTER);
 			
 			validate();
 			setVisible(true);
+			updateNetworkInformation();
 
+			
+			//Demone per il monitoraggio dello stato della rete.
+			Thread updater = new Thread(){
+				public void run(){
+					while(true){
+						updateNetworkInformation();
+						try {
+							sleep(2000);
+						} catch (InterruptedException e) {e.printStackTrace();}
+					}
+				}
+			};
+			updater.setDaemon(true);
+			updater.start();
+			
 			//WindowListener per la corretta terminazione del programma
 			addWindowListener(new WindowAdapter(){
 				public void windowClosing(WindowEvent arg0) {
@@ -127,6 +183,25 @@ public class Server extends Thread {
 			});
 			
 		}
+		
+		/**
+		 * Aggiorna lo stato di rete. In particolare, aggiorna lo stato della connessione Internet 
+		 * e degli indirizzi ip.
+		 */
+		public void updateNetworkInformation(){
+			if(Networking.checkInternetConnection()){
+				Server.this.gotInternet=true;
+				labelConn.setForeground(Color.green);
+				labelConn.setText("ONLINE");
+			}
+			else{
+				Server.this.gotInternet=false;
+				labelConn.setForeground(Color.red);
+				labelConn.setText("OFFLINE");
+			}
+		}
+		
+		
 	}
 
 

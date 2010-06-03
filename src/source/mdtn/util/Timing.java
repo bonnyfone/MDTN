@@ -3,6 +3,9 @@ package source.mdtn.util;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+/**
+ * Classe di utilità che fornisce metodi statici per ottenere informazioni sull'orario.
+ */
 public class Timing {
 
 	/**

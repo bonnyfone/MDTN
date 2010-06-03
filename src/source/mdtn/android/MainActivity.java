@@ -1,9 +1,14 @@
 package source.mdtn.android;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import source.mdtn.comm.BundleNode;
 import android.app.TabActivity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TabHost;
 
 
@@ -18,6 +23,22 @@ public class MainActivity extends TabActivity {
 	    TabHost.TabSpec spec;  // Reusable TabSpec for each tab
 	    Intent intent;  // Reusable Intent for each tab
 
+	    //----------------------CODICE DI TESTING ---------------
+	    URI x=null;
+		try {
+			x = new URI("dtn://a");
+			BundleNode myNode = new BundleNode(x);
+			if(myNode.getMyAgent().connectToService("10.0.2.2"))
+				Log.i("CONN", "COLLEGATO!");
+			else
+				Log.i("CONN", "ERRORE DI COLLEGAMENTO!");
+			
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    //----------------------FINE CODICE DI TESTING ---------------
+		
 	    
 	    //TODO Creare per primo un oggetto DNTclient, da passare alle varie attività delle tab
 	    

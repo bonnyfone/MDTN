@@ -1,14 +1,14 @@
 package source.mdtn.server;
 
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Vector;
 
-import source.mdtn.comm.BundleProtocol;
+import source.mdtn.bundle.Bundle;
 
 public class CommunicationThread extends Thread {
 	private Socket socket = null;
@@ -32,6 +32,20 @@ public class CommunicationThread extends Thread {
 
 	public void run() {
 
+		try{
+		Object datain;
+		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+		out.flush();
+		ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+		
+		
+		while ((datain = in.readObject()) != null) {
+			System.out.println("Obj ricevuto");
+			myOwner.addLog("Received(id="+id+"): "+((Bundle)datain).getPrimary().getCreationTimestamp());
+		
+		}
+		
+		/*
 		try {
 			out = new PrintWriter(socket.getOutputStream(), true);
 			BufferedReader in = new BufferedReader(
@@ -69,8 +83,12 @@ public class CommunicationThread extends Thread {
 			out.close();
 			in.close();
 			socket.close();
-
+			
+*/
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

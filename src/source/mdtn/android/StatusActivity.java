@@ -22,8 +22,8 @@ public class StatusActivity extends Activity {
 
 		TextView textview = new TextView(this);
 		textview.setText("This is the Status tab "+n);
-		setContentView(textview);
-		//setContentView(R.layout.tab_statuts);
+		//setContentView(textview);
+		setContentView(R.layout.tablayout_status);
 		
 	}
 

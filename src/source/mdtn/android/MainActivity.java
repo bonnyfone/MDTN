@@ -24,13 +24,23 @@ public class MainActivity extends TabActivity {
 	    //mettere sempre il costruttore di Default nelle activity
 	    
 	    // Create an Intent to launch an Activity for the tab (to be reused)
+	   
+	    /** InfoActivity */
+	    InfoActivity info = new InfoActivity();
+	    intent = new Intent().setClass(this,info.getClass());
+	    spec = tabHost.newTabSpec("info").setIndicator("Info",
+                res.getDrawable(R.drawable.ic_tab_status)) 
+            .setContent(intent);  
+
+	    tabHost.addTab(spec);
+	    
 	    StatusActivity a = new StatusActivity(1111);
 	    intent = new Intent().setClass(this,a.getClass());
 	    
 	    	    
 	    // Initialize a TabSpec for each tab and add it to the TabHost
 	    spec = tabHost.newTabSpec("status").setIndicator("Status",
-	                      res.getDrawable(R.drawable.ic_tab_albums)) 
+	                      res.getDrawable(R.drawable.ic_tab_status)) 
 	                  .setContent(intent);  
 	      
 	    tabHost.addTab(spec);

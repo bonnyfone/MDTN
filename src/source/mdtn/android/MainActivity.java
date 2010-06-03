@@ -18,15 +18,23 @@ public class MainActivity extends TabActivity {
 	    TabHost.TabSpec spec;  // Reusable TabSpec for each tab
 	    Intent intent;  // Reusable Intent for each tab
 
-	    // Create an Intent to launch an Activity for the tab (to be reused)
-	    intent = new Intent().setClass(this, StatusActivity.class);
 	    
+	    //TODO Creare per primo un oggetto DNTclient, da passare alle varie attività delle tab
+	    
+	    //mettere sempre il costruttore di Default nelle activity
+	    
+	    // Create an Intent to launch an Activity for the tab (to be reused)
+	    StatusActivity a = new StatusActivity(1111);
+	    intent = new Intent().setClass(this,a.getClass());
+	    
+	    	    
 	    // Initialize a TabSpec for each tab and add it to the TabHost
 	    spec = tabHost.newTabSpec("status").setIndicator("Status",
-	                      res.getDrawable(R.drawable.ic_tab_artist)) 
+	                      res.getDrawable(R.drawable.ic_tab_albums)) 
 	                  .setContent(intent);  
 	      
 	    tabHost.addTab(spec);
+	    a.setN(32);
  
 	    // Do the same for the other tabs
 	    intent = new Intent().setClass(this, MailActivity.class);

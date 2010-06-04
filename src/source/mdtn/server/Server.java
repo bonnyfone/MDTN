@@ -189,6 +189,7 @@ public class Server extends Thread {
 		 * e degli indirizzi ip.
 		 */
 		public void updateNetworkInformation(){
+			//Connettività internet
 			if(Networking.checkInternetConnection()){
 				Server.this.gotInternet=true;
 				labelConn.setForeground(Color.green);
@@ -199,6 +200,9 @@ public class Server extends Thread {
 				labelConn.setForeground(Color.red);
 				labelConn.setText("OFFLINE");
 			}
+			
+			//Client collegati
+			labelNumClients.setText(clients.size()+"");
 		}
 		
 		

@@ -50,18 +50,22 @@ public class TcpAdapter {
             ois = new ObjectInputStream(socket.getInputStream());
             oos = new ObjectOutputStream(socket.getOutputStream());
             
+            /*
             oos.writeObject(new Bundle());
             oos.flush();
+            */
             
-            return true;
+            connected=true;
             
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
-			return false;
+			connected = false;
 		} catch (IOException e) {
 			e.printStackTrace();
-			return false;
+			connected = false;
 		}
+		
+		return connected;
 	}
 	
 	
@@ -70,9 +74,11 @@ public class TcpAdapter {
 	 */
 	public void disconnect(){
 		try {
+			send(null);
+			connected=false;
 			socket.close();
-			out.close();
-			in.close();
+			//out.close();
+			//in.close();
 			ois.close();
 			oos.close();
 		} catch (IOException e) {
@@ -80,6 +86,33 @@ public class TcpAdapter {
 		}
 	}
 	
+	
+	/**
+	 * Metodo a basso livello che invia un Bundle, come oggetto, attraverso lo stream del socket.
+	 * 
+	 * @param bundleToSend il bundle da inviare.
+	 * @return true=bundle inviato<br>false=bundle non inviato
+	 */
+	public boolean send(Bundle bundleToSend){
+		if(connected){
+			try {
+				oos.writeObject(bundleToSend);
+				oos.flush();
+				return true;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Metodo di controllo che ritorna lo stato della connessione.
+	 * @return true=connesso<br>false=non connesso
+	 */
+	public boolean isConnected(){
+		return connected;
+	}
 	//TODO Fare i metodi di Invio e ricezione di Messaggi e di object(i bundle!). 
 	//Serviranno classi Thread che tengono ricevono i dati e li inviano
 	

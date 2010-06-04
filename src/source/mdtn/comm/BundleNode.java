@@ -56,14 +56,28 @@ public class BundleNode {
 			return myTcpConn.connect(ip, 3339);
 		}
 		
+		/** Effettua connessione al servizio MDTN. */
+		public void disconnectFromService(){
+			myTcpConn.disconnect();
+		}
+		
+		
+		
 		/**
 		 * Invia un bundle al server MDTN.
 		 * @param myBundle il bundle da inviare.
 		 * @return true=inviato, false=non inviato
 		 */
 		public boolean sendBundle(Bundle myBundle){
-			
-			return true;
+			return myTcpConn.send(myBundle);
+		}
+		
+		/**
+		 * Metodo che controlla lo stato della connessione al servizio MDTN.
+		 * @return true=connesso<br>false=non connesso
+		 */
+		public boolean isConnected(){
+			return myTcpConn.isConnected();
 		}
 		
 	}

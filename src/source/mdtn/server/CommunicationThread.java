@@ -37,14 +37,14 @@ public class CommunicationThread extends Thread {
 		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 		out.flush();
 		ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-		
-		
+
 		while ((datain = in.readObject()) != null) {
 			System.out.println("Obj ricevuto");
 			myOwner.addLog("Received(id="+id+"): "+((Bundle)datain).getPrimary().getCreationTimestamp());
 		
 		}
 		
+
 		/*
 		try {
 			out = new PrintWriter(socket.getOutputStream(), true);
@@ -71,7 +71,9 @@ public class CommunicationThread extends Thread {
 				if (outputLine.equals("Bye"))
 					break;
 			}
-			
+			*/
+		
+			//Rimuovo il client dalla lista
 			for(int i=0;i<other.size();i++){
 				if(other.elementAt(i).equals(this) ){
 					other.remove(i);
@@ -84,7 +86,7 @@ public class CommunicationThread extends Thread {
 			in.close();
 			socket.close();
 			
-*/
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {

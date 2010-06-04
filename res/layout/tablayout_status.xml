@@ -4,34 +4,63 @@
     android:layout_height="fill_parent">
     <TextView
         android:id="@+id/label"
+        android:textStyle="bold"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Hostname to resolve"/>
+        android:text="MDTN-server address"
+        android:layout_marginTop="20dip"/>
+        
     <EditText
-        android:id="@+id/entry"
+        android:id="@+id/ip"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@android:drawable/editbox_background"
-        android:layout_below="@id/label"/>
+        android:layout_below="@id/label"
+		android:text="10.0.2.2"
+		android:layout_marginTop="10dip"/>
     <Button
-        android:id="@+id/ok"
+        android:id="@+id/connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/entry"
-        android:layout_alignParentRight="true"
-        android:layout_marginLeft="10dip"
-        android:text="Connect" />
+        android:layout_below="@id/ip"
+        android:layout_alignParentLeft="true"
+        android:text="Connect" 
+        android:layout_marginTop="10dip"/>
+        
+    <Button
+        android:id="@+id/disconnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ip"
+        android:layout_toRightOf="@id/connect"
+        android:text="Disonnect" 
+        android:layout_alignTop="@id/connect"/>
+        
     <Button
     	android:id="@+id/send" 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/ok"
-        android:layout_alignTop="@id/ok"
-        android:text="Send" />
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/connect"
+        android:text="Send a test bundle"/>
         
-    <TextView android:id="@+id/dataDisplay" android:layout_width="wrap_content"
-		android:layout_below="@id/entry"
-		android:layout_marginTop="50dip"
-		android:layout_height="wrap_content" android:text="" />
+    <TextView
+        android:id="@+id/lblstat"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/send"
+        android:text="Status: "
+        android:layout_marginTop="40dip"/>  
         
+    <TextView
+        android:id="@+id/stat"
+        
+        android:textColor="#FF0000"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/lblstat"
+        android:layout_alignTop="@id/lblstat"
+        android:text="DISCONNECTED"/>  
+             
 </RelativeLayout>

@@ -4,16 +4,27 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import source.mdtn.comm.BundleNode;
+import android.app.AlertDialog;
 import android.app.TabActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TabHost;
 
 
 public class MainActivity extends TabActivity {
-		
+	
+	/** Componente fondamentale che rappresenta un nodo di comunicazione DTN */
+	private static BundleNode myNode;
+	
+	public static BundleNode getServiceBundleNode(){
+		return myNode;
+	}
+	
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.main);
@@ -27,26 +38,28 @@ public class MainActivity extends TabActivity {
 	    URI x=null;
 		try {
 			x = new URI("dtn://a");
-			BundleNode myNode = new BundleNode(x);
+			myNode = new BundleNode(x);
+			
+			/*
 			if(myNode.getMyAgent().connectToService("10.0.2.2"))
 				Log.i("CONN", "COLLEGATO!");
 			else
 				Log.i("CONN", "ERRORE DI COLLEGAMENTO!");
-			
+			*/
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	    //----------------------FINE CODICE DI TESTING ---------------
 		
-	    
-	    //TODO Creare per primo un oggetto DNTclient, da passare alle varie attività delle tab
-	    
-	    //mettere sempre il costruttore di Default nelle activity
-	    
-	    // Create an Intent to launch an Activity for the tab (to be reused)
-	   
-	    /** InfoActivity */
+		/* Tutte le attività condividono un unico componente comune, ovvero un oggetto di tipo BundleNode,
+		 * il quale incapsula l'intero funzionamento del servizio MDTN al suo interno. 
+		 * In questo modo, la componente logica è totalmente indipendende da quella grafica e dalla piattaforma
+		 * Android, il che permette lo sviluppo futuro di svariati client su diverse piattaforme usando questo
+		 * core comune.
+		 */
+		
+	    /** InfoActivity: informazioni generali */
 	    InfoActivity info = new InfoActivity();
 	    intent = new Intent().setClass(this,info.getClass());
 	    spec = tabHost.newTabSpec("info").setIndicator("Info",
@@ -55,33 +68,36 @@ public class MainActivity extends TabActivity {
 
 	    tabHost.addTab(spec);
 	    
-	    StatusActivity a = new StatusActivity(1111);
-	    intent = new Intent().setClass(this,a.getClass());
-	    
-	    	    
-	    // Initialize a TabSpec for each tab and add it to the TabHost
+	    /** StatusActivity: gestione della connessione al servizio */
+	    //StatusActivity status = new StatusActivity(myNode);
+	    StatusActivity status = new StatusActivity();
+	    intent = new Intent().setClass(this,status.getClass());
 	    spec = tabHost.newTabSpec("status").setIndicator("Status",
 	                      res.getDrawable(R.drawable.ic_tab_status)) 
 	                  .setContent(intent);  
-	      
 	    tabHost.addTab(spec);
-	    a.setN(32);
  
-	    // Do the same for the other tabs
-	    intent = new Intent().setClass(this, MailActivity.class);
+	    /** MailActivity: gestione servizio mail */
+	    MailActivity mail = new MailActivity(myNode);
+	    intent = new Intent().setClass(this,mail.getClass());
 	    spec = tabHost.newTabSpec("mail").setIndicator("E-mail",
 	    				res.getDrawable(R.drawable.ic_tab_albums)) //res.getDrawable(R.drawable.ic_tab_albums))
 	                  .setContent(intent);
+	    
 	    tabHost.addTab(spec); 
 
-	    intent = new Intent().setClass(this, FileActivity.class);
+	    /** FileActivity: gestione servizio richiesta file e risorse */
+	    FileActivity file = new FileActivity(myNode);
+	    intent = new Intent().setClass(this,file.getClass());
 	    spec = tabHost.newTabSpec("files").setIndicator("Files",
 	    				res.getDrawable(R.drawable.ic_tab_songs)) //res.getDrawable(R.drawable.ic_tab_songs))
 	                  .setContent(intent);
+
 	    tabHost.addTab(spec); 
 
-//	    tabHost.setCurrentTab(0);
-	   // tabHost.setCurrentTabByTag("Status");  
+	    tabHost.setCurrentTab(1);
+	    
+	  //tabHost.setCurrentTabByTag("Status");  
 
 	}
 	
@@ -93,5 +109,45 @@ public class MainActivity extends TabActivity {
 //        Toast toast = Toast.makeText(context, text, duration);
 //        toast.show();
 //	}
+	
+	
+	
+	/*  Gestione MENU */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		boolean result = super.onCreateOptionsMenu(menu);
+
+		menu.add(0, 0, 0, "Exit")
+		.setIcon(R.drawable.icon);
+
+		return result;
+	}
+
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		switch (item.getItemId()) {
+		case 0: //Mostra messaggio: Vuoi uscire? SI,NO
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage("Are you sure you want to exit?")
+			.setCancelable(false)
+			.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					MainActivity.this.finish();
+				}
+			})
+			.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					dialog.cancel();
+				}
+			});
+			AlertDialog alert = builder.create();
+			alert.show();
+			break;
+
+		}
+		return super.onOptionsItemSelected(item);
+	}
 
 }

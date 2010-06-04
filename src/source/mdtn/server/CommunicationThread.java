@@ -1,6 +1,7 @@
 package source.mdtn.server;
 
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -38,13 +39,14 @@ public class CommunicationThread extends Thread {
 		out.flush();
 		ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
-		while ((datain = in.readObject()) != null) {
-			System.out.println("Obj ricevuto");
-			myOwner.addLog("Received(id="+id+"): "+((Bundle)datain).getPrimary().getCreationTimestamp());
-		
-		}
-		
+		try{
+			while ((datain = in.readObject()) != null) {
+				System.out.println("Obj ricevuto");
+				myOwner.addLog("Received(id="+id+"): "+((Bundle)datain).getPrimary().getCreationTimestamp());
 
+			}
+		}
+		catch(EOFException eofe){myOwner.addLog("Received EOF exception, client bad-disconnected.");}
 		/*
 		try {
 			out = new PrintWriter(socket.getOutputStream(), true);

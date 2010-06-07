@@ -29,19 +29,24 @@ public class Timing {
 		int ms = cal.get(Calendar.MILLISECOND); 
 		
 		if(detail>=0){
-			myTime = hour24+"";
+			myTime = addZero(hour24);
 		}
 		if(detail>=1){
-			myTime = myTime + separator + min;
+			myTime = myTime + separator + addZero(min);
 		}
 		if(detail>=2){
-			myTime = myTime + separator + sec;
+			myTime = myTime + separator + addZero(sec);
 		}
 		if(detail>=3){
-			myTime = myTime + separator + ms;
+			myTime = myTime + separator + addZero(ms);
 		}
 		
 		return myTime;
+	}
+	
+	private static String addZero(int num){
+		if(num <10)return ("0"+num);
+		else return ""+num;
 	}
 	
 }

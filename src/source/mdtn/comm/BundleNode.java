@@ -1,8 +1,10 @@
 package source.mdtn.comm;
 
 import java.net.URI;
+import java.util.Vector;
 
 import source.mdtn.bundle.Bundle;
+import source.mdtn.util.Timing;
 
 public class BundleNode {
 	
@@ -11,6 +13,9 @@ public class BundleNode {
 	
 	/** URI del EID del nodo */
 	private URI myEID;
+	
+	/** Log eventi */
+	private Vector<String> nodeLog;
 	
 	//TODO Qui vanno messi tutti i campi dati e le informazioni generali sul nodo! Le funzionalità
 	//sono implementate attraverso metodi del BPAgent
@@ -22,6 +27,8 @@ public class BundleNode {
 	public BundleNode(URI myEID){
 		this.myEID = myEID;
 		myBpAgent = new BPAgent();
+		nodeLog = new Vector<String>();
+		addLog("BundleNode istanziato, pronto ad accedere a MDTN.");
 	}
 	
 	/**
@@ -32,8 +39,17 @@ public class BundleNode {
 		return myBpAgent;
 	}
 	
+	/**
+	 * Aggiunge un nuovo log alla lista degli eventi del nodo.
+	 * @param newLog Stringa contenente il nuovo log.
+	 */
+	public void addLog(String newLog){
+		nodeLog.add(Timing.getTime(2, ":") + "  " + newLog);
+	}
 	
-	
+	public Vector<String> getLogs(){
+		return nodeLog;
+	}
 	
 	
 	/**----------------------------------------------------------------------------------------------*/
@@ -53,11 +69,18 @@ public class BundleNode {
 		
 		/** Effettua connessione al servizio MDTN. */
 		public boolean connectToService(String ip){
-			return myTcpConn.connect(ip, 3339);
+			//addLog("Tentativo di connessione a MDTN...");
+			boolean esito = myTcpConn.connect(ip, 3339);
+			
+			if(esito)addLog("Connessione stabilita.");
+			else addLog("Errore di connessione.");
+				
+			return esito;
 		}
 		
 		/** Effettua connessione al servizio MDTN. */
 		public void disconnectFromService(){
+			addLog("Disconnesso.");
 			myTcpConn.disconnect();
 		}
 		

@@ -51,16 +51,41 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/send"
         android:text="Status: "
-        android:layout_marginTop="40dip"/>  
+        android:layout_marginTop="30dip"/>  
         
     <TextView
         android:id="@+id/stat"
-        
         android:textColor="#FF0000"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/lblstat"
         android:layout_alignTop="@id/lblstat"
         android:text="DISCONNECTED"/>  
+   
+    <TextView
+        android:id="@+id/lbllog"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/stat"
+        android:text="Logs: "
+        android:layout_marginTop="20dip"/>  
+            
+    <ScrollView   
+       android:id="@+id/ScrollView01"  
+       android:layout_height="150px"   
+       android:layout_width="fill_parent"  
+       android:layout_below="@id/lbllog"
+ 	   android:layout_marginTop="10dip">
+
+       <TextView
+	        android:id="@+id/logs"
+	        android:textSize = "10dip"
+	        android:textColor="#888888"
+			android:layout_height="wrap_content"   
+	        android:layout_width="wrap_content"   
+	        android:text=" "/>  
+    
+    </ScrollView>       
              
 </RelativeLayout>

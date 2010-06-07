@@ -21,6 +21,7 @@ public class StatusActivity extends Activity {
 	private Button _buttonDisconnect;
 	private Button _buttonSend;
 	private TextView _labelStat;
+	private TextView _labelLogs;
 	private EditText _txtIp;
 	private ProgressDialog progres;
 
@@ -53,7 +54,8 @@ public class StatusActivity extends Activity {
 		_buttonConnect = (Button) findViewById(R.id.connect);
 		_buttonDisconnect = (Button) findViewById(R.id.disconnect);
 		_buttonSend = (Button) findViewById(R.id.send);
-		_labelStat = (TextView) findViewById(R.id.lblstat);
+		_labelStat = (TextView) findViewById(R.id.stat);
+		_labelLogs = (TextView) findViewById(R.id.logs);
 		_txtIp = (EditText) findViewById(R.id.ip);
 
 		refNode = MainActivity.getServiceBundleNode();
@@ -63,12 +65,13 @@ public class StatusActivity extends Activity {
 		_buttonConnect.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				Log.i("MDTN", "Indirizzo dal listener"+this);
-
+				
 				if(refNode == null){
 					Log.i("MDTN", "Bundle node è nullo!");
 					return;
 				}
 				if(!refNode.getMyAgent().isConnected()){//Se non sono già connesso..
+					refNode.addLog("Tentativo di connessione a MDTN...");
 					progres = ProgressDialog.show(StatusActivity.this, "", 
 							"Connecting...", true);
 					progres.show();
@@ -91,7 +94,7 @@ public class StatusActivity extends Activity {
 				}
 			}
 		});
-		
+
 		//Listener pulsante disconnessione
 		_buttonDisconnect.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -101,17 +104,55 @@ public class StatusActivity extends Activity {
 				}
 			}
 		});
-		
-		//Listener pulsante disconnessione
+
+		//Listener pulsante invio
 		_buttonSend.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 
 				if(refNode.getMyAgent().isConnected()){//Se sono connesso..
-					refNode.getMyAgent().sendBundle(new source.mdtn.bundle.Bundle());
+					source.mdtn.bundle.Bundle newBundle = new source.mdtn.bundle.Bundle();
+					refNode.getMyAgent().sendBundle(newBundle);
+					refNode.addLog("Bundle inviato ("+newBundle.getPrimary().getCreationTimestamp()+")");
 				}
 			}
 		});
 
+
+		Thread checkStatus = new Thread(){
+			public void run(){
+				while(true){
+					try {
+						Runnable updateStat = new Runnable(){
+							public void run() {
+								boolean stat=refNode.getMyAgent().isConnected();
+
+								if(stat){
+									_labelStat.setTextColor(0xFF00FF00);
+									_labelStat.setText("CONNECTED");
+								}
+								else{
+									_labelStat.setTextColor(0xFFFF0000);
+									_labelStat.setText("DISCONNECTED");
+								}
+								
+								String logList="";
+								for(int i=0;i<refNode.getLogs().size();i++){
+									logList=refNode.getLogs().elementAt(i) + "\n" + logList;
+								}
+								
+								_labelLogs.setText(logList);
+							}
+						};
+						runOnUiThread(updateStat);
+
+						sleep(1000);
+					} catch (InterruptedException e) {e.printStackTrace();}
+				}
+			}
+		};
+		
+		checkStatus.start();
+		
 		
 	}
 

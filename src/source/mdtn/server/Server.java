@@ -63,11 +63,12 @@ public class Server extends Thread {
 			addLog("In ascolto (porta "+listeningPort+")...");
 			
 			/* Test */
-			Message x = new Message("fromasd","toasd","asd","asd");
+			/*Message x = new Message("fromasd","toasd","asd","asd");
 			byte b[]=Buffering.toBytes(x);
 			Message y = (Message)Buffering.toObject(b);
 			//Bundle y = (Bundle)Buffering.toObject(b);
 			System.out.println(y.getFrom()+" "+y.getTo());
+			*/
 			
 		} catch (IOException e) {
 			addLog("Could not listen on port: "+listeningPort+".");

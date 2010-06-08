@@ -2,6 +2,7 @@ package source.mdtn.bundle;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Classe che rappresenta il PrimaryBlock di un bundle.
@@ -60,6 +61,11 @@ public class PrimaryBlock implements Serializable{
 		lifetime = 20000;
 		fragmentOffset=-1;
 		totalAppDataLenght=-1;
+		try {
+			source = new URI("dtn://aaaaaaaa");
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
 	}
 
 
@@ -394,5 +400,14 @@ public class PrimaryBlock implements Serializable{
 
 	public void setTotalAppDataLenght(long totalAppDataLenght) {
 		this.totalAppDataLenght = totalAppDataLenght;
+	}
+	
+	public URI getSource() {
+		return source;
+	}
+
+
+	public void setSource(URI source) {
+		this.source = source;
 	}
 }

@@ -9,6 +9,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import android.util.Log;
+
 import source.mdtn.bundle.Bundle;
 
 /**
@@ -98,9 +100,11 @@ public class TcpAdapter {
 			try {
 				oos.writeObject(bundleToSend);
 				oos.flush();
+				Log.i("MDTN", "Scrittura su stream eseguita.");
 				return true;
 			} catch (IOException e) {
 				e.printStackTrace();
+				return false;
 			}
 		}
 		return false;

@@ -16,11 +16,17 @@ public class Bundle implements Serializable {
 	/** Il PayloadBlock del bundle. */
 	private PayloadBlock bundlePayloadBlock;
 
+	/** Numero di creazione sequenziale */
+	private static int sequenceCounter=0;
+	
+	
 	//TODO Il costruttore va rivisto per l'uso pratico che si farà
 	public Bundle(){
 		bundlePrimaryBlock = new PrimaryBlock();
 		bundlePayloadBlock = new PayloadBlock();
 		
+		sequenceCounter++;
+		bundlePrimaryBlock.setCreationSequenceNumber(sequenceCounter);
 	}
 	
 	//MAIN DI PROVA
@@ -65,5 +71,11 @@ public class Bundle implements Serializable {
 	 */
 	public PayloadBlock getPayload(){
 		return bundlePayloadBlock;
+	}
+	
+	/** Metodo che resetta il sequenceNumber
+	 */
+	public static void resetSequenceNumber(){
+		sequenceCounter=0;
 	}
 }

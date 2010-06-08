@@ -2,6 +2,7 @@ package source.mdtn.server;
 
 
 import java.io.EOFException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -43,7 +44,18 @@ public class CommunicationThread extends Thread {
 			while ((datain = in.readObject()) != null) {
 				System.out.println("Obj ricevuto");
 				myOwner.addLog("Received(id="+id+"): "+((Bundle)datain).getPrimary().getCreationTimestamp());
-
+				
+				Bundle read = (Bundle)datain;
+				//Salvataggio dei bundle su disco, perchè è necessaria la persistenza (RFC).
+				String filename = read.getPrimary().getSource().getHost()+"_"+ 
+								  read.getPrimary().getCreationTimestamp() +"_"+
+								  read.getPrimary().getCreationSequenceNumber()+ ".bundle";
+				
+				FileOutputStream fos = new FileOutputStream(filename);
+				ObjectOutputStream oos = new ObjectOutputStream(fos);
+				oos.writeObject(datain);
+				oos.close();
+				
 			}
 		}
 		catch(EOFException eofe){myOwner.addLog("Received EOF exception, client bad-disconnected.");}

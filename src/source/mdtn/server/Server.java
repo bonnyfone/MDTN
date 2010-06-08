@@ -18,6 +18,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import source.mdtn.bundle.Bundle;
+import source.mdtn.util.Buffering;
+import source.mdtn.util.Message;
 import source.mdtn.util.Networking;
 import source.mdtn.util.Timing;
 
@@ -58,6 +61,14 @@ public class Server extends Thread {
 			serverSocket = new ServerSocket(listeningPort);
 			System.out.println("In ascolto (porta "+listeningPort+")...");
 			addLog("In ascolto (porta "+listeningPort+")...");
+			
+			/* Test */
+			Message x = new Message("fromasd","toasd","asd","asd");
+			byte b[]=Buffering.toBytes(x);
+			Message y = (Message)Buffering.toObject(b);
+			//Bundle y = (Bundle)Buffering.toObject(b);
+			System.out.println(y.getFrom()+" "+y.getTo());
+			
 		} catch (IOException e) {
 			addLog("Could not listen on port: "+listeningPort+".");
 			System.err.println("Could not listen on port: "+listeningPort+".");
@@ -190,13 +201,13 @@ public class Server extends Thread {
 		 */
 		public void updateNetworkInformation(){
 			//Connettività internet
-			if(Networking.checkInternetConnection()){
-				Server.this.gotInternet=true;
+			gotInternet = Networking.checkInternetConnection();
+			
+			if(gotInternet){
 				labelConn.setForeground(Color.green);
 				labelConn.setText("ONLINE");
 			}
 			else{
-				Server.this.gotInternet=false;
 				labelConn.setForeground(Color.red);
 				labelConn.setText("OFFLINE");
 			}

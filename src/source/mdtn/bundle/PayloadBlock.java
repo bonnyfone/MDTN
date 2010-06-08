@@ -5,6 +5,7 @@ public class PayloadBlock extends Block {
 
 	private static final long serialVersionUID = 6423850683812810944L;
 
+	private String type;
 	/*
 	private int blockType = 1; //A payload block
 	private boolean processingControlFlag[];
@@ -16,7 +17,7 @@ public class PayloadBlock extends Block {
 	public PayloadBlock(){
 		super();
 		setBlockType(1); //Il payloadBlock si imposta sempre a 1
-		
+		type = "UNKNOWN";
 	}
 	
 	
@@ -36,4 +37,20 @@ public class PayloadBlock extends Block {
 		return getData();
 	}
 	
+	/**
+	 * Metodo che ritorna il tipo di payload.
+	 * @return una stringa rappresentante il tipo del payload.
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * Metodo che imposta il tipo di payload.
+	 * @param type una stringa rappresentante il tipo del payload.
+	 */
+	public void setType(String type) {
+		this.type = type;
+	}
+
 }

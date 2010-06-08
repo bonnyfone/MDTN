@@ -20,11 +20,9 @@ public class MailActivity extends Activity {
 	
 	 public void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
-	        
+			setContentView(R.layout.tablayout_mail);
 	        refNode = MainActivity.getServiceBundleNode();
 	        
-	        TextView textview = new TextView(this);
-	        textview.setText("This is the MAIL tab");
-	        setContentView(textview);
+
 	    }
 }

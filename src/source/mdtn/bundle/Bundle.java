@@ -2,9 +2,12 @@ package source.mdtn.bundle;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+
+import source.mdtn.server.Server;
 
 public class Bundle implements Serializable {
 	
@@ -28,6 +31,44 @@ public class Bundle implements Serializable {
 		sequenceCounter++;
 		bundlePrimaryBlock.setCreationSequenceNumber(sequenceCounter);
 	}
+	
+	
+	/**
+	 * Salvataggio fisico del bundle su disco. 
+	 * @param path path in cui salvare il bundle.
+	 * @return true=salvato, false=non salvato.
+	 */
+	public boolean store(String path){
+		String filename = getPrimary().getSource().getHost()+"_"+ 
+						  getPrimary().getCreationTimestamp() +"_"+
+						  getPrimary().getCreationSequenceNumber()+ ".bundle";
+		
+		try{
+			FileOutputStream fos = new FileOutputStream(path+filename);
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(this);
+			oos.close();	
+		}
+		catch(IOException e){return false;}
+		return true;
+	}
+	
+	/**
+	 * Recupera un bundle dal disco.
+	 * @param filepath path del file contenente il bundle.
+	 * @return il Bundle salvato su disco.
+	 */
+	public static Bundle retrive(String filepath){
+		try{
+			FileInputStream fis = new FileInputStream(filepath);
+			ObjectInputStream oos = new ObjectInputStream(fis);
+			Bundle r = (Bundle) oos.readObject();
+			oos.close();
+			return r;
+		}
+		catch(IOException e){return null;} catch (ClassNotFoundException e) {return null;}
+	}
+	
 	
 	//MAIN DI PROVA
 	public static void main(String args[]) throws Exception{

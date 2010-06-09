@@ -12,13 +12,40 @@ import java.util.Vector;
 
 import source.mdtn.bundle.Bundle;
 
+/**
+ * Classe-thread per la gestione di una singola connessione via socket.
+ */
 public class CommunicationThread extends Thread {
-	private Socket socket = null;
-	private int id;
-	private Vector<CommunicationThread> other;
-	PrintWriter out;
-	private Server myOwner;
 	
+	/** Socket per la comunicazione TCP */
+	private Socket socket;
+	
+	/** ID della connessione (ogni istanza di questa classe ha un'id differente) */
+	private int id;
+	
+	/** Riferimento alla lista delle altre connessioni attive. */
+	private Vector<CommunicationThread> other;
+	
+	/** Riferimento al server. */
+	private Server myOwner;
+
+	/** ObjectStream di uscita (dati in uscita)*/
+	private ObjectOutputStream out;
+	
+	/** ObjectStream di entrata (dati in ingresso)*/
+	private ObjectInputStream in;
+	
+	//raw-stream
+	//PrintWriter out;
+	
+	/**
+	 * Costruttore specifico di un thread di comunicazione. 
+	 * Istanzia e gestisce una connessione TCP via socket.
+	 * @param myOwner riferimento al Server.
+	 * @param altri riferimento alla lista delle altre connessioni attivie.
+	 * @param n identificativo da assegnare alla connessione.
+	 * @param socket socket da utilizzare per la comunicazione.
+	 */
 	public CommunicationThread(Server myOwner, Vector<CommunicationThread> altri,int n,Socket socket) {
 		super("MDTN:CommunicationThread");
 		setDaemon(true);
@@ -28,17 +55,16 @@ public class CommunicationThread extends Thread {
 		this.myOwner=myOwner;
 	}
 	
-	public void send(String s){
-		out.println(s);
-	}
-
+	/**
+	 * Override del metodo Thread.run(), si occupa di gestire l'intera comunicazione via socket. 
+	 */
 	public void run() {
 
 		try{
 		Object datain;
-		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+		out = new ObjectOutputStream(socket.getOutputStream());
 		out.flush();
-		ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+		in = new ObjectInputStream(socket.getInputStream());
 
 		try{
 			while ((datain = in.readObject()) != null) {
@@ -46,15 +72,7 @@ public class CommunicationThread extends Thread {
 				myOwner.addLog("Received(id="+id+"): "+((Bundle)datain).getPrimary().getCreationTimestamp());
 				
 				Bundle read = (Bundle)datain;
-				//Salvataggio dei bundle su disco, perchè è necessaria la persistenza (RFC).
-				String filename = read.getPrimary().getSource().getHost()+"_"+ 
-								  read.getPrimary().getCreationTimestamp() +"_"+
-								  read.getPrimary().getCreationSequenceNumber()+ ".bundle";
-				
-				FileOutputStream fos = new FileOutputStream(filename);
-				ObjectOutputStream oos = new ObjectOutputStream(fos);
-				oos.writeObject(datain);
-				oos.close();
+				read.store(Server.getBundlePath());
 				
 			}
 		}
@@ -108,4 +126,9 @@ public class CommunicationThread extends Thread {
 			e.printStackTrace();
 		}
 	}
+	
+	//Metodo raw per scrivere una linea sullo stream di uscita
+//	public void send(String s){
+//		out.println(s);
+//	}
 }

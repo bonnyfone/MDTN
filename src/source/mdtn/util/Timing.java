@@ -21,13 +21,16 @@ public class Timing {
 	public static String getTime(int detail, String separator){
 		String myTime="";
 		
+		//legge il giorno dal calendario
 		Calendar cal = new GregorianCalendar(); 
 
+		//estrae le informazioni sull'ora
 		int hour24 = cal.get(Calendar.HOUR_OF_DAY); 
 		int min = cal.get(Calendar.MINUTE); 
 		int sec = cal.get(Calendar.SECOND); 
 		int ms = cal.get(Calendar.MILLISECOND); 
 		
+		//costruisce la stringa di ritorno, in base alle esigenze
 		if(detail>=0){
 			myTime = addZero(hour24);
 		}
@@ -44,6 +47,12 @@ public class Timing {
 		return myTime;
 	}
 	
+	
+	/**
+	 * Metodo interno per estendere un numero nel formato a due cifre. (es: "4" diventa "04")
+	 * @param num numero da formattare.
+	 * @return il numero formattato.
+	 */
 	private static String addZero(int num){
 		if(num <10)return ("0"+num);
 		else return ""+num;

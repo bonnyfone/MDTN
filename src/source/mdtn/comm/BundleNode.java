@@ -72,12 +72,11 @@ public class BundleNode {
 	/**----------------------------------        B P A        -------------------------------------- */
 	/**----------------------------------------------------------------------------------------------*/
 
-
+	/** Bundle Protocol Agent, ovvero il fornitore dei servizi MDTN*/
 	public class BPAgent {
 
 		/** ConvergenceLayerAdapter specifico per la comunicazione via TCP/IP */
 		private TcpAdapter myTcpConn; 
-
 
 		/** Crea un BPAgent */
 		public BPAgent(){
@@ -95,12 +94,12 @@ public class BundleNode {
 			return esito;
 		}
 
+		
 		/** Effettua connessione al servizio MDTN. */
 		public void disconnectFromService(){
 			addLog("Disconnesso.");
 			myTcpConn.disconnect();
 		}
-
 
 
 		/**
@@ -112,8 +111,10 @@ public class BundleNode {
 			return myTcpConn.send(myBundle);
 		}
 
+		
 		/**
-		 * Invia un messaggio email. Costruisce automaticamente il bundle necessario e lo invia.
+		 * Invia un messaggio email. Costruisce automaticamente il bundle necessario e lo invia, 
+		 * richiamando i livelli inferiori.
 		 * @param myMessage il messaggio da inviare.
 		 * @return true=inviato, false=non inviato
 		 */
@@ -133,6 +134,7 @@ public class BundleNode {
 
 			//Invio il bundle contenente il messaggio.
 			boolean esit = sendBundle(toSend);
+			
 			if(esit)addLog("Email inoltrata.");
 			else addLog("Errore inoltro email.");
 

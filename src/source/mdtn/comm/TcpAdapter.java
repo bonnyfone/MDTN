@@ -18,13 +18,21 @@ import source.mdtn.bundle.Bundle;
  */
 public class TcpAdapter {
 	
+	/** Socket per la comunicazione su TCP */
 	private Socket socket;
-	private PrintWriter out;
-	private BufferedReader in;
+	
+	/** Stato della connessione del socket */
 	private boolean connected;
 	
+	/** ObjectStream di ingresso (dati in entrata) */
 	private ObjectInputStream ois;
+	
+	/** ObjectStream di uscita (dati in uscita) */
 	private ObjectOutputStream oos;
+
+	//Raw-streams
+	private PrintWriter out;
+	private BufferedReader in;
 	
 
 	/** Costruttore base, nessuna connessione automatica. */
@@ -91,6 +99,9 @@ public class TcpAdapter {
 	
 	/**
 	 * Metodo a basso livello che invia un Bundle, come oggetto, attraverso lo stream del socket.
+	 * Il metodo ha un'accesso sincronizzato allo stream, in modo da evitare interferenze.
+	 * Si causa quindi un'inevitabile race-condition sul socket, ma è preferibile rispetto ai conflitti e 
+	 * alla perdita di consistenza dei dati.
 	 * 
 	 * @param bundleToSend il bundle da inviare.
 	 * @return true=bundle inviato<br>false=bundle non inviato
@@ -98,8 +109,10 @@ public class TcpAdapter {
 	public boolean send(Bundle bundleToSend){
 		if(connected){
 			try {
-				oos.writeObject(bundleToSend);
-				oos.flush();
+				synchronized (oos) { //Accesso sincronizzato allo stream, per evitare conflitti
+					oos.writeObject(bundleToSend);
+					oos.flush();	
+				}
 				Log.i("MDTN", "Scrittura su stream eseguita.");
 				return true;
 			} catch (IOException e) {

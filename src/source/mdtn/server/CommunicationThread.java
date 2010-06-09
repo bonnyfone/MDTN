@@ -2,12 +2,11 @@ package source.mdtn.server;
 
 
 import java.io.EOFException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.URI;
 import java.util.Vector;
 
 import source.mdtn.bundle.Bundle;
@@ -28,6 +27,9 @@ public class CommunicationThread extends Thread {
 	
 	/** Riferimento al server. */
 	private Server myOwner;
+	
+	/** EID del client */
+	private URI EIDclient;
 
 	/** ObjectStream di uscita (dati in uscita)*/
 	private ObjectOutputStream out;
@@ -68,12 +70,25 @@ public class CommunicationThread extends Thread {
 
 		try{
 			while ((datain = in.readObject()) != null) {
-				System.out.println("Obj ricevuto");
-				myOwner.addLog("Received(id="+id+"): "+((Bundle)datain).getPrimary().getCreationTimestamp());
 				
-				Bundle read = (Bundle)datain;
-				read.store(Server.getBundlePath());
+				Bundle newBundle = (Bundle)datain;
 				
+				System.out.println("Bundle ricevuto");
+				myOwner.addLog("Bundle received(client id="+id+"): "+newBundle.getPrimary().getCreationTimestamp());
+				
+				//Se è un pacchetto informativo, non serve salvare nulla
+				if(newBundle.getPayload().getType().equals("DISCOVERY")){
+					EIDclient=newBundle.getPrimary().getSource();
+				}
+				else{//Altrimenti, salvataggio persistente del bundle su disco (RFC5050).
+					newBundle.store(Server.getBundlePath());	
+				}
+				
+				
+				/* Il nuovo bundle verrà processato automaticamente dal Thread demone di bundle-processing
+				 * del server. Il thread di comunicazione nel frattempo rimane libero per ricevere altri 
+				 * bundle.
+				 */
 			}
 		}
 		catch(EOFException eofe){myOwner.addLog("Received EOF exception, client bad-disconnected.");}

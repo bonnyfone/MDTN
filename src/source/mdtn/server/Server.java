@@ -38,6 +38,12 @@ public class Server extends Thread {
 
 	/** Stato della connettività Internet */
 	private boolean gotInternet = false;
+	
+	/** Oggetto di sincronizzazione per il dispatcher */
+	private Object connectionLock;
+	
+	/** Dispatcher delle operazioni pendenti */
+	private Dispatcher opDispatcher;
 
 	/** Contatore dei client che si sono collegati a partire dallo startup del server. */
 	private int numClients=0;
@@ -62,6 +68,10 @@ public class Server extends Thread {
 			myGui = new ServerGui();
 			bundlePath = path;
 			serverSocket = new ServerSocket(listeningPort);
+			connectionLock = new Object();
+			opDispatcher = new Dispatcher(connectionLock);
+			opDispatcher.start();
+			
 			System.out.println("In ascolto (porta "+listeningPort+")...");
 			addLog("In ascolto (porta "+listeningPort+")...");
 			addLog("Bundle-storage in \""+bundlePath+"\"");
@@ -210,6 +220,9 @@ public class Server extends Thread {
 		public void updateNetworkInformation(){
 			//Connettività internet
 			gotInternet = Networking.checkInternetConnection();
+			
+			//Eventualmente, sveglia il dispatcher se c'è connessione
+			if(gotInternet)connectionLock.notifyAll();
 
 			if(gotInternet){
 				labelConn.setForeground(Color.green);

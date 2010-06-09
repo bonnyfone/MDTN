@@ -35,7 +35,7 @@ public class Bundle implements Serializable {
 	
 	/**
 	 * Salvataggio fisico del bundle su disco. 
-	 * @param path path in cui salvare il bundle.
+	 * @param path path della directory in cui salvare il bundle.
 	 * @return true=salvato, false=non salvato.
 	 */
 	public boolean store(String path){

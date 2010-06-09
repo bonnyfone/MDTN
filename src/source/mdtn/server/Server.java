@@ -65,11 +65,11 @@ public class Server extends Thread {
 
 		try {
 			setDaemon(true);
+			connectionLock = new Object();
 			myGui = new ServerGui();
 			bundlePath = path;
 			serverSocket = new ServerSocket(listeningPort);
-			connectionLock = new Object();
-			opDispatcher = new Dispatcher(connectionLock);
+			opDispatcher = new Dispatcher(this,connectionLock);
 			opDispatcher.start();
 			
 			System.out.println("In ascolto (porta "+listeningPort+")...");
@@ -222,7 +222,11 @@ public class Server extends Thread {
 			gotInternet = Networking.checkInternetConnection();
 			
 			//Eventualmente, sveglia il dispatcher se c'è connessione
-			if(gotInternet)connectionLock.notifyAll();
+			if(gotInternet){
+				synchronized (connectionLock) {
+					connectionLock.notifyAll();
+				}
+			}
 
 			if(gotInternet){
 				labelConn.setForeground(Color.green);

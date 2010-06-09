@@ -1,13 +1,12 @@
 package source.mdtn.bundle;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-
-import source.mdtn.server.Server;
 
 public class Bundle implements Serializable {
 	
@@ -51,6 +50,15 @@ public class Bundle implements Serializable {
 		}
 		catch(IOException e){return false;}
 		return true;
+	}
+	
+	public boolean delete(){
+		String filename = getPrimary().getSource().getHost()+"_"+ 
+		  getPrimary().getCreationTimestamp() +"_"+
+		  getPrimary().getCreationSequenceNumber()+ ".bundle";
+		
+		File toDelete = new File(filename);
+		return toDelete.delete();
 	}
 	
 	/**

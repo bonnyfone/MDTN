@@ -11,7 +11,7 @@ public class BundleProtocol {
 	}
 	
 	
-	public boolean processBundle(Bundle toBeProcessed){
+	public String processBundle(Bundle toBeProcessed){
 		
 		String type=toBeProcessed.getPayload().getType();
 		
@@ -20,13 +20,22 @@ public class BundleProtocol {
 			Message newMessage = (Message)Buffering.toObject(toBeProcessed.getPayload().getPayloadData());
 			System.out.println("Inviata mail a " +newMessage.getTo());
 			
-			return true;
+			//Simula perdita di tempo, da cancellare ovviamente..
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			return "Inviata mail a " +newMessage.getTo();
 		}
 		else{
 			//TODO popolare il protocollo
 			//altro....
 		}
 		
-		return false;
+		return "error";
 	}
 }

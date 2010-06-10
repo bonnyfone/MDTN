@@ -1,6 +1,7 @@
 package source.mdtn.server;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Vector;
 
 import source.mdtn.bundle.Bundle;
@@ -27,7 +28,7 @@ public class Reporter extends Thread {
 	
 	
 	/**
-	 * Rimuovo il bundle del report da liste e disco.
+	 * Rimuovo il bundle-report da liste e disco.
 	 * @param toRemove il bundle da rimuovere.
 	 */
 	private void removeReport(Bundle toRemove){
@@ -51,7 +52,12 @@ public class Reporter extends Thread {
 
 	private void refreshReports(){
 		File dir = new File(Server.getBundlePath()); 
-		String[] children = dir.list();
+		String[] children = dir.list(new FilenameFilter() {
+	           public boolean accept(File dir, String name) {
+	                return name.toLowerCase().endsWith(".report");
+	                }
+	           });
+		
 		if (!(children == null)) { 
 			for (int i=0; i<children.length; i++)
 			{ 

@@ -58,4 +58,15 @@ public class Timing {
 		else return ""+num;
 	}
 	
+	/**
+	 * Metodo che ritorna un numero random compreso tra nell'intervallo specificato.
+	 * @param min limite inferiore.
+	 * @param max limite superiore.
+	 * @return un numero random compreso nell'intervallo.
+	 */
+	public static int randomNumber(int min, int max) {
+		return min + (int)(Math.random() * (max - min));
+	}
+
+	
 }

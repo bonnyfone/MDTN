@@ -9,6 +9,7 @@ import source.mdtn.bundle.Bundle;
 import source.mdtn.comm.BundleProtocol;
 import source.mdtn.util.Buffering;
 import source.mdtn.util.Message;
+import source.mdtn.util.Timing;
 
 public class Dispatcher extends Thread {
 
@@ -53,10 +54,8 @@ public class Dispatcher extends Thread {
 	}
 
 	public void run(){
-
 		//Avvia un thread per il monitoraggio del Bundle-storage che aggiorna la lista dei lavori.
 		//new Refresher().start();
-
 		try {
 			synchronized (connLock) {
 				while(true){
@@ -70,7 +69,9 @@ public class Dispatcher extends Thread {
 	}
 
 	/**
-	 * Classe interna per l'esecuzione effettiva delle operazioni.
+	 * Classe interna che si occupa dell'esecuzione dei task necessari.
+	 * Esegue contemporaneamente n task, dove n è il numero massimo di operazioni
+	 * simultanee impostato nel dispatcher.
 	 */
 	private class Executor{
 		private int currentOperation;
@@ -117,7 +118,7 @@ public class Dispatcher extends Thread {
 									if(esit.startsWith("error")){
 										System.out.println("\nERR!\n");
 										/*TODO riaccoda il lavoro se ho fallito! Aspetto qualche istante e riaccodo*/
-										try {sleep(1000);} catch (InterruptedException e) {}
+										try {sleep(Timing.randomNumber(1000, 2000));} catch (InterruptedException e) {}
 										jobList.add(ref);
 									}
 
@@ -155,7 +156,7 @@ public class Dispatcher extends Thread {
 					System.out.println("Inviata mail a " +newMessage.getTo());
 				} catch (IOException e1) {
 					e1.printStackTrace();
-					return "error: Can't send mail";
+					return "error: Connessione interrotta. (Rescheduled)";
 				}
 					
 				
@@ -191,6 +192,9 @@ public class Dispatcher extends Thread {
 			}
 		}
 
+		/**
+		 * Metodo interno che aggiorna la lista dei lavori da fare.
+		 */
 		private void refreshJobs(){
 			File dir = new File(Server.getBundlePath()); 
 			String[] children = dir.list(new FilenameFilter() {
@@ -216,6 +220,12 @@ public class Dispatcher extends Thread {
 			} 
 		}
 
+		
+		/**
+		 * Metodo interno di supporto che verifica se un file è già stato letto dal dispatcher.
+		 * @param file il file da controllare.
+		 * @return true=già letto, false=non letto
+		 */
 		private boolean alreadyReaden(String file){
 			for(int i=0; i<fileReaded.size(); i++){
 				if(fileReaded.elementAt(i).equals(file))return true;
@@ -227,6 +237,10 @@ public class Dispatcher extends Thread {
 
 	}
 
+	
+	/**
+	 * Classe-thread demone interna che funge da Bundle-garbage Collector.
+	 */
 	private class Cleaner extends Thread{
 
 		private Vector<File> delList;

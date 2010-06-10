@@ -43,7 +43,12 @@ public class Bundle implements Serializable {
 	public boolean store(String path){
 		String filename = getPrimary().getSource().getHost()+"_"+ 
 						  getPrimary().getCreationTimestamp() +"_"+
-						  getPrimary().getCreationSequenceNumber()+ ".bundle";
+						  getPrimary().getCreationSequenceNumber();
+		
+		if(getPayload().getType().equals("REPORT"))
+			filename += ".report";
+		else
+			filename += ".bundle";
 		
 		try{
 			FileOutputStream fos = new FileOutputStream(path+filename);

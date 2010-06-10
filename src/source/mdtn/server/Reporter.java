@@ -17,15 +17,58 @@ public class Reporter extends Thread {
 	/** Lista dei file letti. */
 	private Vector<String> fileReaded;
 	
-	public Reporter(){
+	/** Riferimento al server. */
+	private Server refServer;
+	
+	private Vector<CommunicationThread> clients;
+	
+	public Reporter(Server myServer){
+		refServer=myServer;
+		clients=refServer.getClients();
 		recepitList = new Vector<Bundle>();
+		fileReaded = new Vector<String>();
 	}
 	
 	public void run(){
-		
+		while(true){
+			
+			//Aggiorno la lista dei report da inviare
+			refreshReports();
+			System.out.println("Check Report!");
+			for(int i=0; i<recepitList.size(); i++){
+				Bundle refBundle = recepitList.elementAt(i);
+				//Provo a consegnare la ricevuta. Cerco se il destinatario è collegato
+				for(int j=0; j<clients.size(); j++){
+					try{
+						CommunicationThread clientRef = clients.elementAt(j);
+						if(!(clientRef==null) && !(refBundle==null)){
+							System.out.println(clientRef.getEID()+ " -> "+refBundle.getPrimary().getDestination());
+							if(clientRef.getEID().equals(refBundle.getPrimary().getDestination())){
+								//Se è il client che cerco, invio la ricevuta!
+								boolean esit = clientRef.send(refBundle);
+								if(esit){//Se l'invio è riuscito, posso cancellare il bundle
+									refServer.addLog("Ricevuta inviata a "+clientRef.getEID());
+									removeReport(refBundle);
+									i--;
+								}
+							}
+						}
+					}
+					catch(ArrayIndexOutOfBoundsException e){System.out.println("Err schivato..");}
+				}
+				
+			}
+			
+			//Aspetto prima di effettuare un nuovo controllo.
+			try {sleep(5000);} 
+			catch (InterruptedException e) {e.printStackTrace();}
+		}
 	}
 	
 	
+	QUUUUUUUUUUUAAAAAAAAAAAAAAAAA
+	Cancellare bene la ricevuta dopo invio!
+	Visualizzare i messaggi toast su android
 	
 	/**
 	 * Rimuovo il bundle-report da liste e disco.
@@ -50,8 +93,12 @@ public class Reporter extends Thread {
 		}
 	}
 
+	/**
+	 * Metodo interno che aggiorna automaticamente la lista dei report da inviare.
+	 */
 	private void refreshReports(){
 		File dir = new File(Server.getBundlePath()); 
+		//Filtra opportunamente i file
 		String[] children = dir.list(new FilenameFilter() {
 	           public boolean accept(File dir, String name) {
 	                return name.toLowerCase().endsWith(".report");
@@ -67,13 +114,18 @@ public class Reporter extends Thread {
 					if(!(toAdd==null)){
 						fileReaded.add(children[i]);
 						recepitList.add(toAdd);
-						System.out.println("JobList: Added new bundle");	
+						System.out.println("ReportLista: Added new report (tot: "+recepitList.size()+")");	
 					}
 				}
 			}
 		} 
 	}
 
+	/**
+	 * Metodo interno di supporto che verifica se un file è già stato letto dal dispatcher.
+	 * @param file il file da controllare.
+	 * @return true=già letto, false=non letto
+	 */
 	private boolean alreadyReaden(String file){
 		for(int i=0; i<fileReaded.size(); i++){
 			if(fileReaded.elementAt(i).equals(file))return true;

@@ -63,6 +63,7 @@ public class PrimaryBlock implements Serializable{
 		totalAppDataLenght=-1;
 		try {
 			source = new URI("dtn://aaaaaaaa");
+			reportTo = source;
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
@@ -409,5 +410,34 @@ public class PrimaryBlock implements Serializable{
 
 	public void setSource(URI source) {
 		this.source = source;
+	}
+	
+	public URI getDestination() {
+		return destination;
+	}
+
+
+	public void setDestination(URI destination) {
+		this.destination = destination;
+	}
+
+
+	public URI getReportTo() {
+		return reportTo;
+	}
+
+
+	public void setReportTo(URI reportTo) {
+		this.reportTo = reportTo;
+	}
+
+
+	public URI getCustodian() {
+		return custodian;
+	}
+
+
+	public void setCustodian(URI custodian) {
+		this.custodian = custodian;
 	}
 }

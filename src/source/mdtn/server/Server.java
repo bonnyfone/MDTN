@@ -44,6 +44,9 @@ public class Server extends Thread {
 	
 	/** Dispatcher delle operazioni pendenti */
 	private Dispatcher opDispatcher;
+	
+	/** Reporter che si occupa di inviare le ricevute. */
+	private Reporter opReporter;
 
 	/** Contatore dei client che si sono collegati a partire dallo startup del server. */
 	private int numClients=0;
@@ -69,8 +72,12 @@ public class Server extends Thread {
 			myGui = new ServerGui();
 			bundlePath = path;
 			serverSocket = new ServerSocket(listeningPort);
+			
+			//Daemons
 			opDispatcher = new Dispatcher(this,connectionLock);
+			opReporter = new Reporter(this);
 			opDispatcher.start();
+			opReporter.start();
 			
 			System.out.println("In ascolto (porta "+listeningPort+")...");
 			addLog("In ascolto (porta "+listeningPort+")...");
@@ -125,8 +132,20 @@ public class Server extends Thread {
 		myGui.txtLog.insert(Timing.getTime(2, ":")+ "\t " +myMessage+"\n", 0);
 	}
 
+	/**
+	 * Metodo statico che ritorna il path di salvataggio dei bundle.
+	 * @return una stringa con il path di salvataggio dei bundle.
+	 */
 	public static String getBundlePath(){
 		return bundlePath;
+	}
+	
+	/**
+	 * Metodo che ritorna il riferimento alla lista dei clients del server.
+	 * @return la lista dei thread di comunicazione dei clients.
+	 */
+	public Vector<CommunicationThread> getClients(){
+		return clients;
 	}
 
 

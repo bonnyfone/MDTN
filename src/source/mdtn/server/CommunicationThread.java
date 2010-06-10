@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Vector;
 
 import source.mdtn.bundle.Bundle;
@@ -153,16 +154,34 @@ public class CommunicationThread extends Thread {
 		}
 	}
 	
-	public void send(Bundle toSend){
+	/**
+	 * Metodo che invia un bundle al client collegato.
+	 * @param toSend il bundle da inviare.
+	 */
+	public boolean send(Bundle toSend){
 		synchronized (out) {
 			try {
 				out.writeObject(toSend);
 				out.flush();
+				return true;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return false;
 			}
 		}
+	}
+	
+	/**
+	 * Metodo che ritorna l'URI che identifica il client che utilizza questo thread di comunicazione.
+	 * @return un URI contenente l'EID del client.
+	 */
+	public URI getEID(){
+		if(EIDclient==null){
+			try {return new URI("dtn://null");} 
+			catch (URISyntaxException e) {e.printStackTrace();}
+		}
+		return EIDclient;
 	}
 	
 	//Metodo raw per scrivere una linea sullo stream di uscita

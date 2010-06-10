@@ -88,7 +88,14 @@ public class BundleNode {
 			//addLog("Tentativo di connessione a MDTN...");
 			boolean esito = myTcpConn.connect(ip, 3339);
 
-			if(esito)addLog("Connessione stabilita.");
+			if(esito){
+				addLog("Connessione stabilita.");
+
+				//Invio del discovery-bundle
+	            Bundle discovery = new Bundle();
+	            discovery.getPayload().setType("DISCOVERY");
+	            sendBundle(discovery);
+			}
 			else addLog("Errore di connessione.");
 
 			return esito;

@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import source.mdtn.bundle.Bundle;
 import source.mdtn.comm.BundleProtocol;
+import source.mdtn.comm.Report;
 import source.mdtn.util.Buffering;
 import source.mdtn.util.Message;
 import source.mdtn.util.Timing;
@@ -121,6 +122,20 @@ public class Dispatcher extends Thread {
 										try {sleep(Timing.randomNumber(1000, 2000));} catch (InterruptedException e) {}
 										jobList.add(ref);
 									}
+									else{//tutto ok, preparo la ricevuta
+										Report newReport = new Report(esit);
+										Bundle newReportBundle = new Bundle(); //TODO sistemare i vari campi del bundle...
+
+										//destinatario della ricevuta
+										newReportBundle.getPrimary().setDestination(ref.getPrimary().getReportTo());
+										//appendo il messaggio 
+										newReportBundle.getPayload().setPayloadData(Buffering.toBytes(newReport));
+										//imposto il type
+										newReportBundle.getPayload().setType("REPORT");
+										
+										//Store della ricevuta, ci penserà il demone Reporter ad inviarla..
+										newReportBundle.store(Server.getBundlePath());
+									}
 
 									currentOperation--;
 									synchronized (Executor.this) {
@@ -182,6 +197,7 @@ public class Dispatcher extends Thread {
 			if(f.delete())System.out.println("Cancellato!");
 			else System.out.println("NON Cancellato!");
 			 */
+			//Richiede al BundleGarbage collector di occuparsi di questo bundle, per cancellarlo.
 			mygc.addFileToDelete(Server.getBundlePath()+toRemove.getFilePath());
 
 			for(int i=0;i<jobList.size();i++){
@@ -197,6 +213,7 @@ public class Dispatcher extends Thread {
 		 */
 		private void refreshJobs(){
 			File dir = new File(Server.getBundlePath()); 
+			//Ottengo la lista dei file, filtrata opportunamente per estensione.
 			String[] children = dir.list(new FilenameFilter() {
 		           public boolean accept(File dir, String name) {
 		                return name.toLowerCase().endsWith(".bundle");

@@ -60,6 +60,7 @@ public class TcpAdapter {
             ois = new ObjectInputStream(socket.getInputStream());
             oos = new ObjectOutputStream(socket.getOutputStream());
             
+
             /*
             oos.writeObject(new Bundle());
             oos.flush();

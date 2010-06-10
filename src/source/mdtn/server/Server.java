@@ -244,6 +244,13 @@ public class Server extends Thread {
 
 	}
 
+	/**
+	 * Metodo che ritorna lo stato della connettività Internet del server.
+	 * @return true=connesso, false=non connesso.
+	 */
+	public boolean gotInternetAccess(){
+		return gotInternet;
+	}
 
 	/**
 	 * Main di avvio del server.

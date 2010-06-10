@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 
 public class Bundle implements Serializable {
 	
@@ -28,6 +30,7 @@ public class Bundle implements Serializable {
 		bundlePayloadBlock = new PayloadBlock();
 		
 		sequenceCounter++;
+		
 		bundlePrimaryBlock.setCreationSequenceNumber(sequenceCounter);
 	}
 	
@@ -58,7 +61,21 @@ public class Bundle implements Serializable {
 		  getPrimary().getCreationSequenceNumber()+ ".bundle";
 		
 		File toDelete = new File(filename);
-		return toDelete.delete();
+		System.gc();
+		boolean r=toDelete.delete();
+		
+		File ren = new File(filename+".deleted");
+		if(!r)return toDelete.renameTo(ren);
+		
+		return r;
+	}
+	
+	public String getFilePath(){
+		String filename = getPrimary().getSource().getHost()+"_"+ 
+		  getPrimary().getCreationTimestamp() +"_"+
+		  getPrimary().getCreationSequenceNumber()+ ".bundle";
+		
+		return filename;
 	}
 	
 	/**
@@ -68,13 +85,15 @@ public class Bundle implements Serializable {
 	 */
 	public static Bundle retrive(String filepath){
 		try{
+			File f = new File(filepath);
+			if(!f.canRead())System.out.println("Non si legge");
 			FileInputStream fis = new FileInputStream(filepath);
 			ObjectInputStream oos = new ObjectInputStream(fis);
 			Bundle r = (Bundle) oos.readObject();
 			oos.close();
 			return r;
 		}
-		catch(IOException e){return null;} catch (ClassNotFoundException e) {return null;}
+		catch(IOException e){System.out.println("IOExc");return null;} catch (ClassNotFoundException e) {return null;}
 	}
 	
 	

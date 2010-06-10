@@ -10,6 +10,7 @@ import java.net.URI;
 import java.util.Vector;
 
 import source.mdtn.bundle.Bundle;
+import source.mdtn.comm.BundleProtocol;
 
 /**
  * Classe-thread per la gestione di una singola connessione via socket.
@@ -37,6 +38,7 @@ public class CommunicationThread extends Thread {
 	/** ObjectStream di entrata (dati in ingresso)*/
 	private ObjectInputStream in;
 	
+	private BundleProtocol bp;
 	//raw-stream
 	//PrintWriter out;
 	
@@ -55,6 +57,7 @@ public class CommunicationThread extends Thread {
 		this.id=n;
 		this.other=altri;
 		this.myOwner=myOwner;
+		this.bp=new BundleProtocol();
 	}
 	
 	/**
@@ -74,8 +77,16 @@ public class CommunicationThread extends Thread {
 				Bundle newBundle = (Bundle)datain;
 				
 				System.out.println("Bundle ricevuto");
-				myOwner.addLog("Bundle received(client id="+id+"): "+newBundle.getPrimary().getCreationTimestamp());
+				myOwner.addLog("Bundle received(client id="+id+"): "+newBundle.getPrimary().getCreationTimestamp()+" "+newBundle.getPrimary().getCreationSequenceNumber() );
+				EIDclient=newBundle.getPrimary().getSource();
 				
+				//Processo il bundle appena ricevuto.
+				Bundle risp=bp.processBundle(newBundle);
+				
+				//Eventualmente, invio subito un bundle di risposta (non obbligatorio)
+				if(!(risp==null))send(risp);
+				
+				/*
 				//Se è un pacchetto informativo, non serve salvare nulla
 				if(newBundle.getPayload().getType().equals("DISCOVERY")){
 					EIDclient=newBundle.getPrimary().getSource();
@@ -83,7 +94,7 @@ public class CommunicationThread extends Thread {
 				else{//Altrimenti, salvataggio persistente del bundle su disco (RFC5050).
 					newBundle.store(Server.getBundlePath());	
 				}
-				
+				*/
 				
 				/* Il nuovo bundle verrà processato automaticamente dal Thread demone di bundle-processing
 				 * del server. Il thread di comunicazione nel frattempo rimane libero per ricevere altri 
@@ -139,6 +150,18 @@ public class CommunicationThread extends Thread {
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	public void send(Bundle toSend){
+		synchronized (out) {
+			try {
+				out.writeObject(toSend);
+				out.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	

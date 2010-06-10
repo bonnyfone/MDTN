@@ -38,13 +38,13 @@ public class BundleNode {
 			public void run(){
 				try {
 					while(true){
-						sleep(1000);	
+						sleep(10000);	
 						Bundle.resetSequenceNumber();
 					}
 				} catch (InterruptedException e) {e.printStackTrace();}
 			}
 		};
-		resetSequenceNumber.start();
+		//resetSequenceNumber.start();
 	}
 
 	/**

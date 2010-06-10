@@ -1,46 +1,55 @@
 package source.mdtn.server;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.Vector;
 
 import source.mdtn.bundle.Bundle;
 import source.mdtn.comm.BundleProtocol;
+import source.mdtn.util.Buffering;
+import source.mdtn.util.Message;
 
 public class Dispatcher extends Thread {
 
-	/** Oggetto di sincronizzazione */
+	/** Oggetto di sincronizzazione. */
 	private Object connLock;
 
-	/** Riferimento al server */
+	/** Riferimento al server. */
 	private Server refServer;
 
-	/** Protocollo per interpretare i bundle */
+	/** Protocollo per interpretare i bundle. */
 	private BundleProtocol protocol;
 
-	/** Numero massimo di operazioni da eseguire in parallelo */
+	/** Numero massimo di operazioni da eseguire in parallelo. */
 	private int maxOperation;
 
-	/** Lista dei bundle da processare */
+	/** Lista dei bundle da processare. */
 	private Vector<Bundle> jobList;
 
-	/** Lista dei file letti */
+	/** Lista dei file letti. */
 	private Vector<String> fileReaded;
 
-	/** Lista delle ricevute da inviare */
+	/** Lista delle ricevute da inviare. */
 	private Vector<Bundle> recepitList;
 
-	/** Agente che si occupa di applicare il protocollo ed interpretare i bundle */
+	/** Agente che si occupa di applicare il protocollo ed interpretare i bundle. */
 	private Executor agent;
+
+	/** Demone che si occupa di ripulire lo storage dai bundle processati. */
+	private Cleaner mygc;
 
 	public Dispatcher(Server myServer,Object sentinel){
 		refServer = myServer;
 		connLock = sentinel;
 		protocol = new BundleProtocol();
-		maxOperation = 3;
+		maxOperation = 5;
 		jobList = new Vector<Bundle>();
 		recepitList = new Vector<Bundle>();
 		fileReaded = new Vector<String>();
 		agent = new Executor();
+		mygc = new Cleaner();
+		mygc.start();
 	}
 
 	public void run(){
@@ -52,9 +61,8 @@ public class Dispatcher extends Thread {
 			synchronized (connLock) {
 				while(true){
 					connLock.wait(); //In attesa della connettività internet.
-
 					agent.wakeup(); //Risveglia l'agente
-
+					//System.out.println("Notify internet");
 				}
 			}
 		} catch (InterruptedException e) {e.printStackTrace();}
@@ -83,49 +91,98 @@ public class Dispatcher extends Thread {
 		}
 
 		public void process(){
-
-			synchronized (this) {
-				while(true){
+			while(true){
+				synchronized (this) {
 					while(currentOperation >= maxOperation){ //Attende la disponibilità di eseguire nuove op
 						try {this.wait();} 
 						catch (InterruptedException e) {e.printStackTrace();}
 					}
 
 					refreshJobs();
+					if(refServer.gotInternetAccess()){
 
-					//TODO Scegliere: quale bundle processare????
-					int id = jobList.size()-1;
-					if(id>=0) {
-						currentOperation++;
-						final Bundle ref = jobList.elementAt(id);
-						removeJob(ref);
-						
-						Thread newOperation = new Thread(){
-							public void run(){
-								String esit="";
-								esit = protocol.processBundle(ref); //process...
-								refServer.addLog(esit);
-								if(esit.startsWith("error")){/*TODO riaccoda il lavoro se ho fallito!*/}
-								
-								currentOperation--;
-								synchronized (Executor.this) {
-									Executor.this.notifyAll();
+						//TODO Scegliere: quale bundle processare????
+						int id = jobList.size()-1;
+						if(id>=0) {
+							currentOperation++;
+							final Bundle ref = jobList.elementAt(id);
+							removeJob(ref);
+
+							//Lancio un thread dedicato all'operazione
+							Thread newOperation = new Thread(){
+								public void run(){
+									String esit="";
+									esit = executeJob(ref); //process...
+									refServer.addLog(esit);
+									if(esit.startsWith("error")){
+										System.out.println("\nERR!\n");
+										/*TODO riaccoda il lavoro se ho fallito! Aspetto qualche istante e riaccodo*/
+										try {sleep(1000);} catch (InterruptedException e) {}
+										jobList.add(ref);
+									}
+
+									currentOperation--;
+									synchronized (Executor.this) {
+										Executor.this.notifyAll();
+									}
 								}
-							}
-						};
-						newOperation.start();
-					}	
+							};
+							newOperation.start();
+						}	
+					}
 				}
 			}
 		}
 
+		/**
+		 * Metodo che esegue effettivamente le attività richieste dal bundle.
+		 * @param toBeProcessed il bundle contenente le informazioni sulle operazioni da eseguire.
+		 * @return una stringa con l'esito dell'operazione.
+		 */
+		public String executeJob(Bundle toBeProcessed){
+			
+			String type=toBeProcessed.getPayload().getType();
+			
+			if(type.equals("EMAIL")){
+				//invia mail
+				Message newMessage = (Message)Buffering.toObject(toBeProcessed.getPayload().getPayloadData());
+				String ris="Inviata mail a " +newMessage.getTo();
+				
+				try {
+					String es=Service.SendMail(newMessage.getFrom(), newMessage.getTo(), newMessage.getSubject(), newMessage.getMessage());
+					if(es.startsWith("error"))ris="error: Email non inviata correttamente, riprovo.";
+					
+					System.out.println("Inviata mail a " +newMessage.getTo());
+				} catch (IOException e1) {
+					e1.printStackTrace();
+					return "error: Can't send mail";
+				}
+					
+				
+				return ris;
+			}
+			else{
+				//TODO popolare il protocollo
+				//altro....
+			}
+			
+			return "error";
+		}
 
 		/**
 		 * Rimuovo il bundle da liste e disco, in quanto in fase di processing.
 		 * @param toRemove il bundle da rimuovere.
 		 */
 		private void removeJob(Bundle toRemove){
-			toRemove.delete();
+			if(toRemove==null)return;
+
+			/*System.out.println(Server.getBundlePath()+toRemove.getFilePath());
+			File f= new File(Server.getBundlePath()+toRemove.getFilePath());
+			if(f.delete())System.out.println("Cancellato!");
+			else System.out.println("NON Cancellato!");
+			 */
+			mygc.addFileToDelete(Server.getBundlePath()+toRemove.getFilePath());
+
 			for(int i=0;i<jobList.size();i++){
 				if(jobList.elementAt(i).equals(toRemove)){
 					jobList.remove(i);
@@ -136,16 +193,24 @@ public class Dispatcher extends Thread {
 
 		private void refreshJobs(){
 			File dir = new File(Server.getBundlePath()); 
-			String[] children = dir.list();
+			String[] children = dir.list(new FilenameFilter() {
+		           public boolean accept(File dir, String name) {
+		                return name.toLowerCase().endsWith(".bundle");
+		                }
+		           });
+					
+			
 			if (!(children == null)) { 
 				for (int i=0; i<children.length; i++)
 				{ 
 					if(!alreadyReaden(children[i])){//Controllo se per caso ho già letto questo file.
-
 						//Segno il file come letto e carico il bundle
-						fileReaded.add(children[i]);
-						jobList.add(Bundle.retrive(Server.getBundlePath()+children[i]));
-
+						Bundle toAdd = Bundle.retrive(Server.getBundlePath()+children[i]);
+						if(!(toAdd==null)){
+							fileReaded.add(children[i]);
+							jobList.add(toAdd);
+							System.out.println("JobList: Added new bundle");	
+						}
 					}
 				}
 			} 
@@ -160,6 +225,39 @@ public class Dispatcher extends Thread {
 		}
 
 
+	}
+
+	private class Cleaner extends Thread{
+
+		private Vector<File> delList;
+
+		public Cleaner(){
+			setDaemon(true);
+			delList = new Vector<File>();
+		}
+
+		public void addFileToDelete(String filepath){
+			File f = new File(filepath);
+			if(f.exists())delList.addElement(f);
+			else System.out.println("NON ESISTE!");
+		}
+
+		public void run(){
+			while(true){
+				try {
+					for(int i=0;i<delList.size();i++){
+						if(delList.elementAt(i).delete()){
+							delList.remove(i);
+							i--;
+						}
+					}
+					//System.out.println("Cleaner: restano "+delList.size());
+					sleep(7000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 

@@ -1,8 +1,7 @@
 package source.mdtn.comm;
 
 import source.mdtn.bundle.Bundle;
-import source.mdtn.util.Buffering;
-import source.mdtn.util.Message;
+import source.mdtn.server.Server;
 
 public class BundleProtocol {
    
@@ -11,31 +10,16 @@ public class BundleProtocol {
 	}
 	
 	
-	public String processBundle(Bundle toBeProcessed){
+	public Bundle processBundle(Bundle toBeProcessed){
 		
-		String type=toBeProcessed.getPayload().getType();
-		
-		if(type.equals("EMAIL")){
-			//invia mail
-			Message newMessage = (Message)Buffering.toObject(toBeProcessed.getPayload().getPayloadData());
-			System.out.println("Inviata mail a " +newMessage.getTo());
-			
-			//Simula perdita di tempo, da cancellare ovviamente..
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			
-			return "Inviata mail a " +newMessage.getTo();
+		//Se è un pacchetto informativo, non serve salvare nulla
+		if(toBeProcessed.getPayload().getType().equals("DISCOVERY")){
+			//EIDclient=newBundle.getPrimary().getSource();
 		}
-		else{
-			//TODO popolare il protocollo
-			//altro....
+		else{//Altrimenti, salvataggio persistente del bundle su disco (RFC5050).
+			if(!toBeProcessed.store(Server.getBundlePath()))System.out.println("Errore di storage");	
 		}
 		
-		return "error";
+		return null;
 	}
 }

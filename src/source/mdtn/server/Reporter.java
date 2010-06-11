@@ -65,10 +65,14 @@ public class Reporter extends Thread {
 		}
 	}
 	
-	
-	QUUUUUUUUUUUAAAAAAAAAAAAAAAAA
-	Cancellare bene la ricevuta dopo invio!
-	Visualizzare i messaggi toast su android
+	/*
+
+	 	QUUUUUUUUUUUAAAAAAAAAAAAAAAAA
+		Cancellare bene la ricevuta dopo invio!
+		Visualizzare i messaggi toast su android
+		
+	 */
+
 	
 	/**
 	 * Rimuovo il bundle-report da liste e disco.

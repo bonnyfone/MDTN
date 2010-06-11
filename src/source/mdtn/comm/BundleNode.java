@@ -1,5 +1,6 @@
 package source.mdtn.comm;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Vector;
 
@@ -7,6 +8,7 @@ import source.mdtn.bundle.Bundle;
 import source.mdtn.util.Buffering;
 import source.mdtn.util.Message;
 import source.mdtn.util.Timing;
+import android.util.Log;
 
 public class BundleNode {
 
@@ -77,10 +79,17 @@ public class BundleNode {
 
 		/** ConvergenceLayerAdapter specifico per la comunicazione via TCP/IP */
 		private TcpAdapter myTcpConn; 
+		
+		/** Componente che gestisce i dati in entrata. */
+		private Receiver ric;
 
+		/** Interprete del BundleProtol */
+		private BundleProtocol bp;
+		
 		/** Crea un BPAgent */
 		public BPAgent(){
 			myTcpConn = new TcpAdapter();
+			bp = new BundleProtocol(1);
 		}
 
 		/** Effettua connessione al servizio MDTN. */
@@ -91,6 +100,10 @@ public class BundleNode {
 			if(esito){
 				addLog("Connessione stabilita.");
 
+				//Attivo il thread di ricezione dati.
+				ric = new Receiver();
+				ric.start();
+				
 				//Invio del discovery-bundle
 	            Bundle discovery = new Bundle();
 	            discovery.getPayload().setType("DISCOVERY");
@@ -99,6 +112,43 @@ public class BundleNode {
 			else addLog("Errore di connessione.");
 
 			return esito;
+		}
+		
+		/**
+		 * Classe thread interna che gestisce i dati in entrata.
+		 */
+		private class Receiver extends Thread{
+			public Receiver(){
+
+			}
+			public void run(){
+				try{
+					Object datain;
+					while((datain = myTcpConn.revice()) != null){
+						addLog("Nuovo bundle ricevuto.");
+						
+						/*Platform-depended operation*/
+						Bundle received = (Bundle)datain;
+						if(received.getPayload().getType().equals("REPORT")){
+							Report newReport = ((Report)Buffering.toObject(received.getPayload().getPayloadData()));
+							addLog("REPORT: " + newReport.getMessage() + "\n\t\t\t(operazione effettuata alle "+newReport.getComplementTime() + ")");
+						}
+						
+						/*Platform-independent operation*/
+						Bundle myRisp = bp.processBundle((Bundle)datain);
+						
+						/*Invia eventuali risposte*/
+						if(!(myRisp==null)){
+							if(sendBundle(myRisp))
+								addLog("Risposta inviata.");
+							else
+								addLog("Errore invio risposta.");
+						}
+					}
+				}
+				catch (IOException e) {Log.i("MDTN", "err: disconnected");} 
+				catch (ClassNotFoundException e) {Log.i("MDTN", "err:class not found exc");}
+			}
 		}
 
 		

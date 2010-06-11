@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OptionalDataException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -43,6 +44,17 @@ public class TcpAdapter {
 	/** Costruttore avanzato che avvia subito la connessione utilizzando i parametri specificati. */
 	public TcpAdapter(String ip, int port){
 		connected=connect(ip,port);
+	}
+	
+	/**
+	 * Legge un Object dallo stream.
+	 * @return l'object letto.
+	 * @throws OptionalDataException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	public Object revice() throws OptionalDataException, ClassNotFoundException, IOException{
+		return ois.readObject();
 	}
 	
 	/**

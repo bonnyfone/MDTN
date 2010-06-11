@@ -58,7 +58,7 @@ public class CommunicationThread extends Thread {
 		this.id=n;
 		this.other=altri;
 		this.myOwner=myOwner;
-		this.bp=new BundleProtocol();
+		this.bp=new BundleProtocol(0);
 	}
 	
 	/**

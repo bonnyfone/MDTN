@@ -44,7 +44,7 @@ public class Dispatcher extends Thread {
 	public Dispatcher(Server myServer,Object sentinel){
 		refServer = myServer;
 		connLock = sentinel;
-		protocol = new BundleProtocol();
+		protocol = new BundleProtocol(0);
 		maxOperation = 5;
 		jobList = new Vector<Bundle>();
 		recepitList = new Vector<Bundle>();

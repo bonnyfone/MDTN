@@ -3,7 +3,12 @@ package source.mdtn.android;
 
 import source.mdtn.comm.BundleNode;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -25,15 +30,22 @@ public class StatusActivity extends Activity {
 	private EditText _txtIp;
 	private ProgressDialog progres;
 
+	/** Contatore dei log*/
+	int lastLog;
+	
+	/** Contatore dei toast-message */
+	int toastCounter;
+	
 	/** Costruttore di default */
-	public StatusActivity(){}
+	public StatusActivity(){lastLog=0;}
 
 	/** Costruttore avanzato che costruisce l'attività associandola al servizio MDTN.
 	 * @param refNode riferimento al BundleNode che rappresenta il nodo della comunicazione MDTN.
 	 */
 	public StatusActivity(BundleNode refNode){
 		this.refNode = refNode;
-
+		this.lastLog = 0;
+		
 		if(this.refNode == null)
 			Log.i("MDTN", "Check costruttore: refNode NULLO");
 		else
@@ -44,6 +56,35 @@ public class StatusActivity extends Activity {
 
 	public void setBundleNode(BundleNode myNode){
 		this.refNode=myNode;
+	}
+	
+	private void addToast(String title, String message, boolean vibration, boolean light){
+		//Ottengo il notification manager
+		Intent notificationIntent = new Intent(this, StatusActivity.class);
+		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+		
+		String ns = Context.NOTIFICATION_SERVICE;
+		NotificationManager notificationManager = (NotificationManager) getSystemService(ns);
+
+		int icon = R.drawable.icon;
+		CharSequence tickerText = title;
+		long when = System.currentTimeMillis();
+
+		Notification notification = new Notification(icon, tickerText, when);
+		notification.defaults |= Notification.DEFAULT_SOUND;
+		notification.defaults |= Notification.DEFAULT_LIGHTS;
+		/*long[] vibrate = {0,100,200,300};
+		notification.vibrate = vibrate;*/
+
+		Context context = getApplicationContext();
+		CharSequence contentTitle = title;
+		CharSequence contentText = message;
+
+		notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+
+		//HELLO_ID+1;
+		notificationManager.notify(toastCounter, notification);
+		toastCounter++;
 	}
 
 	@Override
@@ -116,10 +157,16 @@ public class StatusActivity extends Activity {
 				}
 			}
 		});
-
-
+		
+		
+		
+		/**
+		 * Thread di supporto che aggiorna l'UI con messaggi di notifica e log.
+		 * Effettua il monitoraggio dei log del BundleNode.
+		 */
 		Thread checkStatus = new Thread(){
 			public void run(){
+
 				while(true){
 					try {
 						Runnable updateStat = new Runnable(){
@@ -135,11 +182,20 @@ public class StatusActivity extends Activity {
 									_labelStat.setText("DISCONNECTED");
 								}
 								
-								String logList="";
-								for(int i=0;i<refNode.getLogs().size();i++){
+								String logList = "";
+								int limit = refNode.getLogs().size();
+								for(int i=lastLog; i<limit ;i++){
+									String newLog = refNode.getLogs().elementAt(i);
 									logList=refNode.getLogs().elementAt(i) + "\n" + logList;
+									addToast("MDTN", newLog, true, true);
+									
+									QUIIIIIIIIIII
+									QUIIIIIIIIQUIIIIIIIIIIIII
+									
 								}
 								
+								lastLog=limit;
+								logList += _labelLogs.getText().toString();
 								_labelLogs.setText(logList);
 							}
 						};

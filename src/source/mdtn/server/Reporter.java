@@ -86,7 +86,7 @@ public class Reporter extends Thread {
 		if(f.delete())System.out.println("Cancellato!");
 		else System.out.println("NON Cancellato!");
 		 */
-		
+		toRemove.delete(Server.getBundlePath());
 		//mygc.addFileToDelete(Server.getBundlePath()+toRemove.getFilePath());
 
 		for(int i=0;i<recepitList.size();i++){

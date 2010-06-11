@@ -116,9 +116,11 @@ public class Dispatcher extends Thread {
 									String esit="";
 									esit = executeJob(ref); //process...
 									refServer.addLog(esit);
+									
 									if(esit.startsWith("error")){
 										System.out.println("\nERR!\n");
 										/*TODO riaccoda il lavoro se ho fallito! Aspetto qualche istante e riaccodo*/
+										ref.store(Server.getBundlePath());//ripristino lo storage!
 										try {sleep(Timing.randomNumber(1000, 2000));} catch (InterruptedException e) {}
 										jobList.add(ref);
 									}

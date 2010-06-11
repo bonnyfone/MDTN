@@ -60,17 +60,21 @@ public class Bundle implements Serializable {
 		return true;
 	}
 	
-	public boolean delete(){
-		String filename = getPrimary().getSource().getHost()+"_"+ 
+	public boolean delete(String path){
+		String filename = path + getPrimary().getSource().getHost()+"_"+ 
 		  getPrimary().getCreationTimestamp() +"_"+
-		  getPrimary().getCreationSequenceNumber()+ ".bundle";
+		  getPrimary().getCreationSequenceNumber();
+
+		if(bundlePayloadBlock.getType().equals("REPORT"))
+			filename += ".report";
+		else
+			filename += ".bundle";
 		
 		File toDelete = new File(filename);
-		System.gc();
 		boolean r=toDelete.delete();
 		
-		File ren = new File(filename+".deleted");
-		if(!r)return toDelete.renameTo(ren);
+//		File ren = new File(filename+".deleted");
+//		if(!r)return toDelete.renameTo(ren);
 		
 		return r;
 	}

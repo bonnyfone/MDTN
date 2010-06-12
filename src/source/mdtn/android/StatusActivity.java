@@ -58,10 +58,23 @@ public class StatusActivity extends Activity {
 		this.refNode=myNode;
 	}
 	
-	private void addToast(String title, String message, boolean vibration, boolean light){
+	
+	/**
+	 * Metodo grafico che aggiunge una messaggio di notifica alla barra delle notifiche di Android.
+	 * @param title titolo del messaggio.
+	 * @param message corpo del messaggio.
+	 * @param vibration abilita vibrazione.
+	 * @param light abilita segnale luminoso.
+	 * @param sound abilita suono.
+	 */
+	private void addToast(String title, String message, boolean vibration, boolean light, boolean sound){
 		//Ottengo il notification manager
-		Intent notificationIntent = new Intent(this, StatusActivity.class);
-		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+		Intent notificationIntent = new Intent(this, MainActivity.class);
+		
+		//Cliccando sulla notidica, mi riporta all'istanza del programma precedentemente avviata.
+		//Volendo, si può ottenere un altro comportamento.
+		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, this.getParent().getIntent(), 0);
+//		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 		
 		String ns = Context.NOTIFICATION_SERVICE;
 		NotificationManager notificationManager = (NotificationManager) getSystemService(ns);
@@ -71,10 +84,25 @@ public class StatusActivity extends Activity {
 		long when = System.currentTimeMillis();
 
 		Notification notification = new Notification(icon, tickerText, when);
-		notification.defaults |= Notification.DEFAULT_SOUND;
-		notification.defaults |= Notification.DEFAULT_LIGHTS;
-		/*long[] vibrate = {0,100,200,300};
-		notification.vibrate = vibrate;*/
+		
+		if(sound)
+			notification.defaults |= Notification.DEFAULT_SOUND;
+		
+		if(light){
+			notification.defaults |= Notification.DEFAULT_LIGHTS;
+			notification.flags |= Notification.FLAG_SHOW_LIGHTS;
+		}
+		
+		if(vibration){
+			//notification.defaults |= Notification.DEFAULT_VIBRATE;
+			long[] vibrate = {0,100,200,300};
+			notification.vibrate = vibrate;
+		}
+
+		
+		
+		notification.flags |= Notification.FLAG_AUTO_CANCEL;
+		
 
 		Context context = getApplicationContext();
 		CharSequence contentTitle = title;
@@ -172,7 +200,8 @@ public class StatusActivity extends Activity {
 						Runnable updateStat = new Runnable(){
 							public void run() {
 								boolean stat=refNode.getMyAgent().isConnected();
-
+								
+								//Stato della connessione
 								if(stat){
 									_labelStat.setTextColor(0xFF00FF00);
 									_labelStat.setText("CONNECTED");
@@ -187,10 +216,10 @@ public class StatusActivity extends Activity {
 								for(int i=lastLog; i<limit ;i++){
 									String newLog = refNode.getLogs().elementAt(i);
 									logList=refNode.getLogs().elementAt(i) + "\n" + logList;
-									addToast("MDTN", newLog, true, true);
 									
-									QUIIIIIIIIIII
-									QUIIIIIIIIQUIIIIIIIIIIIII
+									//Se c'è un report, aggiungi notifica "toast"
+									if(newLog.substring(8).trim().startsWith("REPORT"))
+										addToast("MDTN", newLog, true, true, true);
 									
 								}
 								

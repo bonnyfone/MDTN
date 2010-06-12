@@ -3,34 +3,34 @@
       package="source.mdtn.android"
       android:versionCode="1"
       android:versionName="1.0">
-    <application android:icon="@drawable/icon" android:label="@string/app_name">
+    <application android:debuggable="true" android:icon="@drawable/icon" android:label="@string/app_name">
     
-        <activity android:name="MainActivity" android:label="@string/app_name">
+        <activity android:name="MainActivity" android:windowSoftInputMode="adjustResize" android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
        
-       	<activity android:name=".InfoActivity" android:label="@string/app_name"
+       	<activity android:name=".InfoActivity" android:windowSoftInputMode="adjustResize" android:label="@string/app_name"
 				android:theme="@android:style/Theme.NoTitleBar">
 		</activity>
         
-		<activity android:name=".StatusActivity" android:label="@string/app_name"
+		<activity android:name=".StatusActivity" android:windowSoftInputMode="adjustResize" android:label="@string/app_name"
 				android:theme="@android:style/Theme.NoTitleBar">
 		</activity>
 		
-		<activity android:name=".MailActivity" android:label="@string/app_name"
+		<activity android:name=".MailActivity" android:windowSoftInputMode="adjustResize" android:label="@string/app_name"
 				android:theme="@android:style/Theme.NoTitleBar">
 		</activity>
 		
-		<activity android:name=".FileActivity" android:label="@string/app_name"
+		<activity android:name=".FileActivity" android:windowSoftInputMode="adjustResize" android:label="@string/app_name"
 				android:theme="@android:style/Theme.NoTitleBar">
 		</activity>
 
     </application>
 
-
+	<uses-permission android:name="android.permission.VIBRATE"></uses-permission>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
 	<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"></uses-permission>

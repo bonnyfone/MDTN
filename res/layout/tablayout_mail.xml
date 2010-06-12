@@ -1,97 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-    <TextView
-        android:id="@+id/label"
-        android:textStyle="bold"
-        android:layout_width="60dip"
-        android:layout_height="wrap_content"
-        android:text="From: "
-        android:layout_marginTop="20dip"/>
-    <EditText
-        android:id="@+id/from"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:drawable/editbox_background"
-        android:layout_toRightOf="@id/label"
-		android:text="mia@mail.it"
-		android:layout_marginTop="10dip"/>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/ScrollView01" android:layout_width="wrap_content"
+	android:layout_height="wrap_content">
+
+	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<TextView android:id="@+id/label" android:textStyle="bold"
+			android:layout_width="60dip" android:layout_height="wrap_content"
+			android:text="From: " android:layout_marginTop="20dip" />
+		<EditText android:id="@+id/from" android:inputType="textShortMessage|textEmailAddress"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:background="@android:drawable/editbox_background"
+			android:layout_toRightOf="@id/label" android:text="mia@mail.it"
+			android:layout_marginTop="10dip" />
 
 
-    <TextView
-        android:id="@+id/label2"
-        android:textStyle="bold"
-        android:layout_width="60dip"
-        android:layout_height="wrap_content"
-        android:text="To:   "
-        android:layout_marginTop="20dip"
-        android:layout_below="@id/from"/>       
-    <EditText
-        android:id="@+id/to"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:drawable/editbox_background"
-        android:layout_toRightOf="@id/label2"
-        android:layout_below="@id/from"
-		android:text="bonnyfone@gmail.com"
-		android:layout_marginTop="10dip"/>
-   
+		<TextView android:id="@+id/label2" android:textStyle="bold"
+			android:layout_width="60dip" android:layout_height="wrap_content"
+			android:text="To:   " android:layout_marginTop="20dip"
+			android:layout_below="@id/from" />
+		<EditText android:id="@+id/to" android:inputType="textShortMessage|textEmailAddress"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:background="@android:drawable/editbox_background"
+			android:layout_toRightOf="@id/label2" android:layout_below="@id/from"
+			android:text="bonnyfone@gmail.com" android:layout_marginTop="10dip" />
 
-    <TextView
-        android:id="@+id/label3"
-        android:textStyle="bold"
-        android:layout_width="60dip"
-        android:layout_height="wrap_content"
-        android:text="Subject:   "
-        android:layout_marginTop="20dip"
-        android:layout_below="@id/to"/>       
-    <EditText
-        android:id="@+id/subj"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:drawable/editbox_background"
-        android:layout_toRightOf="@id/label2"
-        android:layout_below="@id/to"
-		android:text="test"
-		android:layout_marginTop="10dip"/>
-		
-		            
-   <TextView
-        android:id="@+id/label4"
-        android:textStyle="bold"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Message:"
-        android:layout_marginTop="20dip"
-        android:layout_below="@id/subj"/>  
-        		            
-    <ScrollView   
-       android:id="@+id/ScrollView01"  
-       android:layout_height="120px"   
-       android:layout_width="fill_parent"  
-       android:layout_below="@id/label4"
- 	   android:layout_marginTop="10dip">
 
-       <EditText
-	        android:id="@+id/mess"
-	        android:textSize = "10dip"
-	        android:textColor="#888888"
-			android:layout_height="wrap_content"   
-	        android:layout_width="fill_parent"   
-	        android:text="my message"
-	        android:scrollbarAlwaysDrawVerticalTrack="true"	 />  
-    
-    </ScrollView>       
-        
-    <Button
-    	android:id="@+id/send" 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/ScrollView01"
-        android:text="Send email"/>
-        
- 
-             
-</RelativeLayout>
+		<TextView android:id="@+id/label3" android:textStyle="bold"
+			android:layout_width="60dip" android:layout_height="wrap_content"
+			android:text="Subject:   " android:layout_marginTop="20dip"
+			android:layout_below="@id/to" />
+		<EditText android:id="@+id/subj" android:layout_width="fill_parent"
+			android:inputType="textShortMessage" android:layout_height="wrap_content"
+			android:background="@android:drawable/editbox_background"
+			android:layout_toRightOf="@id/label2" android:layout_below="@id/to"
+			android:text="test" android:layout_marginTop="10dip" />
+
+
+		<TextView android:id="@+id/label4" android:textStyle="bold"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:text="Message:" android:layout_marginTop="20dip"
+			android:layout_below="@id/subj" />
+
+		<ScrollView android:id="@+id/ScrollView01"
+			android:layout_height="120px" android:layout_width="fill_parent"
+			android:layout_below="@id/label4" android:layout_marginTop="10dip">
+
+			<EditText android:id="@+id/mess"
+				android:inputType="textShortMessage|textAutoCorrect|textCapSentences|textMultiLine"
+				android:textSize="10dip" android:textColor="#888888"
+				android:layout_height="wrap_content" android:layout_width="fill_parent"
+				android:text="my message" android:scrollbarAlwaysDrawVerticalTrack="true" />
+
+		</ScrollView>
+
+		<Button android:id="@+id/send" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_alignParentRight="true"
+			android:layout_below="@id/ScrollView01" android:text="Send email" />
+
+
+
+	</RelativeLayout>
+</ScrollView>
+

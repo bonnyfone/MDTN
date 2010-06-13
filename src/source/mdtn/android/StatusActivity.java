@@ -10,6 +10,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -35,6 +36,8 @@ public class StatusActivity extends Activity {
 	
 	/** Contatore dei toast-message */
 	int toastCounter;
+	
+	private String ip;
 	
 	/** Costruttore di default */
 	public StatusActivity(){lastLog=0;}
@@ -140,19 +143,35 @@ public class StatusActivity extends Activity {
 					return;
 				}
 				if(!refNode.getMyAgent().isConnected()){//Se non sono già connesso..
+					
+					//Avvia tentativo di connessione
 					refNode.addLog("Tentativo di connessione a MDTN...");
+					
+					//Mostra barra di caricamento
 					progres = ProgressDialog.show(StatusActivity.this, "", 
 							"Connecting...", true);
+					progres.setCancelable(true);
+					//progres.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+					//progres.setIcon(R.drawable.ic_tab_artists_white);
+					//progres.setTitle("Connessione");
 					progres.show();
 
-					String ip = _txtIp.getEditableText().toString();
+					ip =  _txtIp.getEditableText().toString();
 					if(ip.equals(""))ip="10.0.2.2";
 
 					Log.i("MDTN", "Avvio Thread di connessione...");
 
-					refNode.getMyAgent().connectToService(ip);
+					//Thread dedicato alla connessione
+					Thread connector = new Thread(){
+						public void run(){
+							//Richiama il BPAgent per effettuare la connessione
+							refNode.getMyAgent().connectToService(ip);
+							try {sleep(1000);} catch (InterruptedException e) {}
+							progres.cancel();
+						}
+					};
+					connector.start();
 
-					progres.cancel();
 					/*try {
 
 					} catch (IOException e) {
@@ -180,8 +199,14 @@ public class StatusActivity extends Activity {
 
 				if(refNode.getMyAgent().isConnected()){//Se sono connesso..
 					source.mdtn.bundle.Bundle newBundle = new source.mdtn.bundle.Bundle();
+					newBundle.getPayload().setType("DISCOVERY");
 					refNode.getMyAgent().sendBundle(newBundle);
 					refNode.addLog("Bundle inviato ("+newBundle.getPrimary().getCreationTimestamp()+")");
+					
+					//WIFI on?
+					//final String mytest = Settings.System.getString(getContentResolver(), Settings.System.WIFI_ON);
+					
+					//refNode.addLog(mytest);
 				}
 			}
 		});

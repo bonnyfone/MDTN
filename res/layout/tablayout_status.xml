@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:background="@android:drawable/editbox_background"
         android:layout_below="@id/label"
-		android:text="10.0.2.2"
+		android:text="192.168.0.6"
 		android:layout_marginTop="10dip"/>
     <Button
         android:id="@+id/connect"
@@ -51,7 +51,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/send"
         android:text="Status: "
-        android:layout_marginTop="30dip"/>  
+        android:textSize="20dip"
+        android:layout_marginTop="20dip"/>  
         
     <TextView
         android:id="@+id/stat"
@@ -60,6 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/lblstat"
         android:layout_alignTop="@id/lblstat"
+        android:textSize="20dip"
         android:text="DISCONNECTED"/>  
    
     <TextView

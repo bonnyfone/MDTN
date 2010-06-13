@@ -165,6 +165,10 @@ public class BundleNode {
 		 * @return true=inviato, false=non inviato
 		 */
 		public boolean sendBundle(Bundle myBundle){
+			//Assicura che la sorgente sia il bundleNode corrente
+			myBundle.getPrimary().setSource(myEID);
+			myBundle.getPrimary().setReportTo(myEID);
+			
 			return myTcpConn.send(myBundle);
 		}
 

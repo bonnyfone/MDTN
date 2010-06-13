@@ -6,10 +6,12 @@ import java.net.URISyntaxException;
 import source.mdtn.comm.BundleNode;
 import android.app.AlertDialog;
 import android.app.TabActivity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,7 +39,10 @@ public class MainActivity extends TabActivity {
 	    //----------------------CODICE DI TESTING ---------------
 	    URI x=null;
 		try {
-			x = new URI("dtn://a");
+			TelephonyManager tele = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE); 
+			String imei = tele.getDeviceId();
+			
+			x = new URI("dtn://"+imei);
 			myNode = new BundleNode(x);
 			
 			/*

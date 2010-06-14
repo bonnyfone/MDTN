@@ -166,7 +166,7 @@ public class StatusActivity extends Activity {
 						public void run(){
 							//Richiama il BPAgent per effettuare la connessione
 							refNode.getMyAgent().connectToService(ip);
-							try {sleep(1000);} catch (InterruptedException e) {}
+							try {sleep(900);} catch (InterruptedException e) {}
 							progres.cancel();
 						}
 					};

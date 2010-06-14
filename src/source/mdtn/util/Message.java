@@ -1,6 +1,7 @@
 package source.mdtn.util;
 
 import java.io.Serializable;
+import java.util.regex.*;
 
 /**
  * Classe generica che rappresenta un messaggio email.
@@ -42,7 +43,29 @@ public class Message implements Serializable {
 		this.message = message;
 	}
 
+
+	/**
+	 * Metodo che controlla la validità di un indirizzo email.
+	 * @param email l'email da verificare.
+	 * @return true=email corretta, false=email non corretta
+	 */
+	public static boolean checkEmail(String email){
+		 //Pattern
+	      Pattern p = Pattern.compile(".+@.+\\.[a-z]+");
+
+	      //Match
+	      Matcher m = p.matcher(email);
+
+	      //check
+	      boolean matchFound = m.matches();
+
+	      if (matchFound)
+	        return true;
+	      else
+	        return false;
+	}
 	
+		
 	
 	/* Auto Set&Get */
 	public String getFrom() {

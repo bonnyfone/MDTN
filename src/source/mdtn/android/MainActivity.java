@@ -13,6 +13,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TabHost;
@@ -140,6 +141,7 @@ public class MainActivity extends TabActivity {
 			.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					MainActivity.this.finish();
+					myNode.getMyAgent().disconnectFromService();
 				}
 			})
 			.setNegativeButton("No", new DialogInterface.OnClickListener() {

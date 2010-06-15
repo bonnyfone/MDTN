@@ -51,7 +51,8 @@
 		<EditText android:id="@+id/mess"
 			android:inputType="textShortMessage|textAutoCorrect|textCapSentences|textMultiLine"
 			android:textSize="15dip" android:textColor="#888888"
-			android:layout_below="@id/label4" android:layout_height="wrap_content"
+			android:layout_below="@id/label4" 
+			android:layout_height="wrap_content"
 			android:layout_width="fill_parent" android:text="my message"
 			android:layout_marginRight="5dip"
 			android:scrollbarAlwaysDrawVerticalTrack="true" />

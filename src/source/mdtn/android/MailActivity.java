@@ -4,14 +4,19 @@ import source.mdtn.comm.BundleNode;
 import source.mdtn.util.Message;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 public class MailActivity extends Activity {
 
@@ -45,10 +50,49 @@ public class MailActivity extends Activity {
 		_send = (Button)findViewById(R.id.send);
 		
 		
+		//Crea i dialog personalizzati
+		AlertDialog.Builder builder;
+
+		/* Messaggio OK */
+		//Context myCont = getParent().getApplicationContext();
+		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+		View layout = inflater.inflate(R.layout.custom_dialog,
+		                               (ViewGroup) findViewById(R.id.layout_root));
+		TextView text = (TextView) layout.findViewById(R.id.text);
+		text.setText("Email inoltrata con successo.");
+		ImageView image = (ImageView) layout.findViewById(R.id.image);
+		image.setImageResource(R.drawable.androidok);
+
+		builder = new AlertDialog.Builder(this);
+		builder.setView(layout);
+		builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+	           public void onClick(DialogInterface dialog, int id) {
+	               
+	           }});
+		final AlertDialog alertOk = builder.create();
+		
+		/* Messaggio ERRORE */
+		inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+		layout = inflater.inflate(R.layout.custom_dialog,
+		                               (ViewGroup) findViewById(R.id.layout_root));
+		text = (TextView) layout.findViewById(R.id.text);
+		text.setText("Errore inoltro email.");
+		image = (ImageView) layout.findViewById(R.id.image);
+		image.setImageResource(R.drawable.androiderr);
+
+		builder = new AlertDialog.Builder(this);
+		builder.setView(layout);
+		builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+	           public void onClick(DialogInterface dialog, int id) {
+	               
+	           }});
+		final AlertDialog alertErr = builder.create();	
+		/*
 		//Vari alertDialog per segnalare l'esito delle richieste di invio mail
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage("  Email inoltrata con successo.  ")
 		       .setCancelable(true)
+		       .setIcon(R.drawable.androidok)
 		       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 		           public void onClick(DialogInterface dialog, int id) {
 		               
@@ -66,15 +110,15 @@ public class MailActivity extends Activity {
 	       });
 		
 		final AlertDialog alertErr = builder.create(); //Messaggio Errore
-		
+		*/
 		
 		/* Handler che riceve le indicazione sul tipo di messaggio da visualizzare */
 		final Handler handler = new Handler() {  
 			public void handleMessage(android.os.Message msg) {  
 				if(msg.what == 1)
-					alertOk.show();
+						alertOk.show();
 				else
-					alertErr.show();
+						alertErr.show();
 			   }
 			}; 
 
@@ -109,6 +153,16 @@ public class MailActivity extends Activity {
 			public void onClick(View v) {
 
 				if(refNode.getMyAgent().isConnected()){//Se sono connesso..
+					
+					//Disabilita momentaneamente pulsante di invio email.
+					Runnable disableSend = new Runnable(){
+						public void run() {
+							_send.setEnabled(false);
+						}
+					};
+					runOnUiThread(disableSend);
+					
+					
 					String raw[]={_from.getText().toString(),_to.getText().toString(),
 							_subject.getText().toString(),_message.getText().toString()};
 					final Message myMessage = new Message(raw[0],raw[1],raw[2],raw[3]);
@@ -122,8 +176,16 @@ public class MailActivity extends Activity {
 							else{
 								handler.sendEmptyMessage(0);
 							}
+							//Riabilita pulsante di invio email.
+							Runnable enableSend = new Runnable(){
+								public void run() {
+									_send.setEnabled(true);
+								}
+							};
+							runOnUiThread(enableSend);
 						}
 					};
+
 					worker.start();
 
 				}

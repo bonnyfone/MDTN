@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+
+	<TextView android:id="@+id/lblstat" android:textStyle="bold"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:text="Banda disponibile: " android:textSize="15dip"
+		android:layout_marginTop="10dip" />
+
+	<TextView android:id="@+id/stat" android:textColor="#00FF00"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_toRightOf="@id/lblstat" android:layout_alignTop="@id/lblstat"
+		android:textSize="15dip" android:text="40 mb" />
+
+	<TextView android:id="@+id/label" android:textStyle="bold"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:text="Richiedi nuova risorsa (URL):" android:layout_marginTop="10dip"
+		android:layout_below="@id/stat" />
+
+
+	<Button android:id="@+id/request" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_below="@id/label"
+		android:layout_alignParentRight="true" android:text="->"
+		android:layout_marginTop="10dip" />
+
+	<EditText android:id="@+id/ip" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:background="@android:drawable/editbox_background"
+		android:layout_below="@id/label" android:text="http://mdtn.altervista.org/test.txt"
+		android:layout_toLeftOf="@id/request" android:layout_marginTop="10dip" />
+
+	<TextView android:id="@+id/label2" android:textStyle="bold"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:text="Lista risorse:" android:layout_marginTop="10dip"
+		android:layout_below="@id/ip" />
+		
+	<ListView android:id="@+id/android:list" android:layout_width="fill_parent"
+		android:layout_below ="@id/label2"
+		android:background = "@drawable/android"
+		android:layout_height="fill_parent" />
+
+
+</RelativeLayout>

@@ -146,7 +146,10 @@ public class BundleNode {
 						}
 					}
 				}
-				catch (IOException e) {Log.i("MDTN", "err: disconnected");} 
+				catch (IOException e) {
+					myTcpConn.disconnect();
+					Log.i("MDTN", "err: disconnected");
+				} 
 				catch (ClassNotFoundException e) {Log.i("MDTN", "err:class not found exc");}
 			}
 		}

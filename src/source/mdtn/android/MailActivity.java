@@ -183,6 +183,7 @@ public class MailActivity extends Activity {
 								}
 							};
 							runOnUiThread(enableSend);
+							
 						}
 					};
 

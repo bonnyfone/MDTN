@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"></TextView>
         <TextView
                 android:text="Cognome"
-                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="#6b71f1"
                 android:id="@+id/personSurname"
                 android:layout_alignLeft="@+id/personName"

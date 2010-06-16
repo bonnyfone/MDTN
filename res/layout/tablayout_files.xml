@@ -6,7 +6,7 @@
 	<TextView android:id="@+id/lblstat" android:textStyle="bold"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		android:text="Banda disponibile: " android:textSize="15dip"
-		android:layout_marginTop="10dip" />
+		android:layout_marginTop="5dip" />
 
 	<TextView android:id="@+id/stat" android:textColor="#00FF00"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
@@ -15,27 +15,47 @@
 
 	<TextView android:id="@+id/label" android:textStyle="bold"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:text="Richiedi nuova risorsa (URL):" android:layout_marginTop="10dip"
+		android:text="Richiedi nuova risorsa (URL):" android:layout_marginTop="5dip"
 		android:layout_below="@id/stat" />
 
 
 	<Button android:id="@+id/request" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:layout_below="@id/label"
+		android:layout_height="30dip" android:layout_below="@id/label"
 		android:layout_alignParentRight="true" android:text="->"
 		android:layout_marginTop="10dip" />
 
-	<EditText android:id="@+id/ip" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:background="@android:drawable/editbox_background"
+	<EditText android:id="@+id/address" android:layout_width="fill_parent"
+	    android:layout_height="30dip" 
+	    android:scrollHorizontally="true"
+		android:background="@android:drawable/editbox_background"
 		android:layout_below="@id/label" android:text="http://mdtn.altervista.org/test.txt"
 		android:layout_toLeftOf="@id/request" android:layout_marginTop="10dip" />
 
 	<TextView android:id="@+id/label2" android:textStyle="bold"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:text="Lista risorse:" android:layout_marginTop="10dip"
-		android:layout_below="@id/ip" />
+		android:layout_below="@id/address" />
+		
+		
+	<Button android:id="@+id/local" android:layout_width="50dip"
+		android:layout_height="50dip" android:layout_below="@id/label2"
+		android:text="L"
+		android:layout_marginTop="10dip" />
+		
+	<Button android:id="@+id/remote" android:layout_width="50dip"
+		android:layout_height="50dip" android:layout_below="@id/label2"
+		android:text="R"
+		android:layout_toRightOf="@id/local"
+		android:layout_marginTop="10dip" />
+
+	<Button android:id="@+id/bacheca" android:layout_width="50dip"
+		android:layout_height="50dip" android:layout_below="@id/label2"
+		android:text="B"
+		android:layout_toRightOf="@id/remote"
+		android:layout_marginTop="10dip" />
 		
 	<ListView android:id="@+id/mylist" android:layout_width="fill_parent"
-		android:layout_below ="@id/label2"
+		android:layout_below ="@id/bacheca"
 		android:layout_height="fill_parent" />
 
 

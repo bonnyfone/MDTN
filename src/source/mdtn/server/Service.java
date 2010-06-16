@@ -1,16 +1,26 @@
 package source.mdtn.server;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.*;
-import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.Date;
-import java.util.StringTokenizer;
+import java.util.Vector;
 
-import org.htmlparser.Node;
-import org.htmlparser.NodeFilter;
 import org.htmlparser.parserapplications.SiteCapturer;
+
+import source.mdtn.bundle.Bundle;
+import source.mdtn.util.Buffering;
+import source.mdtn.util.GenericResource;
 
 
 public class Service {
@@ -94,6 +104,42 @@ public class Service {
 	}
 
 
+	/***
+	 * Metodo che ritorna la lista dei file disponibili per un determinato EID.
+	 * @param source EID del client.
+	 * @return un bundle contenente le informazioni.
+	 */
+	public static Bundle updateListBundle(URI source){
+		
+		File dir=new File(Server.getDataPath() + source.getHost());
+
+		String[] children = dir.list(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return true;
+			}
+		});
+		
+		Vector<Vector<GenericResource>> data = new Vector<Vector<GenericResource>>();
+		
+		//TODO Raccoglie info sui file del client
+		Vector<GenericResource> remote = new Vector<GenericResource>();
+		remote.add(new GenericResource("./", "asdasd.zip"));
+		remote.add(new GenericResource("./", "hfdasd.doc"));
+		remote.add(new GenericResource("./", "adsd.pdf"));
+		//TODO Raccoglie info bacheca pubblica
+		Vector<GenericResource> publics = new Vector<GenericResource>();
+		publics.add(new GenericResource("./", "asdasd.zip"));
+		
+		data.add(remote);
+		data.add(publics);
+		
+		Bundle ris = new Bundle();
+		ris.getPayload().setType("UPDATE_LIST");
+		ris.getPayload().setPayloadData(Buffering.toBytes(data));
+		
+		return ris;
+	}
+	
 	/**
 	 * 
 	 * Metodo che cattura un intero sito web e lo rende fruibile localmente.<br>
@@ -123,15 +169,13 @@ public class Service {
 		s.capture();
 	}
 	
-	////////////////////////////////////////////////////////////////////////////
-	// Program: copyURL.java
-	// Author: Anil Hemrajani (anil@patriot.net)
-	// Purpose: Utility for copying files from the Internet to local disk
-	// Example: 1. java copyURL http://www.patriot.net/users/anil/resume/resume.gif
-	//	          2. java copyURL http://www.ibm.com/index.html abcd.html
-	////////////////////////////////////////////////////////////////////////////
 
-	public static void downloadFile(String savingPath,URL url)
+	/**
+	 * Metodo che scarica un determinato file da internet.
+	 * @param savingPath percorso in cui salvare il file.
+	 * @param url URL della risorsa da scaricare.
+	 */
+	public static boolean downloadFile(String savingPath,URL url)
 	{
 		String path = url.toString();
 		
@@ -184,11 +228,12 @@ public class Service {
 			is.close();
 			fos.close();
 			System.out.println(count + " byte(s) copied");
+			return true;
 		}
 		catch (MalformedURLException e)
-		{ System.err.println(e.toString()); }
+		{ System.err.println(e.toString()); return false;}
 		catch (IOException e)
-		{ System.err.println(e.toString()); }
+		{ System.err.println(e.toString()); return false;}
 	}
 	
 	public static void main(String args[]){

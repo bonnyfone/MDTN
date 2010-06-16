@@ -6,8 +6,10 @@ import java.util.Vector;
 
 import source.mdtn.bundle.Bundle;
 import source.mdtn.util.Buffering;
+import source.mdtn.util.GenericResource;
 import source.mdtn.util.Message;
 import source.mdtn.util.Timing;
+import android.R.bool;
 import android.util.Log;
 
 public class BundleNode {
@@ -21,6 +23,12 @@ public class BundleNode {
 	/** Log eventi */
 	private Vector<String> nodeLog;
 
+	/** Mirror delle risorse remote */
+	private Vector<GenericResource> remoteRes;
+	
+	/** Mirror delle risorse pubbliche */
+	private Vector<GenericResource> publicRes;
+	
 
 	//TODO Qui vanno messi tutti i campi dati e le informazioni generali sul nodo! Le funzionalità
 	//sono implementate attraverso metodi del BPAgent
@@ -33,6 +41,8 @@ public class BundleNode {
 		this.myEID = myEID;
 		myBpAgent = new BPAgent();
 		nodeLog = new Vector<String>();
+		remoteRes = new Vector<GenericResource>();
+		publicRes = new Vector<GenericResource>();
 		addLog("BundleNode istanziato, pronto ad accedere a MDTN.");
 
 
@@ -68,7 +78,14 @@ public class BundleNode {
 	public Vector<String> getLogs(){
 		return nodeLog;
 	}
+	
+	public Vector<GenericResource> getRemoteRes(){
+		return remoteRes;
+	}
 
+	public Vector<GenericResource> getPublicRes(){
+		return publicRes;
+	}
 
 	/**----------------------------------------------------------------------------------------------*/
 	/**----------------------------------        B P A        -------------------------------------- */
@@ -114,46 +131,6 @@ public class BundleNode {
 			return esito;
 		}
 		
-		/**
-		 * Classe thread interna che gestisce i dati in entrata.
-		 */
-		private class Receiver extends Thread{
-			public Receiver(){
-
-			}
-			public void run(){
-				try{
-					Object datain;
-					while((datain = myTcpConn.revice()) != null){
-						addLog("Nuovo bundle ricevuto.");
-						
-						/*Platform-depended operation*/
-						Bundle received = (Bundle)datain;
-						if(received.getPayload().getType().equals("REPORT")){
-							Report newReport = ((Report)Buffering.toObject(received.getPayload().getPayloadData()));
-							addLog("REPORT: " + newReport.getMessage() + "\n\t\t\t(operazione effettuata alle "+newReport.getComplementTime() + ")");
-						}
-						
-						/*Platform-independent operation*/
-						Bundle myRisp = bp.processBundle((Bundle)datain);
-						
-						/*Invia eventuali risposte*/
-						if(!(myRisp==null)){
-							if(sendBundle(myRisp))
-								addLog("Risposta inviata.");
-							else
-								addLog("Errore invio risposta.");
-						}
-					}
-				}
-				catch (IOException e) {
-					myTcpConn.disconnect();
-					Log.i("MDTN", "err: disconnected");
-				} 
-				catch (ClassNotFoundException e) {Log.i("MDTN", "err:class not found exc");}
-			}
-		}
-
 		
 		/** Effettua connessione al servizio MDTN. */
 		public void disconnectFromService(){
@@ -204,7 +181,54 @@ public class BundleNode {
 
 			return esit;
 		}
+		
+		
+		/**
+		 * Metodo che invia una richiesta di download di una generica risorsa.
+		 * @param myReq la risorsa richiesta.
+		 * @return true=richiesta inoltrata, false=errore inoltro richiesta
+		 */
+		public boolean sendRequestForResource(GenericResource myReq){
+			
+			Bundle toSend = new Bundle();
+			
+			//Imposta il payload del bundle
+			toSend.getPayload().setType("REQUEST");
+			
+			//Imposta il payload del bundle
+			byte rawdata[] = Buffering.toBytes(myReq);
+			toSend.getPayload().setPayloadData(rawdata);
+			
+			//Imposto eventuali flag??
+			//TODO impostare flag necessari...
+			
+			//Invio il bundle contenente la richiesta.
+			boolean esit = sendBundle(toSend);
+			
+			if(esit)addLog("Richiesta inoltrata.");
+			else addLog("Errore inoltro richiesta.");
 
+			return esit;
+		}
+
+		
+		public boolean requestList(){
+			Bundle toSend = new Bundle();
+			
+			//Imposta il payload del bundle
+			toSend.getPayload().setType("UPDATE_LIST");
+			
+			//Imposto eventuali flag??
+			//TODO impostare flag necessari...
+			
+			//Invio il bundle contenente la richiesta.
+			boolean esit = sendBundle(toSend);
+			
+			if(esit)addLog("Aggiornamento risorse..");
+			else addLog("Errore agg. risorse.");
+
+			return esit;
+		}
 
 		/**
 		 * Metodo che controlla lo stato della connessione al servizio MDTN.
@@ -214,6 +238,56 @@ public class BundleNode {
 			return myTcpConn.isConnected();
 		}
 
+		
+		
+		/**
+		 * Classe thread interna che gestisce i dati in entrata.
+		 */
+		private class Receiver extends Thread{
+			public Receiver(){
+
+			}
+			public void run(){
+				try{
+					Object datain;
+					while((datain = myTcpConn.revice()) != null){
+						addLog("Nuovo bundle ricevuto.");
+						
+						/*Platform-depended operation*/
+						Bundle received = (Bundle)datain;
+						if(received.getPayload().getType().equals("REPORT")){
+							Report newReport = ((Report)Buffering.toObject(received.getPayload().getPayloadData()));
+							addLog("REPORT: " + newReport.getMessage() + "\n\t\t\t(operazione effettuata alle "+newReport.getComplementTime() + ")");
+						}
+						else if(received.getPayload().getType().equals("UPDATE_LIST")){
+							
+							Vector<Vector<GenericResource>> newList= (Vector<Vector<GenericResource>>)Buffering.toObject(received.getPayload().getPayloadData());
+							remoteRes = newList.elementAt(0);
+							publicRes = newList.elementAt(1);
+							
+							addLog("Aggiornamento lista risorse completato.");
+						}
+						//TODO QUA, Gestire le risposte alle richieste di UPDATE_LIST!!!
+						
+						/*Platform-independent operation*/
+						Bundle myRisp = bp.processBundle((Bundle)datain);
+						
+						/*Invia eventuali risposte*/
+						if(!(myRisp==null)){
+							if(sendBundle(myRisp))
+								addLog("Risposta inviata.");
+							else
+								addLog("Errore invio risposta.");
+						}
+					}
+				}
+				catch (IOException e) {
+					myTcpConn.disconnect();
+					Log.i("MDTN", "err: disconnected");
+				} 
+				catch (ClassNotFoundException e) {Log.i("MDTN", "err:class not found exc");}
+			}
+		}
 	}
 
 }

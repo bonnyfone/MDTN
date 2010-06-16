@@ -59,18 +59,22 @@ public class Server extends Thread {
 
 	/** Path per lettura/scrittura bundle (config.mdtn)*/
 	private static String bundlePath;
+	
+	/** Path per lettura/scrittura files (config.mdtn)*/
+	private static String dataPath;
 
 	/**
 	 * Costruttore del <b>Server</b>. Crea un server in ascolto sulla porta specificata.
 	 * @param listeningPort la porta su cui mettersi in ascolto.
 	 */
-	public Server(int listeningPort, String path){
+	public Server(int listeningPort, String path, String data){
 
 		try {
 			setDaemon(true);
 			connectionLock = new Object();
 			myGui = new ServerGui();
 			bundlePath = path;
+			dataPath = data;
 			serverSocket = new ServerSocket(listeningPort);
 			
 			//Daemons
@@ -82,6 +86,8 @@ public class Server extends Thread {
 			System.out.println("In ascolto (porta "+listeningPort+")...");
 			addLog("In ascolto (porta "+listeningPort+")...");
 			addLog("Bundle-storage in \""+bundlePath+"\"");
+			addLog("Data-storage in \""+dataPath+"\"");
+			
 
 			/* Test */
 			/*Message x = new Message("fromasd","toasd","asd","asd");
@@ -139,6 +145,15 @@ public class Server extends Thread {
 	public static String getBundlePath(){
 		return bundlePath;
 	}
+	
+	/**
+	 * Metodo statico che ritorna il path di salvataggio dei file.
+	 * @return una stringa con il path di salvataggio dei file.
+	 */
+	public static String getDataPath(){
+		return dataPath;
+	}
+	
 	
 	/**
 	 * Metodo che ritorna il riferimento alla lista dei clients del server.
@@ -279,6 +294,7 @@ public class Server extends Thread {
 		//Parametri necessari per l'avvio.
 		int defaultPort=3339;
 		String defaultPath="./";
+		String dataPath="./";
 
 		//Processa il file di configurazione.
 		try { 
@@ -291,7 +307,9 @@ public class Server extends Thread {
 					defaultPort = Integer.parseInt(str);
 				else if(line==1)
 					defaultPath = str;
-
+				else if(line==2)
+					dataPath = str;
+				
 				line++;
 			} 
 			in.close(); 
@@ -299,7 +317,7 @@ public class Server extends Thread {
 		catch (IOException e) { JOptionPane.showMessageDialog(null, "Errore lettura file di configurazione.\nServer avviato con impostazioni di default."); } 
 
 		//Avvio server
-		Server myServer = new Server(defaultPort,defaultPath);
+		Server myServer = new Server(defaultPort,defaultPath,dataPath);
 		myServer.start();
 	}
 }

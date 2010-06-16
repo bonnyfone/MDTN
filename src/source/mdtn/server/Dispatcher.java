@@ -3,12 +3,14 @@ package source.mdtn.server;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Vector;
 
 import source.mdtn.bundle.Bundle;
 import source.mdtn.comm.BundleProtocol;
 import source.mdtn.comm.Report;
 import source.mdtn.util.Buffering;
+import source.mdtn.util.GenericResource;
 import source.mdtn.util.Message;
 import source.mdtn.util.Timing;
 
@@ -176,6 +178,28 @@ public class Dispatcher extends Thread {
 					return "error: Connessione interrotta. (Rescheduled)";
 				}
 					
+				
+				return ris;
+			}
+			else if(type.equals("REQUEST")){
+				GenericResource newRequest = (GenericResource)Buffering.toObject(toBeProcessed.getPayload().getPayloadData());
+				String ris="Disponibile il file " +newRequest.getName();
+				
+				try {
+					URL req = new URL(newRequest.getAddress());
+					
+					File newDir = new File(Server.getDataPath()+toBeProcessed.getPrimary().getSource().getHost().toString());
+					newDir.mkdir();
+					if(Service.downloadFile(newDir.toString(), req))
+						ris="Download risorsa completato.";
+					else
+						ris="error: Errore download risorsa.";
+
+					//System.out.println("Inviata mail a " +newMessage.getTo());
+				} catch (IOException e1) {
+					e1.printStackTrace();
+					return "error: Connessione interrotta. (Rescheduled)";
+				}
 				
 				return ris;
 			}

@@ -148,7 +148,7 @@ public class MailActivity extends Activity {
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
 		}); 
 
-		//Listener pulsante disconnessione
+		//Listener pulsante invio
 		_send.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 

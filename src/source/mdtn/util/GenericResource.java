@@ -1,8 +1,9 @@
 package source.mdtn.util;
 
+import java.io.Serializable;
 import java.net.URL;
 
-public class GenericResource {
+public class GenericResource implements Serializable{
 
 	private String resAddress;
 	
@@ -13,6 +14,12 @@ public class GenericResource {
 	private boolean available;
 	
 	private int iconType;
+	
+	public GenericResource(String dir, String addr){
+		resAddress = dir+"/"+addr;
+		name = addr;
+		type ="boh";
+	}
 	
 	public GenericResource(URL addr){
 		resAddress = addr.toString();

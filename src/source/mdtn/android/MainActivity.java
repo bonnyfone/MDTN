@@ -1,5 +1,6 @@
 package source.mdtn.android;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -11,9 +12,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Environment;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TabHost;
@@ -46,6 +47,13 @@ public class MainActivity extends TabActivity {
 			x = new URI("dtn://"+imei);
 			myNode = new BundleNode(x);
 			
+			//Preparo, se serve, la cartella di storage
+			File SDCardRoot = Environment.getExternalStorageDirectory();  
+			File file = new File(SDCardRoot+"/MDTN_data");
+			 if(file.mkdir())
+				 Log.i("MDTN", "Cartella fatta!!");
+			 else
+				 Log.i("MDTN", "ERRORE CARTELLA! "+file.getPath());
 			/*
 			if(myNode.getMyAgent().connectToService("10.0.2.2"))
 				Log.i("CONN", "COLLEGATO!");

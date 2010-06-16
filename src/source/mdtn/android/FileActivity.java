@@ -1,23 +1,29 @@
 package source.mdtn.android;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 import source.mdtn.comm.BundleNode;
+import source.mdtn.server.Server;
 import source.mdtn.util.GenericResource;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.AdapterView.OnItemLongClickListener;
 
 public class FileActivity extends Activity {
@@ -44,6 +50,8 @@ public class FileActivity extends Activity {
 	
 	/** Componenti grafici */
 	private ListView myList;
+	private TextView myLabelList;
+	private EditText myURL;
 
 	public FileActivity(){}
 	public FileActivity(BundleNode refNode){this.refNode = refNode;}
@@ -52,15 +60,23 @@ public class FileActivity extends Activity {
 	private void updateLocalRes(){
 		/* ----------------- CODICE DI TESTING --------------------*/
 		localRes.clear();
+		File SDCardRoot = Environment.getExternalStorageDirectory(); 
+		File dir = new File(SDCardRoot+"/MDTN_data/"); 
+		//Ottengo la lista dei file, filtrata opportunamente per estensione.
+		String[] children = dir.list(new FilenameFilter() {
+	           public boolean accept(File dir, String name) {
+	                return true;
+	                }
+	           });
 		
-		try{
-			localRes.add(new GenericResource(new URL("http://mdtn.altervista.org/a.txr")));
+		
+			for(int i=0; i<children.length; i++)
+				localRes.add(new GenericResource(dir.toString(),children[i]));
+			
+			/*localRes.add(new GenericResource(new URL("http://mdtn.altervista.org/a.txr")));
 			localRes.add(new GenericResource(new URL("http://google.it/fer.pdf")));
-			localRes.add(new GenericResource(new URL("http://asasdas.asd/ca.cea")));
-		}
-		catch (MalformedURLException e) {
-			Log.i("MDTN","URL mal formattato");
-		}
+			localRes.add(new GenericResource(new URL("http://asasdas.asd/ca.cea")));*/
+	
 
 		//Questa è la lista che rappresenta la sorgente dei dati della listview
 		//ogni elemento è una mappa(chiave->valore)
@@ -94,16 +110,18 @@ public class FileActivity extends Activity {
 	private void updateRemoteRes(){
 		/* ----------------- CODICE DI TESTING --------------------*/
 		remoteRes.clear();
-		
-		try{
-			remoteRes.add(new GenericResource(new URL("http://asasdas.asd/ca.cea")));
-			remoteRes.add(new GenericResource(new URL("http://ffasas.asd/ver.txt")));
-			remoteRes.add(new GenericResource(new URL("http://asasdas.asd/Per.pdf")));
-			remoteRes.add(new GenericResource(new URL("http://asasdavs.asd/aaaaa.zip")));
-		}
-		catch (MalformedURLException e) {
-			Log.i("MDTN","URL mal formattato");
-		}
+
+//		try{
+			for(int i=0; i<refNode.getRemoteRes().size(); i++)
+				remoteRes.add(refNode.getRemoteRes().elementAt(i));
+//			remoteRes.add(new GenericResource(new URL("http://asasdas.asd/ca.cea")));
+//			remoteRes.add(new GenericResource(new URL("http://ffasas.asd/ver.txt")));
+//			remoteRes.add(new GenericResource(new URL("http://asasdas.asd/Per.pdf")));
+//			remoteRes.add(new GenericResource(new URL("http://asasdavs.asd/aaaaa.zip")));
+//		}
+//		catch (MalformedURLException e) {
+//			Log.i("MDTN","URL mal formattato");
+//		}
 
 		//Questa è la lista che rappresenta la sorgente dei dati della listview
 		//ogni elemento è una mappa(chiave->valore)
@@ -150,16 +168,19 @@ public class FileActivity extends Activity {
 		switch(selector){
 		case(0): 
 			myList.setAdapter(adapterLocal);
+			myLabelList.setText("Risorse locali");
 			adapterLocal.notifyDataSetChanged();
 			break;
 
 		case(1):
 			myList.setAdapter(adapterRemote);
+			myLabelList.setText("Risorse remote");	
 			adapterRemote.notifyDataSetChanged();
 			break;
 
 		case(2):
 			myList.setAdapter(adapterPublic);
+			myLabelList.setText("Bacheca pubblica");
 			adapterPublic.notifyDataSetChanged();
 			break;
 		}
@@ -170,6 +191,11 @@ public class FileActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.tablayout_files);
+		refNode = MainActivity.getServiceBundleNode();
+		//bind oggetti grafici
+		myList = (ListView)findViewById(R.id.mylist);
+		myLabelList = (TextView)findViewById(R.id.labellist);
+		myURL = (EditText)findViewById(R.id.address);
 		
 		//Imposta, di default, la visualizzazione della lista locale.
 		selector=0;
@@ -179,25 +205,46 @@ public class FileActivity extends Activity {
 		remoteRes = new ArrayList<GenericResource>();
 		publicRes = new ArrayList<GenericResource>();
 		updateAllRes();
+		//updateUI();
 		
 		//Pulsante per l'invio di richieste
 		Button sendRequest = (Button)findViewById(R.id.request);
 		sendRequest.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				Log.i("MDTN", "click!!!!");
+				URL toDownload;
+				try {
+					toDownload = new URL(myURL.getText().toString());
+					GenericResource newRequest = new GenericResource(toDownload);
+					
+					if(refNode.getMyAgent().isConnected()){//Se sono connesso..
+						refNode.getMyAgent().sendRequestForResource(newRequest);
+					}
+					
+				} catch (MalformedURLException e) {
+					Log.i("MDTN","URL non valido");
+				}
+				
 			}
 		});
 		
 		/* Pulsanti per lo switching da una lista all'altra */
-		Button switchToLocal  = (Button)findViewById(R.id.local);
-		Button switchToRemote = (Button)findViewById(R.id.remote);
-		Button switchToPublic = (Button)findViewById(R.id.bacheca);
+		final ImageButton switchToLocal  = (ImageButton)findViewById(R.id.local);
+		final ImageButton switchToRemote = (ImageButton)findViewById(R.id.remote);
+		final ImageButton switchToPublic = (ImageButton)findViewById(R.id.bacheca);
+		final ImageButton refresh = (ImageButton)findViewById(R.id.refresh);
+		
+		refresh.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				refNode.getMyAgent().requestList();
+			}
+		});
 		
 		switchToLocal.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				updateLocalRes();
 				selector=0;
-				updateUI();
+				updateUI(); 
 			}
 		});
 		
@@ -209,56 +256,17 @@ public class FileActivity extends Activity {
 			}
 		});
 		
+		
 		switchToPublic.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				updatePublicRes();
-				selector=2;
+				selector=1;
 				updateUI();
 			}
 		});
 		
 		
-		/* ----------------- CODICE DI TESTING --------------------*/
-		//lista delle persone che la listview visualizzerà
-		final ArrayList<Person> personList=new ArrayList<Person>(); 
-		final Person [] people={
-				new Person("Anna","Falchi",R.drawable.androidok),
-				new Person("Cameron", "Diaz", R.drawable.androiddeveloperminidroid),
-				new Person("Jessica","Alba",R.drawable.androiddownload),
-				new Person("Manuela","Arcuri",R.drawable.androiderr)};
-		//riempimento casuale della lista delle persone
-		Random r=new Random();
-		for(int i=0;i<10;i++){personList.add(people[r.nextInt(people.length)]);}
-		//Questa è la lista che rappresenta la sorgente dei dati della listview
-		//ogni elemento è una mappa(chiave->valore)
-		final ArrayList<HashMap<String, Object>> data=new ArrayList<HashMap<String,Object>>();
 
-		for(int i=0;i<personList.size();i++){
-			Person p=personList.get(i);// per ogni persona all'inteno della ditta
-
-			HashMap<String,Object> personMap=new HashMap<String, Object>();//creiamo una mappa di valori
-
-			personMap.put("image", p.getPhotoRes()); // per la chiave image, inseriamo la risorsa dell immagine
-			personMap.put("name", p.getName()); // per la chiave name,l'informazine sul nome
-			personMap.put("surname", p.getSurname());// per la chiave surnaname, l'informazione sul cognome
-			data.add(personMap);  //aggiungiamo la mappa di valori alla sorgente dati
-			
-		}
-
-
-		String[] from={"image","name","surname"}; //dai valori contenuti in queste chiavi
-		int[] to={R.id.personImage,R.id.personName,R.id.personSurname};//agli id delle view
-
-		//costruzione dell adapter
-		final SimpleAdapter adapter=new SimpleAdapter(
-				getApplicationContext(),
-				data,//sorgente dati
-				R.layout.row, //layout contenente gli id di "to"
-				from,
-				to);
-
-		//utilizzo dell'adapter
-		myList = (ListView)findViewById(R.id.mylist);
 		
 		
 		/*OnItemClickListener listlistener = new OnItemClickListener() {
@@ -276,7 +284,7 @@ public class FileActivity extends Activity {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				final CharSequence ele[] = {"Download","Elimina"};
-				Log.i("MDTN", "Cliccato LUNGO su "+arg2 + " "+arg3+"item collegato-> "+personList.get(arg2).getSurname());
+				Log.i("MDTN", "Cliccato LUNGO su "+arg2 + " "+arg3+"item collegato-> DA SISTEMARE");
 
 				final CharSequence[] items = {"Scarica", "Elimina", "Aggiorna"};
 
@@ -300,9 +308,9 @@ public class FileActivity extends Activity {
 		//myList.setFocusableInTouchMode(true);
 		//myList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		//myList.setChoiceMode(ListView.CHOICE_MODE_NONE);
-		myList.setAdapter(adapter);
+		//myList.setAdapter(adapter);
 		
-		
+		/*
 		Thread t = new Thread(){
 			public void run(){
 				while(true){
@@ -333,10 +341,11 @@ public class FileActivity extends Activity {
 				}
 			}
 		};
+		*/
 		//t.start();
 	}
 
-	private class Person {
+	/*private class Person {
 		private String name;
 		private String surname;
 		private int photoRes;
@@ -355,7 +364,7 @@ public class FileActivity extends Activity {
 		public int getPhotoRes() {
 			return photoRes;
 		}
-	}
+	}*/
 
 
 }

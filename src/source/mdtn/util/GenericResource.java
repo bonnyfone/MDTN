@@ -3,30 +3,41 @@ package source.mdtn.util;
 import java.io.Serializable;
 import java.net.URL;
 
+/**
+ * Classe di supporto che rappresenta ed astrae il concetto della risorsa.
+ */
 public class GenericResource implements Serializable{
 
+	/** Indirizzo della risorsa (usato a seconda delle esigenze) */
 	private String resAddress;
 	
+	/** Nominativo della risorsa */
 	private String name;
 	
-	private String type;
+	/** Informazione aggiuntiva sulla risorsa (usato a seconda delle esigenze)*/
+	private String overInfo;
 	
-	private boolean available;
+	/** Determina se la risorsa è pubblica.*/
+	private boolean isPublic;
+	
 	
 	private int iconType;
 	
 	public GenericResource(String dir, String addr){
 		resAddress = dir+"/"+addr;
 		name = addr;
-		type ="boh";
+		overInfo ="";
 	}
 	
 	public GenericResource(URL addr){
 		resAddress = addr.toString();
 		name = addr.getFile();
-		type = "boh";
-		available=false;
+		overInfo = "";
+		isPublic=false;
 	}
+	
+	
+	/*  Set & Get */
 	
 	public String getAddress(){
 		return resAddress;
@@ -36,7 +47,16 @@ public class GenericResource implements Serializable{
 		return name;
 	}
 	
-	public String getType(){
-		return type;
+	public String getInfo(){
+		return overInfo;
 	}
+	
+	public boolean isPublic(){
+		return isPublic;
+	}
+	
+	public void setInfo(String myInfo){
+		overInfo=myInfo;
+	}
+	
 }

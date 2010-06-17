@@ -2,17 +2,21 @@ package source.mdtn.server;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Vector;
 
@@ -21,6 +25,7 @@ import org.htmlparser.parserapplications.SiteCapturer;
 import source.mdtn.bundle.Bundle;
 import source.mdtn.util.Buffering;
 import source.mdtn.util.GenericResource;
+import source.mdtn.util.RealResource;
 
 
 public class Service {
@@ -121,19 +126,17 @@ public class Service {
 			}
 		});
 		
-		
-		
 		//TODO Raccoglie info sui file del client
 		Vector<GenericResource> remote = new Vector<GenericResource>();
 		if(children != null){
 			for(int i=0; i<children.length; i++){
-				remote.add(new GenericResource(Server.getServerEID().toString()+"/", children[i]));		
+				remote.add(new GenericResource(Server.getServerEID().toString(), children[i]));		
 			}
 		}
 		
 		//TODO Raccoglie info bacheca pubblica
 		Vector<GenericResource> publics = new Vector<GenericResource>();
-		publics.add(new GenericResource("./", "asdasd.zip"));
+		publics.add(new GenericResource("./", "public.zip"));
 
 		//Vector contenitore, racchiude le informazioni sui file propri del client e sui file pubblici.
 		Vector<Vector<GenericResource>> data = new Vector<Vector<GenericResource>>();
@@ -174,6 +177,67 @@ public class Service {
 		s.setCaptureResources(true);
 		
 		s.capture();
+	}
+	
+	/**
+	 * Metodo che ritorna un bundle contenente la risorsa richiesta.
+	 * @param req risorsa richiesta.
+	 * @param EID EID del richiedente.
+	 * @return un bundle contenente la risorsa.
+	 */
+	public static Bundle returnResource(GenericResource req, String EID){
+		//Cerco il file
+		String path="";
+		
+		if(req.isPublic()){
+			//TODO ritorna una risorsa pubblica..
+		}
+		else{
+			path = Server.getDataPath() + EID + "/" + req.getName();
+			System.out.println("DOWNLOAD: path-> "+path);
+		}
+		
+		Bundle risp = new Bundle();
+
+		risp.getPayload().setType("DOWNLOAD");
+		RealResource myFile = new RealResource(path);
+		risp.getPayload().setData(Buffering.toBytes(myFile));
+
+		return risp;
+	}
+	
+	public static void uploadFile(Bundle toBeProcessed){
+        Socket s;
+		try {
+	        //Individua il file
+	        GenericResource res = (GenericResource)Buffering.toObject(toBeProcessed.getPayload().getPayloadData());
+	        String EID = toBeProcessed.getPrimary().getSource().getHost();
+	        String ip = res.getInfo();
+	        String path = Server.getDataPath() + EID + "/" + res.getName();
+	     
+			s = new Socket(ip, 44444);
+	        System.out.println("Client connected. Starting dump.");
+
+	        FileInputStream fis = new FileInputStream(path);
+	        
+	        //InputStream in = s.getInputStream();
+	        OutputStream o = s.getOutputStream();
+	        
+	        byte[] buf = new byte[4096];
+	        int read;
+	        while( (read=fis.read(buf)) != -1 ){
+	            o.write(buf, 0, read);
+	            o.flush();
+	        }
+	        o.close();
+	        s.close();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 
@@ -226,12 +290,22 @@ public class Service {
 				name = url.getFile();
 			
 			fos = new FileOutputStream(savingPath + name);
+			
+			byte[] buf = new byte[4096];
+			int size = 0;
+			int count=0;
+			while((size = is.read(buf)) > 0) {
+				fos.write(buf, 0, size);
+				count+=size;
+			}
+			/*i
 			int oneChar, count=0;
 			while ((oneChar=is.read()) != -1)
 			{
 				fos.write(oneChar);
 				count++;
 			}
+			*/
 			is.close();
 			fos.close();
 			System.out.println(count + " byte(s) copied");

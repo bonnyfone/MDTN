@@ -39,6 +39,8 @@ public class CommunicationThread extends Thread {
 	/** ObjectStream di entrata (dati in ingresso)*/
 	private ObjectInputStream in;
 	
+	private String clientIP;
+	
 	private BundleProtocol bp;
 	//raw-stream
 	//PrintWriter out;
@@ -71,7 +73,8 @@ public class CommunicationThread extends Thread {
 		out = new ObjectOutputStream(socket.getOutputStream());
 		out.flush();
 		in = new ObjectInputStream(socket.getInputStream());
-
+		clientIP = socket.getInetAddress().getHostAddress();
+		System.out.println("IP client:"+clientIP);
 		try{
 			while ((datain = in.readObject()) != null) {
 				

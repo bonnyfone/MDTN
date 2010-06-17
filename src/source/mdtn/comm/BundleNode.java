@@ -1,5 +1,6 @@
 package source.mdtn.comm;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Vector;
@@ -8,8 +9,10 @@ import source.mdtn.bundle.Bundle;
 import source.mdtn.util.Buffering;
 import source.mdtn.util.GenericResource;
 import source.mdtn.util.Message;
+import source.mdtn.util.RealResource;
 import source.mdtn.util.Timing;
 import android.R.bool;
+import android.os.Environment;
 import android.util.Log;
 
 public class BundleNode {
@@ -45,6 +48,24 @@ public class BundleNode {
 		publicRes = new Vector<GenericResource>();
 		addLog("BundleNode istanziato, pronto ad accedere a MDTN.");
 
+		Thread t= new Thread(){
+			public void run(){
+				try {
+				while(true){
+					sleep(10000);
+					Log.i("MDTN", "MAX Memory: "+Runtime.getRuntime().maxMemory()/1024/1024+" mb, TOTAL disp: "+ Runtime.getRuntime().totalMemory()/1024 +" kb, FREE: "+Runtime.getRuntime().freeMemory()/1024+" kb");
+					Runtime.getRuntime().runFinalization();
+					Runtime.getRuntime().gc();
+				}
+					
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+						
+			}
+		};
+		t.start();
 
 		Thread resetSequenceNumber = new Thread(){
 			public void run(){
@@ -109,6 +130,15 @@ public class BundleNode {
 			bp = new BundleProtocol(1);
 		}
 
+		
+		public long getDataReceived(){
+			return myTcpConn.getDataReceived();
+		}
+		
+		public boolean getDataFinished(){
+			return myTcpConn.getFinished();
+		}
+		
 		/** Effettua connessione al servizio MDTN. */
 		public boolean connectToService(String ip){
 			//addLog("Tentativo di connessione a MDTN...");
@@ -131,6 +161,9 @@ public class BundleNode {
 			return esito;
 		}
 		
+		public String getMyIp(){
+			return myTcpConn.getIpAddress();
+		}
 		
 		/** Effettua connessione al servizio MDTN. */
 		public void disconnectFromService(){
@@ -212,6 +245,44 @@ public class BundleNode {
 		}
 
 		
+		public boolean downloadResource(GenericResource toDownload){
+			
+			Bundle toSend = new Bundle();
+			
+			//Imposta il payload del bundle
+			toSend.getPayload().setType("DOWNLOAD");
+			
+			//Imposta il payload del bundle
+			byte rawdata[] = Buffering.toBytes(toDownload);
+			toSend.getPayload().setPayloadData(rawdata);
+			
+			//Invio il bundle contenente la richiesta.
+			File SDCardRoot = Environment.getExternalStorageDirectory();  
+			final String path = SDCardRoot+"/MDTN_data/"+toDownload.getName();
+			addLog("In attesa del file "+toDownload.getName());
+			
+			Thread listen = new Thread(){
+				public void run(){
+					myTcpConn.activateDataTransfering(path);		
+				}
+			};
+			listen.start();
+			
+			boolean esit = sendBundle(toSend);
+			
+			if(esit)addLog("Richiesta inoltrata.");
+			else addLog("Errore inoltro richiesta.");
+
+			return esit;
+			
+		}
+		
+		
+		/**
+		 * Metodo che richiede la lista risorse al server. 
+		 * (La successiva risposta del server viene gestita automaticamente dai livelli inferiori)
+		 * @return true=richiesta inviata, false=errore invio richiesta.
+		 */
 		public boolean requestList(){
 			Bundle toSend = new Bundle();
 			
@@ -270,9 +341,19 @@ public class BundleNode {
 							
 							addLog("Aggiornamento lista risorse completato.");
 						}
+						else if(received.getPayload().getType().equals("DOWNLOAD")){
+							
+							RealResource realFile = (RealResource)Buffering.toObject(received.getPayload().getPayloadData());
+							
+							File SDCardRoot = Environment.getExternalStorageDirectory();  
+							Buffering.writeBytesToFile(SDCardRoot+"/MDTN_data/"+realFile.getName(), realFile.getData());
+							addLog("Ricevuto file "+realFile.getName());
+							
+							realFile=null;
+						}
 						
 						/* Platform-independent operation */
-						Bundle myRisp = bp.processBundle((Bundle)datain);
+						Bundle myRisp = bp.processBundle(received);
 						
 						/*Invia eventuali risposte*/
 						if(!(myRisp==null)){
@@ -281,6 +362,13 @@ public class BundleNode {
 							else
 								addLog("Errore invio risposta.");
 						}
+						
+						//Force memory-free
+						datain=null;
+						received=null;
+						Runtime.getRuntime().runFinalization();
+						Runtime.getRuntime().gc();
+					
 					}
 				}
 				catch (IOException e) {

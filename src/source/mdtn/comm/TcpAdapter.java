@@ -1,18 +1,21 @@
 package source.mdtn.comm;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OptionalDataException;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import android.util.Log;
-
 import source.mdtn.bundle.Bundle;
+import android.R.bool;
+import android.util.Log;
 
 /**
  * ConvergenceLayerAdapter per trasportare bundle MDTN sopra connessioni TCP/IP.
@@ -31,14 +34,24 @@ public class TcpAdapter {
 	/** ObjectStream di uscita (dati in uscita) */
 	private ObjectOutputStream oos;
 
-	//Raw-streams
-	private PrintWriter out;
-	private BufferedReader in;
 	
+	private ServerSocket transferingSocket;
+	
+	private long dataReceived;
+	private boolean finished;
 
+	
+	
 	/** Costruttore base, nessuna connessione automatica. */
 	public TcpAdapter(){
+		dataReceived=0;
 		connected=false;
+
+
+	}
+	
+	public String getIpAddress(){
+		return socket.getLocalAddress().getHostAddress();
 	}
 	
 	/** Costruttore avanzato che avvia subito la connessione utilizzando i parametri specificati. */
@@ -46,6 +59,57 @@ public class TcpAdapter {
 		connected=connect(ip,port);
 	}
 	
+	
+	public long getDataReceived(){
+		return dataReceived;
+	}
+	
+	public boolean getFinished(){
+		return finished;
+	}
+	
+	//TODO TEST
+	public boolean activateDataTransfering(String fileName){
+			try{
+				dataReceived=0;
+				finished=false;
+				transferingSocket = new ServerSocket(44444);
+				Socket s = transferingSocket.accept(); 
+
+				InputStream in = s.getInputStream();
+				FileOutputStream fos = new FileOutputStream(fileName+".tmp");
+				byte[] buf = new byte[4096];
+				int read;
+
+				while( (read=in.read(buf)) != -1) {
+					fos.write(buf, 0, read);
+					dataReceived+=read;
+				}
+
+				fos.flush();
+				s.close();
+				in.close();
+				finished=true;
+				//Rinomina il file, una volta completato il download
+				File f = new File(fileName+".tmp");
+				f.renameTo(new File(fileName));
+				return true;
+			}
+			catch (Exception x){
+				x.printStackTrace();
+			}
+			finally {
+				try{
+					if( transferingSocket != null) transferingSocket.close();
+				}
+				catch (Exception x){
+					x.printStackTrace();
+				}
+			}
+		 
+		return false;
+	}
+
 	/**
 	 * Legge un Object dallo stream.
 	 * @return l'object letto.

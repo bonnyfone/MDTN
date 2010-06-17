@@ -1,8 +1,17 @@
 package source.mdtn.comm;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 import source.mdtn.bundle.Bundle;
 import source.mdtn.server.Server;
 import source.mdtn.server.Service;
+import source.mdtn.util.Buffering;
+import source.mdtn.util.GenericResource;
 
 public class BundleProtocol {
 
@@ -50,15 +59,31 @@ public class BundleProtocol {
 	 * @param toBeProcessed il bundle da processare.
 	 * @return un bundle di risposta.
 	 */
-	private Bundle serverProcessBundle(Bundle toBeProcessed){
+	private Bundle serverProcessBundle(final Bundle toBeProcessed){
 		
 		//Se è un pacchetto informativo, non serve salvare nulla
 		if(toBeProcessed.getPayload().getType().equals("DISCOVERY")){
 			//EIDclient=newBundle.getPrimary().getSource();
 		}
+		//Richiesta di aggiornamento lista
 		else if(toBeProcessed.getPayload().getType().equals("UPDATE_LIST")){
-			//TODO Creare un bundle con dentro la lista dei file del client+bacheca
 			return Service.updateListBundle(toBeProcessed.getPrimary().getSource());
+		}
+		//Richiesta di download
+		else if(toBeProcessed.getPayload().getType().equals("DOWNLOAD")){
+			
+	        //TODO
+			Thread handle= new Thread(){
+				public void run(){
+					Service.uploadFile(toBeProcessed);
+				}
+			};
+			handle.start();
+			/*
+			GenericResource res = (GenericResource)Buffering.toObject(toBeProcessed.getPayload().getPayloadData());
+			String EID = toBeProcessed.getPrimary().getSource().getHost();
+			return Service.returnResource(res,EID);
+			*/
 		}
 		else{//Altrimenti, salvataggio persistente del bundle su disco (RFC5050).
 			if(!toBeProcessed.store(Server.getBundlePath()))System.out.println("Errore di storage");	

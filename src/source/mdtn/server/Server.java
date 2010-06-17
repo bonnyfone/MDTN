@@ -10,6 +10,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.SocketException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -62,6 +64,9 @@ public class Server extends Thread {
 	
 	/** Path per lettura/scrittura files (config.mdtn)*/
 	private static String dataPath;
+	
+	/** EID del server */
+	private static URI serverEID;
 
 	/**
 	 * Costruttore del <b>Server</b>. Crea un server in ascolto sulla porta specificata.
@@ -71,6 +76,10 @@ public class Server extends Thread {
 
 		try {
 			setDaemon(true);
+			try {
+				serverEID = new URI("dtn://server");
+			} catch (URISyntaxException e) {e.printStackTrace();}
+			
 			connectionLock = new Object();
 			myGui = new ServerGui();
 			bundlePath = path;
@@ -152,6 +161,14 @@ public class Server extends Thread {
 	 */
 	public static String getDataPath(){
 		return dataPath;
+	}
+	
+	/**
+	 * Metodo statico che ritorna l'EID del server.
+	 * @return un URI con l'EID del server.
+	 */
+	public static URI getServerEID(){
+		return serverEID;
 	}
 	
 	

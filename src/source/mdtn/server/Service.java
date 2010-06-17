@@ -111,25 +111,32 @@ public class Service {
 	 */
 	public static Bundle updateListBundle(URI source){
 		
+		//Individuo la certella dedicata a questo EID
 		File dir=new File(Server.getDataPath() + source.getHost());
 
+		//Se la cartella esiste, ottengo la lista dei files
 		String[] children = dir.list(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return true;
 			}
 		});
 		
-		Vector<Vector<GenericResource>> data = new Vector<Vector<GenericResource>>();
+		
 		
 		//TODO Raccoglie info sui file del client
 		Vector<GenericResource> remote = new Vector<GenericResource>();
-		remote.add(new GenericResource("./", "asdasd.zip"));
-		remote.add(new GenericResource("./", "hfdasd.doc"));
-		remote.add(new GenericResource("./", "adsd.pdf"));
+		if(children != null){
+			for(int i=0; i<children.length; i++){
+				remote.add(new GenericResource(Server.getServerEID().toString()+"/", children[i]));		
+			}
+		}
+		
 		//TODO Raccoglie info bacheca pubblica
 		Vector<GenericResource> publics = new Vector<GenericResource>();
 		publics.add(new GenericResource("./", "asdasd.zip"));
-		
+
+		//Vector contenitore, racchiude le informazioni sui file propri del client e sui file pubblici.
+		Vector<Vector<GenericResource>> data = new Vector<Vector<GenericResource>>();
 		data.add(remote);
 		data.add(publics);
 		

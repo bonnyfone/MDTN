@@ -131,6 +131,8 @@ public class Dispatcher extends Thread {
 										Bundle newReportBundle = new Bundle(); //TODO sistemare i vari campi del bundle...
 
 										//destinatario della ricevuta
+										newReportBundle.getPrimary().setSource(Server.getServerEID());
+										newReportBundle.getPrimary().setReportTo(ref.getPrimary().getReportTo());
 										newReportBundle.getPrimary().setDestination(ref.getPrimary().getReportTo());
 										//appendo il messaggio 
 										newReportBundle.getPayload().setPayloadData(Buffering.toBytes(newReport));

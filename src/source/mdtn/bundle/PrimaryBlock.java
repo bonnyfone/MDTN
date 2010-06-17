@@ -62,7 +62,7 @@ public class PrimaryBlock implements Serializable{
 		fragmentOffset=-1;
 		totalAppDataLenght=-1;
 		try {
-			source = new URI("dtn://aaaaaaaa");
+			source = new URI("dtn://null");
 			reportTo = source;
 		} catch (URISyntaxException e) {
 			e.printStackTrace();

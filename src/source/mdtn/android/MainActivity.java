@@ -39,13 +39,13 @@ public class MainActivity extends TabActivity {
 	    Intent intent;  // Reusable Intent for each tab
 
 	    //----------------------CODICE DI TESTING ---------------
-	    URI x=null;
+	    URI clientEID=null;
 		try {
 			TelephonyManager tele = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE); 
 			String imei = tele.getDeviceId();
 			
-			x = new URI("dtn://"+imei);
-			myNode = new BundleNode(x);
+			clientEID = new URI("dtn://"+imei);
+			myNode = new BundleNode(clientEID);
 			
 			//Preparo, se serve, la cartella di storage
 			File SDCardRoot = Environment.getExternalStorageDirectory();  

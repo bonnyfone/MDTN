@@ -78,7 +78,7 @@ public class CommunicationThread extends Thread {
 				Bundle newBundle = (Bundle)datain;
 				
 				System.out.println("Bundle ricevuto");
-				myOwner.addLog("Bundle received(client id="+id+"): "+newBundle.getPrimary().getCreationTimestamp()+" "+newBundle.getPrimary().getCreationSequenceNumber() );
+				myOwner.addLog("Bundle received(client id="+id+"): "+newBundle.getPrimary().getSource()+" ,"+newBundle.getPrimary().getCreationSequenceNumber() );
 				EIDclient=newBundle.getPrimary().getSource();
 				
 				//Processo il bundle appena ricevuto.
@@ -161,6 +161,7 @@ public class CommunicationThread extends Thread {
 	public boolean send(Bundle toSend){
 		synchronized (out) {
 			try {
+				toSend.getPrimary().setSource(Server.getServerEID());
 				out.writeObject(toSend);
 				out.flush();
 				return true;

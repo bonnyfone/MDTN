@@ -255,10 +255,13 @@ public class BundleNode {
 						
 						/*Platform-depended operation*/
 						Bundle received = (Bundle)datain;
+						
+						//Gestione REPORT
 						if(received.getPayload().getType().equals("REPORT")){
 							Report newReport = ((Report)Buffering.toObject(received.getPayload().getPayloadData()));
 							addLog("REPORT: " + newReport.getMessage() + "\n\t\t\t(operazione effettuata alle "+newReport.getComplementTime() + ")");
 						}
+						//Gestione aggiornamento liste risorse
 						else if(received.getPayload().getType().equals("UPDATE_LIST")){
 							
 							Vector<Vector<GenericResource>> newList= (Vector<Vector<GenericResource>>)Buffering.toObject(received.getPayload().getPayloadData());
@@ -267,9 +270,8 @@ public class BundleNode {
 							
 							addLog("Aggiornamento lista risorse completato.");
 						}
-						//TODO QUA, Gestire le risposte alle richieste di UPDATE_LIST!!!
 						
-						/*Platform-independent operation*/
+						/* Platform-independent operation */
 						Bundle myRisp = bp.processBundle((Bundle)datain);
 						
 						/*Invia eventuali risposte*/

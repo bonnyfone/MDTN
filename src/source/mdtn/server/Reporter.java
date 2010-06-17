@@ -92,9 +92,11 @@ public class Reporter extends Thread {
 		for(int i=0;i<recepitList.size();i++){
 			if(recepitList.elementAt(i).equals(toRemove)){
 				recepitList.remove(i);
+				
 				return;
 			}
 		}
+		
 	}
 
 	/**

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Vector;
@@ -75,6 +76,10 @@ public class CommunicationThread extends Thread {
 		in = new ObjectInputStream(socket.getInputStream());
 		clientIP = socket.getInetAddress().getHostAddress();
 		System.out.println("IP client:"+clientIP);
+		socket.setKeepAlive(true);
+
+	
+		                                 /* Communication Handle */
 		try{
 			while ((datain = in.readObject()) != null) {
 				

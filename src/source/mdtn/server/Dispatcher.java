@@ -192,8 +192,13 @@ public class Dispatcher extends Thread {
 					
 					File newDir = new File(Server.getDataPath()+toBeProcessed.getPrimary().getSource().getHost().toString());
 					newDir.mkdir();
-					if(Service.downloadFile(newDir.toString(), req))
+					if(Service.downloadFile(newDir.toString(), req)){
 						ris="Download risorsa completato.";
+						if(newRequest.isPublic()){
+							Service.addPublicResource(toBeProcessed.getPrimary().getSource().getHost().toString()+newRequest.getName());
+						}
+					}
+						
 					else
 						ris="error: Errore download risorsa.";
 

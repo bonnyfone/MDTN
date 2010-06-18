@@ -3,6 +3,7 @@ package source.mdtn.comm;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.Buffer;
 import java.util.Vector;
 
 import source.mdtn.bundle.Bundle;
@@ -33,6 +34,8 @@ public class BundleNode {
 	private Vector<GenericResource> publicRes;
 	
 
+	private boolean isResUpdated;
+	
 	//TODO Qui vanno messi tutti i campi dati e le informazioni generali sul nodo! Le funzionalità
 	//sono implementate attraverso metodi del BPAgent
 
@@ -108,6 +111,10 @@ public class BundleNode {
 		return publicRes;
 	}
 
+	public boolean isResourceUpdated(){
+		return isResUpdated;
+	}
+	
 	/**----------------------------------------------------------------------------------------------*/
 	/**----------------------------------        B P A        -------------------------------------- */
 	/**----------------------------------------------------------------------------------------------*/
@@ -244,7 +251,14 @@ public class BundleNode {
 			return esit;
 		}
 
-		
+
+		/**
+		 * Metodo che invia la richiesta di download di una risorsa.
+		 * Attiva uno stato di attesa sul client, che è pronto a ricevere
+		 * risorse appena il server è disponibile.
+		 * @param toDownload la risorsa che si vuole scaricare.
+		 * @return true=richiesta inoltrata, false=errore invio richiesta
+		 */
 		public boolean downloadResource(GenericResource toDownload){
 			
 			Bundle toSend = new Bundle();
@@ -277,6 +291,34 @@ public class BundleNode {
 			
 		}
 		
+		/**
+		 * Metodo che invia la richiesta di cancellazione di una risorsa remota.
+		 * @param toDelete la risorsa che si desidera eliminare.
+		 * @return true=richiesta inoltrata, false=errore invio richiesta
+		 */
+		public boolean deleteResource(GenericResource toDelete){
+			Bundle toSend = new Bundle();
+			
+			//Imposta il payload del bundle
+			toSend.getPayload().setType("DELETE");
+			
+			toSend.getPayload().setPayloadData(Buffering.toBytes(toDelete));
+			
+			//Imposto eventuali flag??
+			//TODO impostare flag necessari...
+			
+			//Invio il bundle contenente la richiesta.
+			
+			boolean esit = sendBundle(toSend);
+			
+			if(esit){
+				addLog("Richiesta cancellazione risorsa.");
+				
+			}
+			else addLog("Errore cancellazione risorsa.");
+
+			return esit;
+		}
 		
 		/**
 		 * Metodo che richiede la lista risorse al server. 
@@ -293,9 +335,13 @@ public class BundleNode {
 			//TODO impostare flag necessari...
 			
 			//Invio il bundle contenente la richiesta.
+			isResUpdated=false;
 			boolean esit = sendBundle(toSend);
 			
-			if(esit)addLog("Aggiornamento risorse..");
+			if(esit){
+				addLog("Aggiornamento risorse..");
+				
+			}
 			else addLog("Errore agg. risorse.");
 
 			return esit;
@@ -340,6 +386,7 @@ public class BundleNode {
 							publicRes = newList.elementAt(1);
 							
 							addLog("Aggiornamento lista risorse completato.");
+							isResUpdated=true;
 						}
 						else if(received.getPayload().getType().equals("DOWNLOAD")){
 							

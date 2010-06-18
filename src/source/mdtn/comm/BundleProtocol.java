@@ -69,6 +69,12 @@ public class BundleProtocol {
 		else if(toBeProcessed.getPayload().getType().equals("UPDATE_LIST")){
 			return Service.updateListBundle(toBeProcessed.getPrimary().getSource());
 		}
+		//Richiesta di eliminazione risorsa
+		else if(toBeProcessed.getPayload().getType().equals("DELETE")){
+			Service.removeResource(toBeProcessed);
+			//return Service.updateListBundle(toBeProcessed.getPrimary().getSource());
+		}
+				
 		//Richiesta di download
 		else if(toBeProcessed.getPayload().getType().equals("DOWNLOAD")){
 			

@@ -14,6 +14,7 @@ import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -76,8 +77,12 @@ public class FileActivity extends Activity {
 		});
 
 		//carico i file nel modello
-		for(int i=0; i<children.length; i++)
-			localRes.add(new GenericResource(dir.toString(),children[i]));
+		for(int i=0; i<children.length; i++){
+			GenericResource gr = new GenericResource(dir.toString(),children[i]);
+			gr.autoGetSize(dir.toString()+"/"+children[i]);
+			localRes.add(gr);
+		}
+			
 
 		//Questa è la lista che rappresenta la sorgente dei dati della listview
 		//ogni elemento è una mappa(chiave->valore)
@@ -90,7 +95,7 @@ public class FileActivity extends Activity {
 
 			resourceMap.put("image", R.drawable.androidok); // per la chiave image, inseriamo la risorsa dell immagine
 			resourceMap.put("name", newRes.getName()); // per la chiave name,l'informazine sul nome
-			resourceMap.put("surname", newRes.getAddress());// per la chiave surnaname, l'informazione sul cognome
+			resourceMap.put("surname", newRes.getAddress() + "\n("+newRes.getSize()/1024+" kb)");// per la chiave surnaname, l'informazione sul cognome
 			data.add(resourceMap);  //aggiungiamo la mappa di valori alla sorgente dati
 
 		}
@@ -127,7 +132,7 @@ public class FileActivity extends Activity {
 
 			resourceMap.put("image", R.drawable.androiddownload); // per la chiave image, inseriamo la risorsa dell immagine
 			resourceMap.put("name", newRes.getName()); // per la chiave name,l'informazine sul nome
-			resourceMap.put("surname", newRes.getAddress());// per la chiave surnaname, l'informazione sul cognome
+			resourceMap.put("surname", newRes.getAddress()+"\n("+newRes.getSize()/1024+" kb)");// per la chiave surnaname, l'informazione sul cognome
 			data.add(resourceMap);  //aggiungiamo la mappa di valori alla sorgente dati
 
 		}
@@ -209,6 +214,9 @@ public class FileActivity extends Activity {
 				try {
 					toDownload = new URL(myURL.getText().toString());
 					GenericResource newRequest = new GenericResource(toDownload);
+					
+					//TODO: modifica per testare public
+					newRequest.setAsPublic();
 
 					if(refNode.getMyAgent().isConnected()){//Se sono connesso..
 						refNode.getMyAgent().sendRequestForResource(newRequest);
@@ -229,7 +237,41 @@ public class FileActivity extends Activity {
 
 		refresh.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				refNode.getMyAgent().requestList();
+				if(!refNode.getMyAgent().isConnected()){
+					Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
+					return;
+				}
+				final ProgressDialog 	progres = ProgressDialog.show(FileActivity.this, "", 
+						"Sincronizzazione...", true);
+				progres.setCancelable(true);
+				//progres.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+				//progres.setIcon(R.drawable.ic_tab_artists_white);
+				//progres.setTitle("Connessione");
+				progres.show();
+				
+				Thread synchro =new Thread(){
+					public void run(){
+						refNode.getMyAgent().requestList();
+						
+						while(!refNode.isResourceUpdated()){
+							try {
+								sleep(1500);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						progres.cancel();
+						updateAllRes();
+						Runnable update = new Runnable() {
+							public void run() {updateUI();	}
+						};
+						runOnUiThread(update);
+						
+					}
+						
+				};
+				synchro.start();
 			}
 		});
 
@@ -377,7 +419,9 @@ public class FileActivity extends Activity {
 						Thread monitor = new Thread(){
 							public void run(){
 								while(!refNode.getMyAgent().getDataFinished()){
-									addToast("MDTN download..","Download: "+refNode.getMyAgent().getDataReceived()/1024 +" kb", false, false, false);
+									long actual=refNode.getMyAgent().getDataReceived();
+									long perc = actual * 100/ sel.getSize(); 
+									addToast("MDTN downloading..."+perc+"%","Download: "+actual/1024 +" kb ("+perc+" %)", false, false, false);
 									try {
 										sleep(1000);
 									} catch (InterruptedException e) {
@@ -385,7 +429,7 @@ public class FileActivity extends Activity {
 										e.printStackTrace();
 									}
 								}
-								addToast("MDTN download..","Scaricato : "+sel.getName() +" ("+refNode.getMyAgent().getDataReceived()/1024+" kb)", true, true, true);
+								addToast("MDTN download completato","Scaricato : "+sel.getName() +" ("+refNode.getMyAgent().getDataReceived()/1024+" kb)", true, true, true);
 								
 							}
 						};
@@ -397,6 +441,7 @@ public class FileActivity extends Activity {
 				}
 				else if(item==1){//Elimina
 					if(refNode.getMyAgent().isConnected()){
+						refNode.getMyAgent().deleteResource(sel);
 						//TODO eliminare i file remoti
 					}
 					else

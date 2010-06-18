@@ -243,8 +243,11 @@ public class StatusActivity extends Activity {
 									logList=refNode.getLogs().elementAt(i) + "\n" + logList;
 									
 									//Se c'è un report, aggiungi notifica "toast"
-									if(newLog.substring(8).trim().startsWith("REPORT"))
-										addToast("MDTN", newLog, true, true, true);
+									if(newLog.substring(8).trim().startsWith("REPORT")){
+										
+										addToast("MDTN: notifica", newLog.substring(17), true, true, true);	
+									}
+										
 									
 								}
 								

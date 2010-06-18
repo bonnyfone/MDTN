@@ -97,7 +97,11 @@ public class Server extends Thread {
 			addLog("Bundle-storage in \""+bundlePath+"\"");
 			addLog("Data-storage in \""+dataPath+"\"");
 			
-
+			
+			Service.removePublicResource("saads.ads.it");
+			//Service.addPublicResource("saads.ads.it");
+			Service.getPublicResourceList();
+			
 			/* Test */
 			/*Message x = new Message("fromasd","toasd","asd","asd");
 			byte b[]=Buffering.toBytes(x);
@@ -109,6 +113,7 @@ public class Server extends Thread {
 		} catch (IOException e) {
 			addLog("Could not listen on port: "+listeningPort+".");
 			System.err.println("Could not listen on port: "+listeningPort+".");
+			JOptionPane.showMessageDialog(null, "Could not listen on port: "+listeningPort+".");
 			System.exit(-1);
 		}
 	}

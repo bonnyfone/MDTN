@@ -144,9 +144,9 @@ public class MainActivity extends TabActivity {
 		switch (item.getItemId()) {
 		case 0: //Mostra messaggio: Vuoi uscire? SI,NO
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage("Are you sure you want to exit?")
+			builder.setMessage("Vuoi uscire?")
 			.setCancelable(false)
-			.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			.setPositiveButton("Si", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					MainActivity.this.finish();
 					myNode.getMyAgent().disconnectFromService();

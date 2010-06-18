@@ -1,9 +1,13 @@
 package source.mdtn.server;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -115,7 +119,7 @@ public class Service {
 	 * @return un bundle contenente le informazioni.
 	 */
 	public static Bundle updateListBundle(URI source){
-		
+
 		//Individuo la certella dedicata a questo EID
 		File dir=new File(Server.getDataPath() + source.getHost());
 
@@ -125,15 +129,17 @@ public class Service {
 				return true;
 			}
 		});
-		
+
 		//TODO Raccoglie info sui file del client
 		Vector<GenericResource> remote = new Vector<GenericResource>();
 		if(children != null){
 			for(int i=0; i<children.length; i++){
-				remote.add(new GenericResource(Server.getServerEID().toString(), children[i]));		
+				GenericResource newRes = new GenericResource(Server.getServerEID().toString(), children[i]);
+				newRes.autoGetSize(dir+"/"+children[i]);
+				remote.add(newRes);		
 			}
 		}
-		
+
 		//TODO Raccoglie info bacheca pubblica
 		Vector<GenericResource> publics = new Vector<GenericResource>();
 		publics.add(new GenericResource("./", "public.zip"));
@@ -142,14 +148,132 @@ public class Service {
 		Vector<Vector<GenericResource>> data = new Vector<Vector<GenericResource>>();
 		data.add(remote);
 		data.add(publics);
-		
+
 		Bundle ris = new Bundle();
 		ris.getPayload().setType("UPDATE_LIST");
 		ris.getPayload().setPayloadData(Buffering.toBytes(data));
-		
+
 		return ris;
 	}
-	
+
+
+	/**
+	 * Rimuove un elemento dalla lista delle risorse pubbliche.
+	 * @param removePath il path da rimuovere.
+	 */
+	public static void removePublicResource(String removePath){
+		//Leggo il file public.list
+		File list = new File(Server.getDataPath()+"public.list");
+		if(list.exists()){
+
+			FileReader input;
+			try {
+				input = new FileReader(list);
+				BufferedReader bufRead = new BufferedReader(input);
+				
+				String line; 
+				int count = 0; 
+				String buff="";
+				//legge linea per linea
+				while ((line = bufRead.readLine()) != null){
+
+					if(!line.equals(removePath))
+						buff+=(line+"\n");
+
+					count++;
+				}
+				bufRead.close();
+
+				//Riscrive il file aggiornato
+				BufferedWriter bw = null;
+				try {
+					bw = new BufferedWriter(new FileWriter(list, false));
+					bw.write(buff);
+					bw.flush();
+					bw.close();
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				}
+				
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * Aggiunge un path alla lista delle risorse pubbliche
+	 * @param newPath
+	 */
+	public static void  addPublicResource(String newPath){
+		//Leggo il file public.list
+		File list = new File(Server.getDataPath()+"public.list");
+
+
+			BufferedWriter bw = null;
+			try {
+				bw = new BufferedWriter(new FileWriter(list, true));
+				bw.write(newPath);
+				bw.newLine();
+				bw.flush();
+				bw.close();
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+
+	}
+
+
+	/**
+	 * Metodo che ritorna la lista delle risorse pubbliche.
+	 * @return
+	 */
+	public static Vector<GenericResource> getPublicResourceList(){
+		//Vector di ritorno
+		Vector<GenericResource> ris= new Vector<GenericResource>();
+
+		//Leggo il file public.list
+		File list = new File(Server.getDataPath()+"public.list");
+		if(list.exists()){
+
+			FileReader input;
+			try {
+				input = new FileReader(list);
+				BufferedReader bufRead = new BufferedReader(input);
+
+				String line; 
+				int count = 0; 
+
+				//legge linea per linea
+				while ((line = bufRead.readLine()) != null){
+
+					File newFile = new File(Server.getDataPath()+line);
+					GenericResource newRes = new GenericResource(".",line);
+					newRes.autoGetSize(Server.getDataPath()+line);
+
+					System.out.println(newRes.getAddress()+ " size: "+newRes.getSize());
+					ris.add(newRes);
+
+					count++;
+				}
+
+				bufRead.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+
+		}
+
+		return ris;
+	}
+
 	/**
 	 * 
 	 * Metodo che cattura un intero sito web e lo rende fruibile localmente.<br>
@@ -158,27 +282,15 @@ public class Service {
 	 */
 	public static void captureSite(final String address){
 		SiteCapturer s = new SiteCapturer();
-		
+
 		s.setSource(address);
 		s.setTarget(address);
-		/*NodeFilter filter = new NodeFilter() {
-			
-			@Override
-			public boolean accept(Node arg0) {
-				// TODO Auto-generated method stub
-				if(arg0.getPage().getUrl().equals(address))
-					return true;
-				
-				return false;
-			}
-		};
-		s.setFilter(filter);
-		*/
+
 		s.setCaptureResources(true);
-		
+
 		s.capture();
 	}
-	
+
 	/**
 	 * Metodo che ritorna un bundle contenente la risorsa richiesta.
 	 * @param req risorsa richiesta.
@@ -188,7 +300,7 @@ public class Service {
 	public static Bundle returnResource(GenericResource req, String EID){
 		//Cerco il file
 		String path="";
-		
+
 		if(req.isPublic()){
 			//TODO ritorna una risorsa pubblica..
 		}
@@ -196,7 +308,7 @@ public class Service {
 			path = Server.getDataPath() + EID + "/" + req.getName();
 			System.out.println("DOWNLOAD: path-> "+path);
 		}
-		
+
 		Bundle risp = new Bundle();
 
 		risp.getPayload().setType("DOWNLOAD");
@@ -205,32 +317,36 @@ public class Service {
 
 		return risp;
 	}
-	
-	public static void uploadFile(Bundle toBeProcessed){
-        Socket s;
-		try {
-	        //Individua il file
-	        GenericResource res = (GenericResource)Buffering.toObject(toBeProcessed.getPayload().getPayloadData());
-	        String EID = toBeProcessed.getPrimary().getSource().getHost();
-	        String ip = res.getInfo();
-	        String path = Server.getDataPath() + EID + "/" + res.getName();
-	     
-			s = new Socket(ip, 44444);
-	        System.out.println("Client connected. Starting dump.");
 
-	        FileInputStream fis = new FileInputStream(path);
-	        
-	        //InputStream in = s.getInputStream();
-	        OutputStream o = s.getOutputStream();
-	        
-	        byte[] buf = new byte[4096];
-	        int read;
-	        while( (read=fis.read(buf)) != -1 ){
-	            o.write(buf, 0, read);
-	            o.flush();
-	        }
-	        o.close();
-	        s.close();
+	/**
+	 * Metodo interno del server per inviare dati al client attraverso uno stream dedicato.
+	 * @param toBeProcessed bundle con i parametri per il trasferimento.
+	 */
+	public static void uploadFile(Bundle toBeProcessed){
+		Socket s;
+		try {
+			//Individua il file
+			GenericResource res = (GenericResource)Buffering.toObject(toBeProcessed.getPayload().getPayloadData());
+			String EID = toBeProcessed.getPrimary().getSource().getHost();
+			String ip = res.getInfo();
+			String path = Server.getDataPath() + EID + "/" + res.getName();
+
+			s = new Socket(ip, 44444);
+			System.out.println("Client connected. Starting dump.");
+
+			FileInputStream fis = new FileInputStream(path);
+
+			//InputStream in = s.getInputStream();
+			OutputStream o = s.getOutputStream();
+
+			byte[] buf = new byte[4096];
+			int read;
+			while( (read=fis.read(buf)) != -1 ){
+				o.write(buf, 0, read);
+				o.flush();
+			}
+			o.close();
+			s.close();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -239,7 +355,7 @@ public class Service {
 			e.printStackTrace();
 		}
 	}
-	
+
 
 	/**
 	 * Metodo che scarica un determinato file da internet.
@@ -249,15 +365,6 @@ public class Service {
 	public static boolean downloadFile(String savingPath,URL url)
 	{
 		String path = url.toString();
-		
-		/*
-		if (args.length < 1)
-		{
-			System.err.println
-			("usage: java copyURL URL [LocalFile]");
-			System.exit(1);
-		}
-		*/
 		try
 		{
 			System.out.println("Opening connection to " + path + "...");
@@ -273,24 +380,15 @@ public class Service {
 					date.toLocaleString() + ")...");
 			System.out.flush();
 			FileOutputStream fos=null;
-			/*if (args.length < 2)
-			{
-				String localFile=null;
-				// Get only file name
-				StringTokenizer st=new StringTokenizer(url.getFile(), "/");
-				while (st.hasMoreTokens())
-					localFile=st.nextToken();
-				fos = new FileOutputStream(localFile);
-			}
-			else*/
+
 			String name = "";
 			if(url.getFile().equals(null))
 				name="index.html";
 			else 
 				name = url.getFile();
-			
+
 			fos = new FileOutputStream(savingPath + name);
-			
+
 			byte[] buf = new byte[4096];
 			int size = 0;
 			int count=0;
@@ -305,7 +403,7 @@ public class Service {
 				fos.write(oneChar);
 				count++;
 			}
-			*/
+			 */
 			is.close();
 			fos.close();
 			System.out.println(count + " byte(s) copied");
@@ -316,7 +414,23 @@ public class Service {
 		catch (IOException e)
 		{ System.err.println(e.toString()); return false;}
 	}
-	
+
+
+
+	public static void removeResource(Bundle toProcess){
+		//EID client, per individuare la cartella
+		String EID = toProcess.getPrimary().getSource().getHost().toString();
+		//Risorsa da eliminare
+		GenericResource toDelete = (GenericResource)Buffering.toObject((toProcess.getPayload().getPayloadData()));
+		System.out.println(EID);
+		File f = new File(Server.getDataPath()+EID+"/"+toDelete.getName());
+		f.delete();
+		
+		Service.removePublicResource(EID+"/"+toDelete.getName());
+
+	}
+
+
 	public static void main(String args[]){
 		String a[]={""};
 		//a[0]="http://mdtn.altervista.org";

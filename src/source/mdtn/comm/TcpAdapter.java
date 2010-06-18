@@ -75,6 +75,7 @@ public class TcpAdapter {
 				finished=false;
 				transferingSocket = new ServerSocket(44444);
 				Socket s = transferingSocket.accept(); 
+				s.setKeepAlive(true);
 
 				InputStream in = s.getInputStream();
 				FileOutputStream fos = new FileOutputStream(fileName+".tmp");
@@ -170,6 +171,7 @@ public class TcpAdapter {
 			oos.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+			connected=false;
 		}
 	}
 	
@@ -193,8 +195,18 @@ public class TcpAdapter {
 				Log.i("MDTN", "Scrittura su stream eseguita.");
 				return true;
 			} catch (IOException e) {
-				e.printStackTrace();
-				return false;
+				Log.i("MDTN", "Impossibile scrivere sullo stream.");
+				connected=false;
+				try {
+					socket.close();
+					ois.close();
+					oos.close();
+					return false;
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
 			}
 		}
 		return false;

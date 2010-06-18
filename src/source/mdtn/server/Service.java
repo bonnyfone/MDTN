@@ -141,8 +141,7 @@ public class Service {
 		}
 
 		//TODO Raccoglie info bacheca pubblica
-		Vector<GenericResource> publics = new Vector<GenericResource>();
-		publics.add(new GenericResource("./", "public.zip"));
+		Vector<GenericResource> publics = Service.getPublicResourceList();
 
 		//Vector contenitore, racchiude le informazioni sui file propri del client e sui file pubblici.
 		Vector<Vector<GenericResource>> data = new Vector<Vector<GenericResource>>();
@@ -251,8 +250,9 @@ public class Service {
 				while ((line = bufRead.readLine()) != null){
 
 					File newFile = new File(Server.getDataPath()+line);
-					GenericResource newRes = new GenericResource(".",line);
+					GenericResource newRes = new GenericResource("dtn://public",newFile.getName());
 					newRes.autoGetSize(Server.getDataPath()+line);
+					newRes.setAsPublic();
 
 					System.out.println(newRes.getAddress()+ " size: "+newRes.getSize());
 					ris.add(newRes);

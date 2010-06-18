@@ -46,7 +46,7 @@ public class MainActivity extends TabActivity {
 			
 			clientEID = new URI("dtn://"+imei);
 			myNode = new BundleNode(clientEID);
-			
+			Log.i("MDTM", clientEID.toString());
 			//Preparo, se serve, la cartella di storage
 			File SDCardRoot = Environment.getExternalStorageDirectory();  
 			File file = new File(SDCardRoot+"/MDTN_data");

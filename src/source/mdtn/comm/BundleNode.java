@@ -260,6 +260,8 @@ public class BundleNode {
 		 * @return true=richiesta inoltrata, false=errore invio richiesta
 		 */
 		public boolean downloadResource(GenericResource toDownload){
+
+			toDownload.setInfo(getMyIp());
 			
 			Bundle toSend = new Bundle();
 			

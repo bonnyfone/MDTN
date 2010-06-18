@@ -152,6 +152,38 @@ public class FileActivity extends Activity {
 	/** Metodo che aggiorna la lista delle risorse pubbliche */
 	private void updatePublicRes(){
 
+		publicRes.clear();
+
+		for(int i=0; i<refNode.getPublicRes().size(); i++)
+			publicRes.add(refNode.getPublicRes().elementAt(i));
+
+
+		//Questa è la lista che rappresenta la sorgente dei dati della listview
+		//ogni elemento è una mappa(chiave->valore)
+		final ArrayList<HashMap<String, Object>> data=new ArrayList<HashMap<String,Object>>();
+
+		for(int i=0;i<publicRes.size();i++){
+			GenericResource newRes=publicRes.get(i);// per ogni persona all'inteno della ditta
+
+			HashMap<String,Object> resourceMap=new HashMap<String, Object>();//creiamo una mappa di valori
+
+			resourceMap.put("image", R.drawable.androiddownload); // per la chiave image, inseriamo la risorsa dell immagine
+			resourceMap.put("name", newRes.getName()); // per la chiave name,l'informazine sul nome
+			resourceMap.put("surname", newRes.getAddress()+"\n("+newRes.getSize()/1024+" kb)");// per la chiave surnaname, l'informazione sul cognome
+			data.add(resourceMap);  //aggiungiamo la mappa di valori alla sorgente dati
+
+		}
+
+		String[] from={"image","name","surname"}; //dai valori contenuti in queste chiavi
+		int[] to={R.id.personImage,R.id.personName,R.id.personSurname};//agli id delle view
+
+		//costruzione dell adapter
+		adapterPublic=new SimpleAdapter(
+				getApplicationContext(),
+				data,//sorgente dati
+				R.layout.row, //layout contenente gli id di "to"
+				from,
+				to);
 	}
 
 	/** Metodo che aggiorna tutte le liste */
@@ -184,6 +216,54 @@ public class FileActivity extends Activity {
 		}
 	}
 
+	public void askNewAddress(){
+		 final AlertDialog.Builder alert = new AlertDialog.Builder(this);  
+		   
+		 alert.setTitle("Richiedi risorsa");  
+		 alert.setMessage("Inserisci l'url della risorsa:");  
+		   
+		 // Set an EditText view to get user input   
+		 final EditText input = new EditText(this);  
+		 input.setText("http://mdtn.altervista.org/ex.pdf");
+		 alert.setView(input);  
+		   
+		 alert.setPositiveButton("Invia", new DialogInterface.OnClickListener() {  
+		 public void onClick(DialogInterface dialog, int whichButton) {  
+		   String value = input.getText().toString();  
+		   
+		   Log.i("MDTN", "click!!!!");
+			URL toDownload;
+			try {
+				toDownload = new URL(value);
+				GenericResource newRequest = new GenericResource(toDownload);
+				
+				//TODO: modifica per testare public
+				newRequest.setAsPublic();
+
+				if(refNode.getMyAgent().isConnected()){//Se sono connesso..
+					refNode.getMyAgent().sendRequestForResource(newRequest);
+				}
+				else{
+					Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
+					return;
+				}
+				
+
+			} catch (MalformedURLException e) {
+				Log.i("MDTN","URL non valido");
+			}
+			
+		   }  
+		 });
+		 
+		 alert.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {  
+			   public void onClick(DialogInterface dialog, int whichButton) {  
+			     // Canceled.  
+			   }  
+			 });  
+		 
+		 alert.show(); 
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -193,7 +273,7 @@ public class FileActivity extends Activity {
 		//bind oggetti grafici
 		myList = (ListView)findViewById(R.id.mylist);
 		myLabelList = (TextView)findViewById(R.id.labellist);
-		myURL = (EditText)findViewById(R.id.address);
+		//myURL = (EditText)findViewById(R.id.address);
 
 		//Imposta, di default, la visualizzazione della lista locale.
 		selector=0;
@@ -204,27 +284,15 @@ public class FileActivity extends Activity {
 		publicRes = new ArrayList<GenericResource>();
 		updateAllRes();
 		//updateUI();
+		
+		   
+
 
 		//Pulsante per l'invio di richieste
-		Button sendRequest = (Button)findViewById(R.id.request);
+		ImageButton sendRequest = (ImageButton)findViewById(R.id.request);
 		sendRequest.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				Log.i("MDTN", "click!!!!");
-				URL toDownload;
-				try {
-					toDownload = new URL(myURL.getText().toString());
-					GenericResource newRequest = new GenericResource(toDownload);
-					
-					//TODO: modifica per testare public
-					newRequest.setAsPublic();
-
-					if(refNode.getMyAgent().isConnected()){//Se sono connesso..
-						refNode.getMyAgent().sendRequestForResource(newRequest);
-					}
-
-				} catch (MalformedURLException e) {
-					Log.i("MDTN","URL non valido");
-				}
+				askNewAddress();
 
 			}
 		});
@@ -257,7 +325,6 @@ public class FileActivity extends Activity {
 							try {
 								sleep(1500);
 							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						}
@@ -295,7 +362,7 @@ public class FileActivity extends Activity {
 		switchToPublic.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				updatePublicRes();
-				selector=1;
+				selector=2;
 				updateUI();
 			}
 		});
@@ -315,6 +382,7 @@ public class FileActivity extends Activity {
 		myList.setOnItemClickListener(listlistener);*/
 
 		//Listener per catturare il long-click in modalità touch
+		
 		myList.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
@@ -322,28 +390,13 @@ public class FileActivity extends Activity {
 				if(selector==0) handleLocal(arg2);
 				else if(selector==1) handleRemote(arg2);
 				else if(selector==2) handlePublic(arg2);
+				
 
-				/*
-				final CharSequence ele[] = {"Download","Elimina"};
-				Log.i("MDTN", "Cliccato LUNGO su "+arg2 + " "+arg3+"item collegato-> DA SISTEMARE");
-
-				final CharSequence[] items = {"Scarica", "Elimina", "Aggiorna"};
-
-				AlertDialog.Builder builder = new AlertDialog.Builder(FileActivity.this);
-				builder.setTitle("Cosa vuoi fare?");
-				builder.setSingleChoiceItems(items,-1, new DialogInterface.OnClickListener() {
-				    public void onClick(DialogInterface dialog, int item) {
-				        //Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
-				        dialog.cancel();
-				    }
-				});
-				AlertDialog alert = builder.create();
-				alert.show();
-				 */
 				return false;
 			}
 		});
 
+		updateUI();
 	}
 
 	/**
@@ -410,8 +463,7 @@ public class FileActivity extends Activity {
 
 				if(item==0){//Download
 					if(refNode.getMyAgent().isConnected()){
-						sel.setInfo(refNode.getMyAgent().getMyIp());
-						Log.i("MDTN", refNode.getMyAgent().getMyIp());
+
 						refNode.getMyAgent().downloadResource(sel);
 						Toast.makeText(getApplicationContext(), "Download del file in corso...", Toast.LENGTH_SHORT).show();
 						
@@ -425,7 +477,6 @@ public class FileActivity extends Activity {
 									try {
 										sleep(1000);
 									} catch (InterruptedException e) {
-										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
 								}
@@ -448,8 +499,11 @@ public class FileActivity extends Activity {
 						Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
 				}
 				else if(item==2){//Aggiorna
-					updateLocalRes();		
-					updateUI();
+					/*
+					 * updateRemoteRes();
+					 * updateUI();		
+					 */
+					
 				}
 
 				Log.i("MDTN","Selezionato: "+item);
@@ -465,11 +519,75 @@ public class FileActivity extends Activity {
 		alert.show();
 	}
 
-	//TODO
+	//TODO testare
 	public void handlePublic(int id){
+		//Safe check
+		if(id > publicRes.size())return;
+		final GenericResource sel= publicRes.get(id);
 
+		Log.i("MDTN", "Cliccato LUNGO su "+id + " ,item collegato-> "+sel.getName());
+		final CharSequence[] items = {"Download","Aggiorna"};
+
+		//Creo il menu contestuale
+		AlertDialog.Builder builder = new AlertDialog.Builder(FileActivity.this);
+		builder.setTitle(sel.getName());
+		builder.setSingleChoiceItems(items,-1, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int item) {
+
+				if(item==0){//Download
+					if(refNode.getMyAgent().isConnected()){
+						
+						refNode.getMyAgent().downloadResource(sel);
+						Toast.makeText(getApplicationContext(), "Download del file in corso...", Toast.LENGTH_SHORT).show();
+						
+						//Monitora il download attraverso uno status message.
+						Thread monitor = new Thread(){
+							public void run(){
+								while(!refNode.getMyAgent().getDataFinished()){
+									long actual=refNode.getMyAgent().getDataReceived();
+									long perc = actual * 100/ sel.getSize(); 
+									addToast("MDTN downloading..."+perc+"%","Download: "+actual/1024 +" kb ("+perc+" %)", false, false, false);
+									try {
+										sleep(1000);
+									} catch (InterruptedException e) {
+										e.printStackTrace();
+									}
+								}
+								addToast("MDTN download completato","Scaricato : "+sel.getName() +" ("+refNode.getMyAgent().getDataReceived()/1024+" kb)", true, true, true);
+								
+							}
+						};
+						monitor.start();
+					}
+					else
+						Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
+
+				}
+
+				else if(item==1){//Aggiorna
+					/*
+					 * updatePublicRes();
+					 * updateUI();
+					 * (fatte comunque in chiusura)		
+					 */
+					
+				}
+
+				Log.i("MDTN","Selezionato: "+item);
+				dialog.cancel();
+
+				//Aggiorna la lista
+				updatePublicRes();		
+				updateUI();
+
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
 	}
 
+	
+	
 	/**
 	 * Metodo grafico che aggiunge una messaggio di notifica alla barra delle notifiche di Android.
 	 * @param title titolo del messaggio.

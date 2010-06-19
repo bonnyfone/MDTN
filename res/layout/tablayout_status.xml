@@ -5,41 +5,55 @@
 	android:layout_height="wrap_content">
 	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_width="fill_parent" android:layout_height="fill_parent">
-		<TextView android:id="@+id/label" android:textStyle="bold"
+		
+		<TextView android:id="@+id/wifi" android:textStyle="bold"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:text="Stato wifi: "
+			android:textSize="17dip" android:layout_marginTop="5dip" />
+
+		<TextView android:id="@+id/wifistate" android:textColor="#FF0000"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:text="MDTN-server address" android:layout_marginTop="20dip" />
+			android:layout_toRightOf="@id/wifi" android:layout_marginTop="5dip"
+			android:textSize="17dip"  android:textStyle="bold" android:text="..." />
+		
+		<TextView android:id="@+id/lblstat" android:textStyle="bold"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_below="@id/wifistate" android:text="Stato MDTN: "
+			android:textSize="17dip" android:layout_marginTop="20dip" />
+
+		<TextView android:id="@+id/stat" android:textColor="#FF0000"  android:textStyle="bold"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:layout_toRightOf="@id/lblstat" android:layout_alignTop="@id/lblstat"
+			android:textSize="17dip" android:text="Disconnesso" />
+		
+		<TextView android:id="@+id/label" android:textStyle="bold"
+			android:layout_width="fill_parent" android:layout_below="@id/stat" android:layout_height="wrap_content"
+			android:text="Indirizzo server MDTN:" android:layout_marginTop="20dip" />
 
 		<EditText android:id="@+id/ip" android:layout_width="fill_parent"
 			android:layout_height="wrap_content" android:background="@android:drawable/editbox_background"
-			android:layout_below="@id/label" android:text="192.168.99.8"
+			android:layout_below="@id/label" android:text="192.168.0.6"
 			android:layout_marginTop="10dip" />
+			
 		<Button android:id="@+id/connect" android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:layout_below="@id/ip"
-			android:layout_alignParentLeft="true" android:text="Connect"
+			android:layout_alignParentLeft="true" android:text="  Connetti  \nMDTN"
 			android:layout_marginTop="10dip" />
 
 		<Button android:id="@+id/disconnect" android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:layout_below="@id/ip"
-			android:layout_toRightOf="@id/connect" android:text="Disonnect"
+			android:layout_toRightOf="@id/connect" android:text=" Disonnetti \nMDTN"
 			android:layout_alignTop="@id/connect" />
 
 		<Button android:id="@+id/send" android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:layout_alignParentRight="true"
-			android:layout_alignTop="@id/connect" android:text="Send a test bundle" />
+			android:layout_alignTop="@id/connect" android:text="Test bundle" />
 
-		<TextView android:id="@+id/lblstat" android:textStyle="bold"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_below="@id/send" android:text="Status: "
-			android:textSize="20dip" android:layout_marginTop="20dip" />
 
-		<TextView android:id="@+id/stat" android:textColor="#FF0000"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/lblstat" android:layout_alignTop="@id/lblstat"
-			android:textSize="20dip" android:text="DISCONNECTED" />
 
 		<TextView android:id="@+id/lbllog" android:textStyle="bold"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_below="@id/stat" android:text="Logs: "
+			android:layout_below="@id/send" android:text="Logs: "
 			android:layout_marginTop="20dip" />
 
 		<ScrollView android:id="@+id/ScrollView01"

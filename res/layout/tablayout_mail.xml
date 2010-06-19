@@ -7,7 +7,7 @@
 		android:layout_width="fill_parent" android:layout_height="wrap_content">
 		<TextView android:id="@+id/label" android:textStyle="bold"
 			android:layout_width="wrap_content" android:textSize="20dip"
-			android:layout_height="wrap_content" android:text="From: "
+			android:layout_height="wrap_content" android:text="Da: "
 			android:layout_marginTop="5dip" />
 		<EditText android:id="@+id/from" android:inputType="textShortMessage|textEmailAddress"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
@@ -19,7 +19,7 @@
 
 		<TextView android:id="@+id/label2" android:textStyle="bold"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:text="To:   " android:textSize="20dip"
+			android:text="A:   " android:textSize="20dip"
 			android:layout_marginTop="10dip" android:layout_below="@id/from" />
 		<EditText android:id="@+id/to" android:inputType="textShortMessage|textEmailAddress"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
 
 		<TextView android:id="@+id/label3" android:textStyle="bold"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:text="Subject:   " android:textSize="20dip"
+			android:text="Oggetto:   " android:textSize="20dip"
 			android:layout_marginTop="10dip" android:layout_below="@id/to" />
 		<EditText android:id="@+id/subj" android:layout_width="fill_parent"
 			android:inputType="textShortMessage" android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
 
 		<TextView android:id="@+id/label4" android:textStyle="bold"
 			android:layout_width="wrap_content" android:textSize="20dip"
-			android:layout_height="wrap_content" android:text="Message:"
+			android:layout_height="wrap_content" android:text="Messaggio:"
 			android:layout_marginTop="10dip" android:layout_below="@id/subj" />
 
 
@@ -62,8 +62,8 @@
 		<Button android:id="@+id/send" android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:layout_centerHorizontal="true"
 			android:layout_below="@id/mess" android:textSize="20dip" android:layout_marginTop="20dip"
-			android:layout_marginBottom="10dip"
-			android:text="Send email" />
+			android:layout_marginBottom="20dip"
+			android:text="  Invia email  " />
 
 
 

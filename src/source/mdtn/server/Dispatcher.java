@@ -118,7 +118,7 @@ public class Dispatcher extends Thread {
 									String esit="";
 									esit = executeJob(ref); //process...
 									refServer.addLog(esit);
-									
+
 									if(esit.startsWith("error")){
 										System.out.println("\nERR!\n");
 										/*TODO riaccoda il lavoro se ho fallito! Aspetto qualche istante e riaccodo*/
@@ -138,7 +138,7 @@ public class Dispatcher extends Thread {
 										newReportBundle.getPayload().setPayloadData(Buffering.toBytes(newReport));
 										//imposto il type
 										newReportBundle.getPayload().setType("REPORT");
-										
+
 										//Store della ricevuta, ci penserà il demone Reporter ad inviarla..
 										newReportBundle.store(Server.getBundlePath());
 									}
@@ -162,59 +162,58 @@ public class Dispatcher extends Thread {
 		 * @return una stringa con l'esito dell'operazione.
 		 */
 		public String executeJob(Bundle toBeProcessed){
-			
+
 			String type=toBeProcessed.getPayload().getType();
-			
+
 			if(type.equals("EMAIL")){
 				//invia mail
 				Message newMessage = (Message)Buffering.toObject(toBeProcessed.getPayload().getPayloadData());
 				String ris="Inviata mail a " +newMessage.getTo();
-				
+
 				try {
 					String es=Service.SendMail(newMessage.getFrom(), newMessage.getTo(), newMessage.getSubject(), newMessage.getMessage());
 					if(es.startsWith("error"))ris="error: Email non inviata correttamente, riprovo.";
-					
+
 					System.out.println("Inviata mail a " +newMessage.getTo());
 				} catch (IOException e1) {
 					e1.printStackTrace();
 					return "error: Connessione interrotta. (Rescheduled)";
 				}
-					
-				
+
+
 				return ris;
 			}
 			else if(type.equals("REQUEST")){
 				GenericResource newRequest = (GenericResource)Buffering.toObject(toBeProcessed.getPayload().getPayloadData());
-				String ris="Disponibile il file " +newRequest.getName();
-				
+				String ris;
+
 				try {
 					URL req = new URL(newRequest.getAddress());
-					
+
 					File newDir = new File(Server.getDataPath()+toBeProcessed.getPrimary().getSource().getHost().toString());
 					newDir.mkdir();
-					if(Service.downloadFile(newDir.toString(), req)){
-						ris="Download risorsa completato.";
+					refServer.addLog("Download di "+newRequest.getAddress()+" in corso..");
+					ris=Service.downloadFile(newDir.toString(), req);
+					if(ris.equals("ok")){
+						ris="Disponibile il file " +newRequest.getName();
 						if(newRequest.isPublic()){
 							Service.addPublicResource(toBeProcessed.getPrimary().getSource().getHost().toString()+newRequest.getName());
 						}
 					}
-						
-					else
-						ris="error: Errore download risorsa.";
 
 					//System.out.println("Inviata mail a " +newMessage.getTo());
 				} catch (IOException e1) {
 					e1.printStackTrace();
 					return "error: Connessione interrotta. (Rescheduled)";
 				}
-				
+
 				return ris;
 			}
 			else{
 				//TODO popolare il protocollo
 				//altro....
 			}
-			
+
 			return "error";
 		}
 
@@ -248,12 +247,12 @@ public class Dispatcher extends Thread {
 			File dir = new File(Server.getBundlePath()); 
 			//Ottengo la lista dei file, filtrata opportunamente per estensione.
 			String[] children = dir.list(new FilenameFilter() {
-		           public boolean accept(File dir, String name) {
-		                return name.toLowerCase().endsWith(".bundle");
-		                }
-		           });
-					
-			
+				public boolean accept(File dir, String name) {
+					return name.toLowerCase().endsWith(".bundle");
+				}
+			});
+
+
 			if (!(children == null)) { 
 				for (int i=0; i<children.length; i++)
 				{ 
@@ -270,7 +269,7 @@ public class Dispatcher extends Thread {
 			} 
 		}
 
-		
+
 		/**
 		 * Metodo interno di supporto che verifica se un file è già stato letto dal dispatcher.
 		 * @param file il file da controllare.
@@ -287,7 +286,7 @@ public class Dispatcher extends Thread {
 
 	}
 
-	
+
 	/**
 	 * Classe-thread demone interna che funge da Bundle-garbage Collector.
 	 */

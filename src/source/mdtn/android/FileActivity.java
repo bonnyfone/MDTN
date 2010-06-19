@@ -21,11 +21,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -68,11 +71,11 @@ public class FileActivity extends Activity {
 		localRes.clear();
 		File SDCardRoot = Environment.getExternalStorageDirectory(); 
 		File dir = new File(SDCardRoot+"/MDTN_data/"); 
-		
+
 		//Ottengo la lista dei file, filtrata opportunamente per estensione.
 		String[] children = dir.list(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
-				 return !name.toLowerCase().endsWith(".tmp");
+				return !name.toLowerCase().endsWith(".tmp");
 			}
 		});
 
@@ -82,7 +85,7 @@ public class FileActivity extends Activity {
 			gr.autoGetSize(dir.toString()+"/"+children[i]);
 			localRes.add(gr);
 		}
-			
+
 
 		//Questa è la lista che rappresenta la sorgente dei dati della listview
 		//ogni elemento è una mappa(chiave->valore)
@@ -217,52 +220,93 @@ public class FileActivity extends Activity {
 	}
 
 	public void askNewAddress(){
-		 final AlertDialog.Builder alert = new AlertDialog.Builder(this);  
-		   
-		 alert.setTitle("Richiedi risorsa");  
-		 alert.setMessage("Inserisci l'url della risorsa:");  
-		   
-		 // Set an EditText view to get user input   
-		 final EditText input = new EditText(this);  
-		 input.setText("http://mdtn.altervista.org/ex.pdf");
-		 alert.setView(input);  
-		   
-		 alert.setPositiveButton("Invia", new DialogInterface.OnClickListener() {  
-		 public void onClick(DialogInterface dialog, int whichButton) {  
-		   String value = input.getText().toString();  
-		   
-		   Log.i("MDTN", "click!!!!");
-			URL toDownload;
-			try {
-				toDownload = new URL(value);
-				GenericResource newRequest = new GenericResource(toDownload);
-				
-				//TODO: modifica per testare public
-				newRequest.setAsPublic();
+		
+		//Oggetti grafici e layout
+		Context mContext = getApplicationContext();
+		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
+		View layout = inflater.inflate(R.layout.request_dialog,
+				(ViewGroup) findViewById(R.id.layout_root));
 
-				if(refNode.getMyAgent().isConnected()){//Se sono connesso..
-					refNode.getMyAgent().sendRequestForResource(newRequest);
-				}
-				else{
-					Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
-					return;
-				}
-				
+		ImageView image = (ImageView) layout.findViewById(R.id.image);
+		image.setImageResource(R.drawable.androiddownload);
 
-			} catch (MalformedURLException e) {
-				Log.i("MDTN","URL non valido");
-			}
-			
-		   }  
-		 });
-		 
-		 alert.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {  
-			   public void onClick(DialogInterface dialog, int whichButton) {  
-			     // Canceled.  
-			   }  
-			 });  
-		 
-		 alert.show(); 
+		final EditText input = (EditText)layout.findViewById(R.id.text);
+		input.setText("http://mdtn.altervista.org/ex.pdf");
+		
+		//Messaggio di conferma:pubblico o no?
+		final AlertDialog.Builder publicOrNo = new AlertDialog.Builder(this);
+		publicOrNo.setTitle("Bacheca pubblica");
+		publicOrNo.setMessage("Vuoi rendere pubblica questa risorsa?");
+		
+		publicOrNo.setPositiveButton(" Si ", new DialogInterface.OnClickListener() {  
+			public void onClick(DialogInterface dialog, int whichButton) {  
+				String value = input.getText().toString();  
+				URL toDownload;
+				try {
+					toDownload = new URL(value);
+					GenericResource newRequest = new GenericResource(toDownload);
+					newRequest.setAsPublic();
+
+					if(refNode.getMyAgent().isConnected()){//Se sono connesso..
+						if(refNode.getMyAgent().sendRequestForResource(newRequest))
+							Toast.makeText(getApplicationContext(), "La richiesta è stata inoltrata.\nVerrai notificato non appena la risorsa sarà disponibile.", Toast.LENGTH_LONG).show();
+						else
+							Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
+					}
+					else{
+						Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
+						return;
+					}
+
+				} catch (MalformedURLException e) {
+					Log.i("MDTN","URL non valido");
+				}
+
+			}  
+		});
+
+		publicOrNo.setNegativeButton("No", new DialogInterface.OnClickListener() {  
+			public void onClick(DialogInterface dialog, int whichButton) {  
+				String value = input.getText().toString();  
+				URL toDownload;
+				try {
+					toDownload = new URL(value);
+					GenericResource newRequest = new GenericResource(toDownload);
+					if(refNode.getMyAgent().isConnected()){//Se sono connesso..
+						refNode.getMyAgent().sendRequestForResource(newRequest);
+					}
+					else{
+						Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
+						return;
+					}
+
+				} catch (MalformedURLException e) {
+					Log.i("MDTN","URL non valido");
+				}
+
+			}  
+		});
+		
+		//Messaggio di richiesta indirizzo risorsa
+		final AlertDialog.Builder alert = new AlertDialog.Builder(this);  
+		alert.setTitle("Richiedi risorsa");  
+		alert.setMessage("Inserisci l'url della risorsa:");  
+
+		alert.setView(layout);
+
+		alert.setPositiveButton("Invia", new DialogInterface.OnClickListener() {  
+			public void onClick(DialogInterface dialog, int whichButton) {  
+					publicOrNo.show();
+			}  
+		});
+
+		alert.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {  
+			public void onClick(DialogInterface dialog, int whichButton) {  
+				return;
+			}  
+		});  
+
+		alert.show(); 
 	}
 
 	@Override
@@ -284,8 +328,6 @@ public class FileActivity extends Activity {
 		publicRes = new ArrayList<GenericResource>();
 		updateAllRes();
 		//updateUI();
-		
-		   
 
 
 		//Pulsante per l'invio di richieste
@@ -316,11 +358,11 @@ public class FileActivity extends Activity {
 				//progres.setIcon(R.drawable.ic_tab_artists_white);
 				//progres.setTitle("Connessione");
 				progres.show();
-				
+
 				Thread synchro =new Thread(){
 					public void run(){
 						refNode.getMyAgent().requestList();
-						
+
 						while(!refNode.isResourceUpdated()){
 							try {
 								sleep(1500);
@@ -334,9 +376,9 @@ public class FileActivity extends Activity {
 							public void run() {updateUI();	}
 						};
 						runOnUiThread(update);
-						
+
 					}
-						
+
 				};
 				synchro.start();
 			}
@@ -368,21 +410,7 @@ public class FileActivity extends Activity {
 		});
 
 
-
-
-
-		/*OnItemClickListener listlistener = new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView parent, View arg1, int position,long arg3) {
-				//Toast.makeText(getApplicationContext(), “You have clicked on ” + ((Order)parent.getItemAtPosition(position)).getOrderName(), Toast.LENGTH_SHORT).show();
-				Log.i("MDTN", "Cliccato su "+position);
-				//myList.setSelection(position);
-			}
-		};
-		myList.setOnItemClickListener(listlistener);*/
-
 		//Listener per catturare il long-click in modalità touch
-		
 		myList.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
@@ -390,7 +418,6 @@ public class FileActivity extends Activity {
 				if(selector==0) handleLocal(arg2);
 				else if(selector==1) handleRemote(arg2);
 				else if(selector==2) handlePublic(arg2);
-				
 
 				return false;
 			}
@@ -463,10 +490,13 @@ public class FileActivity extends Activity {
 
 				if(item==0){//Download
 					if(refNode.getMyAgent().isConnected()){
-
+						if(!refNode.getMyAgent().getDataFinished()){
+							Toast.makeText(getApplicationContext(), "Stai già scaricando un file.\nAttendi il termine del download prima di richiedere un nuovo file.", Toast.LENGTH_LONG).show();
+							return;
+						}
 						refNode.getMyAgent().downloadResource(sel);
 						Toast.makeText(getApplicationContext(), "Download del file in corso...", Toast.LENGTH_SHORT).show();
-						
+
 						//Monitora il download attraverso uno status message.
 						Thread monitor = new Thread(){
 							public void run(){
@@ -481,7 +511,6 @@ public class FileActivity extends Activity {
 									}
 								}
 								addToast("MDTN download completato","Scaricato : "+sel.getName() +" ("+refNode.getMyAgent().getDataReceived()/1024+" kb)", true, true, true);
-								
 							}
 						};
 						monitor.start();
@@ -503,7 +532,6 @@ public class FileActivity extends Activity {
 					 * updateRemoteRes();
 					 * updateUI();		
 					 */
-					
 				}
 
 				Log.i("MDTN","Selezionato: "+item);
@@ -536,10 +564,13 @@ public class FileActivity extends Activity {
 
 				if(item==0){//Download
 					if(refNode.getMyAgent().isConnected()){
-						
+						if(!refNode.getMyAgent().getDataFinished()){
+							Toast.makeText(getApplicationContext(), "Stai già scaricando un file.\nAttendi il termine del download prima di richiedere un nuovo file.", Toast.LENGTH_LONG).show();
+							return;
+						}
 						refNode.getMyAgent().downloadResource(sel);
 						Toast.makeText(getApplicationContext(), "Download del file in corso...", Toast.LENGTH_SHORT).show();
-						
+
 						//Monitora il download attraverso uno status message.
 						Thread monitor = new Thread(){
 							public void run(){
@@ -570,7 +601,7 @@ public class FileActivity extends Activity {
 					 * updateUI();
 					 * (fatte comunque in chiusura)		
 					 */
-					
+
 				}
 
 				Log.i("MDTN","Selezionato: "+item);
@@ -586,8 +617,7 @@ public class FileActivity extends Activity {
 		alert.show();
 	}
 
-	
-	
+
 	/**
 	 * Metodo grafico che aggiunge una messaggio di notifica alla barra delle notifiche di Android.
 	 * @param title titolo del messaggio.
@@ -599,12 +629,12 @@ public class FileActivity extends Activity {
 	private void addToast(String title, String message, boolean vibration, boolean light, boolean sound){
 		//Ottengo il notification manager
 		Intent notificationIntent = new Intent(this, MainActivity.class);
-		
+
 		//Cliccando sulla notidica, mi riporta all'istanza del programma precedentemente avviata.
 		//Volendo, si può ottenere un altro comportamento.
 		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, this.getParent().getIntent(), 0);
-//		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-		
+		//		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
 		String ns = Context.NOTIFICATION_SERVICE;
 		NotificationManager notificationManager = (NotificationManager) getSystemService(ns);
 
@@ -613,25 +643,21 @@ public class FileActivity extends Activity {
 		long when = System.currentTimeMillis();
 
 		Notification notification = new Notification(icon, tickerText, when);
-		
+
 		if(sound)
 			notification.defaults |= Notification.DEFAULT_SOUND;
-		
+
 		if(light){
 			notification.defaults |= Notification.DEFAULT_LIGHTS;
 			notification.flags |= Notification.FLAG_SHOW_LIGHTS;
 		}
-		
+
 		if(vibration){
 			//notification.defaults |= Notification.DEFAULT_VIBRATE;
 			long[] vibrate = {0,100,200,300};
 			notification.vibrate = vibrate;
 		}
-
-		
-		
 		notification.flags |= Notification.FLAG_AUTO_CANCEL;
-		
 
 		Context context = getApplicationContext();
 		CharSequence contentTitle = title;
@@ -640,8 +666,8 @@ public class FileActivity extends Activity {
 		notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
 
 		notificationManager.notify(99, notification);
-//		notificationManager.notify(toastCounter, notification);
-//		toastCounter++;
+		//		notificationManager.notify(toastCounter, notification);
+		//		toastCounter++;
 	}
 }
 

@@ -10,11 +10,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -29,6 +30,7 @@ import org.htmlparser.parserapplications.SiteCapturer;
 import source.mdtn.bundle.Bundle;
 import source.mdtn.util.Buffering;
 import source.mdtn.util.GenericResource;
+import source.mdtn.util.PolledInputStream;
 import source.mdtn.util.RealResource;
 
 
@@ -169,7 +171,7 @@ public class Service {
 			try {
 				input = new FileReader(list);
 				BufferedReader bufRead = new BufferedReader(input);
-				
+
 				String line; 
 				int count = 0; 
 				String buff="";
@@ -193,7 +195,7 @@ public class Service {
 				} catch (IOException ioe) {
 					ioe.printStackTrace();
 				}
-				
+
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -210,18 +212,18 @@ public class Service {
 	public static void  addPublicResource(String newPath){
 		//Leggo il file public.list
 		File list = new File(Server.getDataPath()+"public.list");
+		removePublicResource(newPath);
 
-
-			BufferedWriter bw = null;
-			try {
-				bw = new BufferedWriter(new FileWriter(list, true));
-				bw.write(newPath);
-				bw.newLine();
-				bw.flush();
-				bw.close();
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
+		BufferedWriter bw = null;
+		try {
+			bw = new BufferedWriter(new FileWriter(list, true));
+			bw.write(newPath);
+			bw.newLine();
+			bw.flush();
+			bw.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
 
 	}
 
@@ -356,23 +358,26 @@ public class Service {
 		}
 	}
 
-
+	
 	/**
 	 * Metodo che scarica un determinato file da internet.
 	 * @param savingPath percorso in cui salvare il file.
 	 * @param url URL della risorsa da scaricare.
 	 */
-	public static boolean downloadFile(String savingPath,URL url)
+	public static String downloadFile(String savingPath,URL url)
 	{
 		String path = url.toString();
 		try
 		{
 			System.out.println("Opening connection to " + path + "...");
-			URLConnection urlC = url.openConnection();
-			// Copy resource to local file, use remote file
-			// if no local file name specified
-			InputStream is = url.openStream();
-			// Print info about resource
+			HttpURLConnection urlC = (HttpURLConnection) url.openConnection();
+			int estimatedSize=urlC.getContentLength();
+			System.out.println("Size "+estimatedSize);
+			urlC.setReadTimeout(1000*10);
+			urlC.setConnectTimeout(1000*10);
+
+			final PolledInputStream is = new PolledInputStream(url.openStream(),10000,estimatedSize);
+
 			System.out.print("Copying resource (type: " +
 					urlC.getContentType());
 			Date date=new Date(urlC.getLastModified());
@@ -392,10 +397,12 @@ public class Service {
 			byte[] buf = new byte[4096];
 			int size = 0;
 			int count=0;
-			while((size = is.read(buf)) > 0) {
+
+			while((size = is.read(buf)) >0) {
 				fos.write(buf, 0, size);
 				count+=size;
 			}
+			
 			/*i
 			int oneChar, count=0;
 			while ((oneChar=is.read()) != -1)
@@ -407,44 +414,50 @@ public class Service {
 			is.close();
 			fos.close();
 			System.out.println(count + " byte(s) copied");
-			return true;
-		}
-		catch (MalformedURLException e)
-		{ System.err.println(e.toString()); return false;}
-		catch (IOException e)
-		{ System.err.println(e.toString()); return false;}
+			return "ok";
 	}
-
-
-
-	public static void removeResource(Bundle toProcess){
-		//EID client, per individuare la cartella
-		String EID = toProcess.getPrimary().getSource().getHost().toString();
-		//Risorsa da eliminare
-		GenericResource toDelete = (GenericResource)Buffering.toObject((toProcess.getPayload().getPayloadData()));
-		System.out.println(EID);
-		File f = new File(Server.getDataPath()+EID+"/"+toDelete.getName());
-		f.delete();
-		
-		Service.removePublicResource(EID+"/"+toDelete.getName());
-
+	catch(FileNotFoundException fe){
+		return "La risorsa richiesta non esiste.";
 	}
-
-
-	public static void main(String args[]){
-		String a[]={""};
-		//a[0]="http://mdtn.altervista.org";
-		a[0]="http://www.google.it/index.html";
-		try {
-			downloadFile("./",new URL(a[0]));
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//a[0]="http://pimpmyearns.altervista.org/";
-		//a[0]="http://news.google.it/";
-		//captureSite(a[0]);
+	catch(SocketTimeoutException se){
+		System.err.println(se.toString()); return "error: Errore Timeout in connessione/lettura.";
 	}
+	catch (MalformedURLException e)
+	{ System.err.println(e.toString()); return "L'indirizzo non è valido.";}
+	catch (IOException e)
+	{ System.err.println(e.toString()); return "error: Errore durante il download.";}
+}
+
+
+
+public static void removeResource(Bundle toProcess){
+	//EID client, per individuare la cartella
+	String EID = toProcess.getPrimary().getSource().getHost().toString();
+	//Risorsa da eliminare
+	GenericResource toDelete = (GenericResource)Buffering.toObject((toProcess.getPayload().getPayloadData()));
+	System.out.println(EID);
+	File f = new File(Server.getDataPath()+EID+"/"+toDelete.getName());
+	f.delete();
+
+	Service.removePublicResource(EID+"/"+toDelete.getName());
+
+}
+
+
+public static void main(String args[]){
+	String a[]={""};
+	//a[0]="http://mdtn.altervista.org";
+	a[0]="http://www.google.it/indeasdasdx.html";
+	try {
+		downloadFile("./",new URL(a[0]));
+	} catch (MalformedURLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	//a[0]="http://pimpmyearns.altervista.org/";
+	//a[0]="http://news.google.it/";
+	//captureSite(a[0]);
+}
 }
 
 

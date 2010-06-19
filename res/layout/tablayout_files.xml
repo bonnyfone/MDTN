@@ -52,7 +52,7 @@
 
 		<ImageButton android:id="@+id/local" android:layout_width="50dip"
 			android:background="@null" android:src="@drawable/button_local"
-			android:layout_marginLeft="15dip"
+			android:layout_marginLeft="13dip"
 			android:layout_height="50dip" android:layout_toRightOf="@id/request"
 			android:layout_marginTop="15dip" />
 
@@ -60,19 +60,19 @@
 			android:layout_width="50dip" android:src="@drawable/button_remote"
 			android:background="@null" android:layout_height="50dip"
 		    android:layout_toRightOf="@id/local"
-			android:layout_marginLeft="15dip" android:layout_marginTop="15dip" />
+			android:layout_marginLeft="13dip" android:layout_marginTop="15dip" />
 
 		<ImageButton android:id="@+id/bacheca"
 			android:layout_width="50dip" android:src="@drawable/button_public"
 			android:background="@null" android:layout_height="50dip"
 			android:layout_toRightOf="@id/remote"
-			android:layout_marginLeft="15dip" android:layout_marginTop="15dip" />
+			android:layout_marginLeft="13dip" android:layout_marginTop="15dip" />
 
 		<ImageButton android:id="@+id/refresh"
 			android:layout_width="50dip" android:src="@drawable/button_refresh"
 			android:background="@null" android:layout_height="50dip"
 			android:layout_toRightOf="@id/bacheca"
-			android:layout_marginLeft="15dip" android:layout_marginTop="15dip" />
+			android:layout_marginLeft="13dip" android:layout_marginTop="15dip" />
 	</LinearLayout>
 
 	<TextView android:id="@+id/labellist" android:textStyle="bold"

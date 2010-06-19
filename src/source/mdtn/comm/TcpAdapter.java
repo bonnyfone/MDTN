@@ -34,7 +34,7 @@ public class TcpAdapter {
 	/** ObjectStream di uscita (dati in uscita) */
 	private ObjectOutputStream oos;
 
-	
+	/** Socket per trasferimento dati*/
 	private ServerSocket transferingSocket;
 	
 	private long dataReceived;
@@ -46,7 +46,7 @@ public class TcpAdapter {
 	public TcpAdapter(){
 		dataReceived=0;
 		connected=false;
-
+		finished=true;
 
 	}
 	
@@ -131,18 +131,12 @@ public class TcpAdapter {
 	public boolean connect(String ip, int port){
 		try {
 			socket = new Socket(ip, port);
-            //out = new PrintWriter(socket.getOutputStream(), true);
-            //in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
             ois = new ObjectInputStream(socket.getInputStream());
             oos = new ObjectOutputStream(socket.getOutputStream());
-            
-
             /*
             oos.writeObject(new Bundle());
             oos.flush();
             */
-            
             connected=true;
             
 		} catch (UnknownHostException e) {
@@ -165,8 +159,6 @@ public class TcpAdapter {
 			send(null);
 			connected=false;
 			socket.close();
-			//out.close();
-			//in.close();
 			ois.close();
 			oos.close();
 		} catch (IOException e) {
@@ -219,8 +211,6 @@ public class TcpAdapter {
 	public boolean isConnected(){
 		return connected;
 	}
-	//TODO Fare i metodi di Invio e ricezione di Messaggi e di object(i bundle!). 
-	//Serviranno classi Thread che tengono ricevono i dati e li inviano
 	
 
 }

@@ -9,6 +9,8 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -28,17 +30,21 @@ public class StatusActivity extends Activity {
 	private Button _buttonSend;
 	private TextView _labelStat;
 	private TextView _labelLogs;
+	private TextView _wifistate;
 	private EditText _txtIp;
 	private ProgressDialog progres;
 
+	/**Servizio wifi di sistema*/
+	private WifiManager wifiManager;
+
 	/** Contatore dei log*/
 	int lastLog;
-	
+
 	/** Contatore dei toast-message */
 	int toastCounter;
-	
+
 	private String ip;
-	
+
 	/** Costruttore di default */
 	public StatusActivity(){lastLog=0;}
 
@@ -48,7 +54,7 @@ public class StatusActivity extends Activity {
 	public StatusActivity(BundleNode refNode){
 		this.refNode = refNode;
 		this.lastLog = 0;
-		
+
 		if(this.refNode == null)
 			Log.i("MDTN", "Check costruttore: refNode NULLO");
 		else
@@ -60,8 +66,8 @@ public class StatusActivity extends Activity {
 	public void setBundleNode(BundleNode myNode){
 		this.refNode=myNode;
 	}
-	
-	
+
+
 	/**
 	 * Metodo grafico che aggiunge una messaggio di notifica alla barra delle notifiche di Android.
 	 * @param title titolo del messaggio.
@@ -73,12 +79,12 @@ public class StatusActivity extends Activity {
 	private void addToast(String title, String message, boolean vibration, boolean light, boolean sound){
 		//Ottengo il notification manager
 		Intent notificationIntent = new Intent(this, MainActivity.class);
-		
+
 		//Cliccando sulla notidica, mi riporta all'istanza del programma precedentemente avviata.
 		//Volendo, si può ottenere un altro comportamento.
 		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, this.getParent().getIntent(), 0);
-//		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-		
+		//		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
 		String ns = Context.NOTIFICATION_SERVICE;
 		NotificationManager notificationManager = (NotificationManager) getSystemService(ns);
 
@@ -87,25 +93,25 @@ public class StatusActivity extends Activity {
 		long when = System.currentTimeMillis();
 
 		Notification notification = new Notification(icon, tickerText, when);
-		
+
 		if(sound)
 			notification.defaults |= Notification.DEFAULT_SOUND;
-		
+
 		if(light){
 			notification.defaults |= Notification.DEFAULT_LIGHTS;
 			notification.flags |= Notification.FLAG_SHOW_LIGHTS;
 		}
-		
+
 		if(vibration){
 			//notification.defaults |= Notification.DEFAULT_VIBRATE;
 			long[] vibrate = {0,100,200,300};
 			notification.vibrate = vibrate;
 		}
 
-		
-		
+
+
 		notification.flags |= Notification.FLAG_AUTO_CANCEL;
-		
+
 
 		Context context = getApplicationContext();
 		CharSequence contentTitle = title;
@@ -128,25 +134,29 @@ public class StatusActivity extends Activity {
 		_buttonSend = (Button) findViewById(R.id.send);
 		_labelStat = (TextView) findViewById(R.id.stat);
 		_labelLogs = (TextView) findViewById(R.id.logs);
+		_wifistate = (TextView) findViewById(R.id.wifistate);
 		_txtIp = (EditText) findViewById(R.id.ip);
 
 		refNode = MainActivity.getServiceBundleNode();
+
+		wifiManager= (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+
 
 
 		//Listener pulsante connessione
 		_buttonConnect.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				Log.i("MDTN", "Indirizzo dal listener"+this);
-				
+
 				if(refNode == null){
 					Log.i("MDTN", "Bundle node è nullo!");
 					return;
 				}
 				if(!refNode.getMyAgent().isConnected()){//Se non sono già connesso..
-					
+
 					//Avvia tentativo di connessione
 					refNode.addLog("Tentativo di connessione a MDTN...");
-					
+
 					//Mostra barra di caricamento
 					progres = ProgressDialog.show(StatusActivity.this, "", 
 							"Connecting...", true);
@@ -202,17 +212,17 @@ public class StatusActivity extends Activity {
 					newBundle.getPayload().setType("DISCOVERY");
 					refNode.getMyAgent().sendBundle(newBundle);
 					refNode.addLog("Bundle inviato ("+newBundle.getPrimary().getCreationTimestamp()+")");
-					
+
 					//WIFI on?
 					//final String mytest = Settings.System.getString(getContentResolver(), Settings.System.WIFI_ON);
-					
+
 					//refNode.addLog(mytest);
 				}
 			}
 		});
-		
-		
-		
+
+
+
 		/**
 		 * Thread di supporto che aggiorna l'UI con messaggi di notifica e log.
 		 * Effettua il monitoraggio dei log del BundleNode.
@@ -224,33 +234,55 @@ public class StatusActivity extends Activity {
 					try {
 						Runnable updateStat = new Runnable(){
 							public void run() {
+								//Wifi check
+
+								if(wifiManager.isWifiEnabled()){
+									WifiInfo info=wifiManager.getConnectionInfo();
+
+									if(info.getSSID()==null){
+										_wifistate.setText("Attivo, non connesso.");
+										_wifistate.setTextColor(0xFFFFFF00);
+									}
+									else if(info.getSSID().equals("Berninet")) {
+										_wifistate.setText("Connesso a "+info.getSSID());
+										_wifistate.setTextColor(0xFF00FF00);
+									}
+											
+
+								}else{
+									_wifistate.setText("Spento.");
+									_wifistate.setTextColor(0xFFFF0000);
+								}
+
+
+
 								boolean stat=refNode.getMyAgent().isConnected();
-								
+
 								//Stato della connessione
 								if(stat){
 									_labelStat.setTextColor(0xFF00FF00);
-									_labelStat.setText("CONNECTED");
+									_labelStat.setText("Connesso");
 								}
 								else{
 									_labelStat.setTextColor(0xFFFF0000);
-									_labelStat.setText("DISCONNECTED");
+									_labelStat.setText("Disconnesso");
 								}
-								
+
 								String logList = "";
 								int limit = refNode.getLogs().size();
 								for(int i=lastLog; i<limit ;i++){
 									String newLog = refNode.getLogs().elementAt(i);
 									logList=refNode.getLogs().elementAt(i) + "\n" + logList;
-									
+
 									//Se c'è un report, aggiungi notifica "toast"
 									if(newLog.substring(8).trim().startsWith("REPORT")){
-										
+
 										addToast("MDTN: notifica", newLog.substring(17), true, true, true);	
 									}
-										
-									
+
+
 								}
-								
+
 								lastLog=limit;
 								logList += _labelLogs.getText().toString();
 								_labelLogs.setText(logList);
@@ -263,10 +295,10 @@ public class StatusActivity extends Activity {
 				}
 			}
 		};
-		
+
 		checkStatus.start();
-		
-		
+
+
 	}
 
 }

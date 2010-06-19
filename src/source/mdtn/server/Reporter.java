@@ -34,7 +34,7 @@ public class Reporter extends Thread {
 			
 			//Aggiorno la lista dei report da inviare
 			refreshReports();
-			System.out.println("Check Report!");
+			//System.out.println("Check Report!");
 			for(int i=0; i<recepitList.size(); i++){
 				Bundle refBundle = recepitList.elementAt(i);
 				//Provo a consegnare la ricevuta. Cerco se il destinatario è collegato

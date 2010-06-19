@@ -77,7 +77,7 @@ public class MainActivity extends TabActivity {
 	    InfoActivity info = new InfoActivity();
 	    intent = new Intent().setClass(this,info.getClass());
 	    spec = tabHost.newTabSpec("info").setIndicator("Info",
-                res.getDrawable(R.drawable.ic_tab_status)) 
+                res.getDrawable(R.drawable.ic_tab_info)) 
             .setContent(intent);  
 
 	    tabHost.addTab(spec);
@@ -95,7 +95,7 @@ public class MainActivity extends TabActivity {
 	    MailActivity mail = new MailActivity(myNode);
 	    intent = new Intent().setClass(this,mail.getClass());
 	    spec = tabHost.newTabSpec("mail").setIndicator("E-mail",
-	    				res.getDrawable(R.drawable.ic_tab_albums)) //res.getDrawable(R.drawable.ic_tab_albums))
+	    				res.getDrawable(R.drawable.ic_tab_mail)) //res.getDrawable(R.drawable.ic_tab_albums))
 	                  .setContent(intent);
 	    
 	    tabHost.addTab(spec); 
@@ -104,7 +104,7 @@ public class MainActivity extends TabActivity {
 	    FileActivity file = new FileActivity(myNode);
 	    intent = new Intent().setClass(this,file.getClass());
 	    spec = tabHost.newTabSpec("files").setIndicator("Files",
-	    				res.getDrawable(R.drawable.ic_tab_songs)) //res.getDrawable(R.drawable.ic_tab_songs))
+	    				res.getDrawable(R.drawable.ic_tab_file)) //res.getDrawable(R.drawable.ic_tab_songs))
 	                  .setContent(intent);
 
 	    tabHost.addTab(spec); 

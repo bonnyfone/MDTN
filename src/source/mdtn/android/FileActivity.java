@@ -50,6 +50,7 @@ public class FileActivity extends Activity {
 	private ArrayList<GenericResource> publicRes;
 
 	/** Adapters per le liste */
+	
 	private SimpleAdapter adapterLocal;
 	private SimpleAdapter adapterRemote;
 	private SimpleAdapter adapterPublic;
@@ -96,7 +97,7 @@ public class FileActivity extends Activity {
 
 			HashMap<String,Object> resourceMap=new HashMap<String, Object>();//creiamo una mappa di valori
 
-			resourceMap.put("image", R.drawable.androidok); // per la chiave image, inseriamo la risorsa dell immagine
+			resourceMap.put("image", R.drawable.file); // per la chiave image, inseriamo la risorsa dell immagine
 			resourceMap.put("name", newRes.getName()); // per la chiave name,l'informazine sul nome
 			resourceMap.put("surname", newRes.getAddress() + "\n("+newRes.getSize()/1024+" kb)");// per la chiave surnaname, l'informazione sul cognome
 			data.add(resourceMap);  //aggiungiamo la mappa di valori alla sorgente dati
@@ -133,7 +134,7 @@ public class FileActivity extends Activity {
 
 			HashMap<String,Object> resourceMap=new HashMap<String, Object>();//creiamo una mappa di valori
 
-			resourceMap.put("image", R.drawable.androiddownload); // per la chiave image, inseriamo la risorsa dell immagine
+			resourceMap.put("image", R.drawable.download); // per la chiave image, inseriamo la risorsa dell immagine
 			resourceMap.put("name", newRes.getName()); // per la chiave name,l'informazine sul nome
 			resourceMap.put("surname", newRes.getAddress()+"\n("+newRes.getSize()/1024+" kb)");// per la chiave surnaname, l'informazione sul cognome
 			data.add(resourceMap);  //aggiungiamo la mappa di valori alla sorgente dati
@@ -170,7 +171,7 @@ public class FileActivity extends Activity {
 
 			HashMap<String,Object> resourceMap=new HashMap<String, Object>();//creiamo una mappa di valori
 
-			resourceMap.put("image", R.drawable.androiddownload); // per la chiave image, inseriamo la risorsa dell immagine
+			resourceMap.put("image", R.drawable.download_public); // per la chiave image, inseriamo la risorsa dell immagine
 			resourceMap.put("name", newRes.getName()); // per la chiave name,l'informazine sul nome
 			resourceMap.put("surname", newRes.getAddress()+"\n("+newRes.getSize()/1024+" kb)");// per la chiave surnaname, l'informazione sul cognome
 			data.add(resourceMap);  //aggiungiamo la mappa di valori alla sorgente dati

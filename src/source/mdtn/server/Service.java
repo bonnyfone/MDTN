@@ -372,6 +372,14 @@ public class Service {
 			System.out.println("Opening connection to " + path + "...");
 			HttpURLConnection urlC = (HttpURLConnection) url.openConnection();
 			int estimatedSize=urlC.getContentLength();
+			
+			if(estimatedSize>Server.fileSizeLimit()){
+				String tooMuch = "Il file richiesto è troppo grosso (~"+estimatedSize/1024/1024+" mb,"
+								+" max "+Server.fileSizeLimit()/1024/1024+" mb)";
+				
+				return tooMuch;
+			}
+			
 			System.out.println("Size "+estimatedSize);
 			urlC.setReadTimeout(1000*10);
 			urlC.setConnectTimeout(1000*10);

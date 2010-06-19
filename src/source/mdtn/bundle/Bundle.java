@@ -117,7 +117,10 @@ public class Bundle implements Serializable {
 			oos.close();
 			return r;
 		}
-		catch(IOException e){System.out.println("IOExc");return null;} catch (ClassNotFoundException e) {return null;}
+		catch(IOException e){
+			//System.out.println("IOExc");
+			return null;} 
+		catch (ClassNotFoundException e) {return null;}
 	}
 
 

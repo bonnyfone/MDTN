@@ -7,7 +7,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" 
 		android:layout_centerHorizontal ="true"
-		android:layout_marginTop="50px"
+		android:layout_marginTop="25px"
 		android:text="MDTN-Client" 
 		android:textSize = "30sp"
 		android:shadowColor= "#00FF00" />
@@ -23,12 +23,32 @@
 		
 	<ImageView android:id="@+id/ImageView01" 
 			   android:layout_below="@+id/label2"
-			   android:src="@drawable/android"
+			   android:src="@drawable/icon"
 			   android:layout_marginTop="10px"
 			   android:layout_width="wrap_content"
 			   android:layout_height="wrap_content" 
 			   android:layout_centerHorizontal ="true">
 	</ImageView>
 	
+	    <TextView android:id="@+id/label3" 
+    	android:layout_below="@+id/ImageView01"
+		android:layout_width="wrap_content"
+		android:layout_marginTop="10px"
+		android:layout_height="wrap_content" 
+		android:layout_centerHorizontal ="true"
+		android:text="realizzato da Stefano Bonetta" 
+		android:textSize = "13sp"
+		android:shadowColor= "#00FF00" />
+
+	    <TextView android:id="@+id/label4" 
+    	android:layout_below="@+id/label3"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" 
+		android:layout_centerHorizontal ="true"
+		android:text="www.mdtn.altervista.org"
+		android:layout_marginTop="5px"
+		android:textStyle="italic" 
+		android:textSize = "13sp"
+		android:shadowColor= "#00FF00" />	
 
 </RelativeLayout>

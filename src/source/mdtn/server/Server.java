@@ -65,6 +65,12 @@ public class Server extends Thread {
 	/** Path per lettura/scrittura files (config.mdtn)*/
 	private static String dataPath;
 	
+	/** Dimensione massima consentita per il download di file.*/
+	private static long fileSizeLimit;
+	
+	/** Numero massimo di operazioni che il server può eseguire contemporaneamente (dispatch)*/
+	private static int maxParallelOperation;
+	
 	/** EID del server */
 	private static URI serverEID;
 
@@ -72,7 +78,7 @@ public class Server extends Thread {
 	 * Costruttore del <b>Server</b>. Crea un server in ascolto sulla porta specificata.
 	 * @param listeningPort la porta su cui mettersi in ascolto.
 	 */
-	public Server(int listeningPort, String path, String data){
+	public Server(int listeningPort, String path, String data, long dataSize, int maxParallelOp){
 
 		try {
 			setDaemon(true);
@@ -84,6 +90,8 @@ public class Server extends Thread {
 			myGui = new ServerGui();
 			bundlePath = path;
 			dataPath = data;
+			fileSizeLimit=dataSize;
+			maxParallelOperation=maxParallelOp;
 			serverSocket = new ServerSocket(listeningPort);
 			
 			//Daemons
@@ -93,10 +101,15 @@ public class Server extends Thread {
 			opReporter.start();
 			
 			System.out.println("In ascolto (porta "+listeningPort+")...");
-			addLog("In ascolto (porta "+listeningPort+")...");
+
+			addLog("Reading configuration from config.mdtn...");
 			addLog("Bundle-storage in \""+bundlePath+"\"");
 			addLog("Data-storage in \""+dataPath+"\"");
+			addLog("Max resource size allowed: "+fileSizeLimit/1024/1024 +" mb");
+			addLog("Max number of parallel operation: "+maxParallelOperation);
+			addLog("----------------------------SERVER CONFIG-----------------------------");
 			
+			addLog("In ascolto (porta "+listeningPort+")...\n");		
 			
 			Service.removePublicResource("saads.ads.it");
 			//Service.addPublicResource("saads.ads.it");
@@ -176,6 +189,13 @@ public class Server extends Thread {
 		return serverEID;
 	}
 	
+	public static long fileSizeLimit(){
+		return fileSizeLimit;
+	}
+	
+	public static int maxParallelOp(){
+		return maxParallelOperation;
+	}
 	
 	/**
 	 * Metodo che ritorna il riferimento alla lista dei clients del server.
@@ -317,6 +337,8 @@ public class Server extends Thread {
 		int defaultPort=3339;
 		String defaultPath="./";
 		String dataPath="./";
+		long dataSize=1024*1024*10;
+		int maxParallelOp=5;
 
 		//Processa il file di configurazione.
 		try { 
@@ -331,6 +353,10 @@ public class Server extends Thread {
 					defaultPath = str;
 				else if(line==2)
 					dataPath = str;
+				else if(line==3)
+					dataSize=Long.parseLong(str);
+				else if(line==4)
+					maxParallelOp=Integer.parseInt(str);					
 				
 				line++;
 			} 
@@ -339,7 +365,7 @@ public class Server extends Thread {
 		catch (IOException e) { JOptionPane.showMessageDialog(null, "Errore lettura file di configurazione.\nServer avviato con impostazioni di default."); } 
 
 		//Avvio server
-		Server myServer = new Server(defaultPort,defaultPath,dataPath);
+		Server myServer = new Server(defaultPort,defaultPath,dataPath,dataSize,maxParallelOp);
 		myServer.start();
 	}
 }

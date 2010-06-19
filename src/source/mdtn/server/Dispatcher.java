@@ -47,7 +47,7 @@ public class Dispatcher extends Thread {
 		refServer = myServer;
 		connLock = sentinel;
 		protocol = new BundleProtocol(0);
-		maxOperation = 5;
+		maxOperation = Server.maxParallelOp();
 		jobList = new Vector<Bundle>();
 		recepitList = new Vector<Bundle>();
 		fileReaded = new Vector<String>();

@@ -51,15 +51,21 @@ public class Service {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public static String SendMail(String from, String to, String subject, String message) throws IOException{
+	public static String SendMail(String from, String to, String subject, String message, boolean cc) throws IOException{
 
+		String sendCc="&cc=";
+		if(cc)sendCc += from;
+		else sendCc += "null";
+		
 		String result="";
+		
 
 		//Crea la query string NON quotata
 		String composeUrl = "//www.mdtn.altervista.org/mailservice.php?k=" + key +
 		"&from="+from+
 		"&to="+to+
 		"&sub="+subject+
+		sendCc+
 		"&message="+message;
 
 		/* Codifica in querystring quoted */

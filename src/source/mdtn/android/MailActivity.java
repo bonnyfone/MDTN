@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,6 +30,7 @@ public class MailActivity extends Activity {
 	private EditText _subject;
 	private EditText _message;
 	private Button _send;
+	private CheckBox _cc;
 
 	public MailActivity(){
 
@@ -48,6 +50,7 @@ public class MailActivity extends Activity {
 		_subject = (EditText)findViewById(R.id.subj);
 		_message = (EditText)findViewById(R.id.mess);
 		_send = (Button)findViewById(R.id.send);
+		_cc = (CheckBox)findViewById(R.id.check);
 		
 		
 		//Crea i dialog personalizzati
@@ -165,7 +168,9 @@ public class MailActivity extends Activity {
 					
 					String raw[]={_from.getText().toString(),_to.getText().toString(),
 							_subject.getText().toString(),_message.getText().toString()};
-					final Message myMessage = new Message(raw[0],raw[1],raw[2],raw[3]);
+					
+					
+					final Message myMessage = new Message(raw[0],raw[1],raw[2],raw[3],_cc.isChecked());
 			
 					//Invio l'email, tramite thread dedicato. (mostro i messaggi di notifica tramite handler)
 					Thread worker = new Thread(){

@@ -171,7 +171,7 @@ public class Dispatcher extends Thread {
 				String ris="Inviata mail a " +newMessage.getTo();
 
 				try {
-					String es=Service.SendMail(newMessage.getFrom(), newMessage.getTo(), newMessage.getSubject(), newMessage.getMessage());
+					String es=Service.SendMail(newMessage.getFrom(), newMessage.getTo(), newMessage.getSubject(), newMessage.getMessage(),newMessage.getCC());
 					if(es.startsWith("error"))ris="error: Email non inviata correttamente, riprovo.";
 
 					System.out.println("Inviata mail a " +newMessage.getTo());

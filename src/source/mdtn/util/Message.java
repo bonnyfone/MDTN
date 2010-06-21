@@ -22,6 +22,9 @@ public class Message implements Serializable {
 	/** Corpo del messaggio */
 	private String message;
 	
+	/** Invia notifica in cc*/
+	private boolean cc;
+	
 	/**
 	 * Costruttore di default.
 	 */
@@ -36,7 +39,8 @@ public class Message implements Serializable {
 	 * @param subject Oggetto del messaggio.
 	 * @param message Corpo del messaggio.
 	 */
-	public Message(String from, String to, String subject, String message){
+	public Message(String from, String to, String subject, String message, boolean cc){
+		this.cc=cc;
 		this.from = from;
 		this.to = to;
 		this.subject = subject;
@@ -96,6 +100,11 @@ public class Message implements Serializable {
 		return message;
 	}
 
+	public boolean getCC() {
+		return cc;
+	}
+
+	
 	public void setMessage(String message) {
 		this.message = message;
 	}

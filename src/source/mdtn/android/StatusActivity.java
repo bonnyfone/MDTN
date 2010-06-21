@@ -243,7 +243,7 @@ public class StatusActivity extends Activity {
 										_wifistate.setText("Attivo, non connesso.");
 										_wifistate.setTextColor(0xFFFFFF00);
 									}
-									else if(info.getSSID().equals("Berninet")) {
+									else if(info.getSSID()!=null) {
 										_wifistate.setText("Connesso a "+info.getSSID());
 										_wifistate.setTextColor(0xFF00FF00);
 									}

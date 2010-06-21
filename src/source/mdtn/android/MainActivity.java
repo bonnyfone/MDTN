@@ -131,8 +131,7 @@ public class MainActivity extends TabActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean result = super.onCreateOptionsMenu(menu);
 
-		menu.add(0, 0, 0, "Exit")
-		.setIcon(R.drawable.icon);
+		menu.add(0, 0, 0, "Esci");
 
 		return result;
 	}
@@ -144,15 +143,15 @@ public class MainActivity extends TabActivity {
 		switch (item.getItemId()) {
 		case 0: //Mostra messaggio: Vuoi uscire? SI,NO
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage("Vuoi uscire?")
+			builder.setMessage("   Vuoi uscire?   ")
 			.setCancelable(false)
-			.setPositiveButton("Si", new DialogInterface.OnClickListener() {
+			.setPositiveButton("   Si   ", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					MainActivity.this.finish();
-					myNode.getMyAgent().disconnectFromService();
+					if(myNode.getMyAgent().isConnected())myNode.getMyAgent().disconnectFromService();
 				}
 			})
-			.setNegativeButton("No", new DialogInterface.OnClickListener() {
+			.setNegativeButton("   No   ", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					dialog.cancel();
 				}

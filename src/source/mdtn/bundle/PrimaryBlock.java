@@ -489,7 +489,7 @@ public class PrimaryBlock implements Serializable{
 
 	/**
 	 * Imposta URI della destinazione.
-	 * @param source una URI da usare come destinazione.
+	 * @param destination una URI da usare come destinazione.
 	 */
 	public void setDestination(URI destination) {
 		this.destination = destination;
@@ -523,7 +523,7 @@ public class PrimaryBlock implements Serializable{
 
 	/**
 	 * Imposta URI del nodo custodian.
-	 * @param reportTo
+	 * @param custodian una URI.
 	 */
 	public void setCustodian(URI custodian) {
 		this.custodian = custodian;

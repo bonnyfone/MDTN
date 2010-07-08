@@ -98,7 +98,7 @@ public class Message implements Serializable {
 
 	/**
 	 * Imposta il destinatario del messaggio.
-	 * @param from una stringa contenente il destinatario.
+	 * @param to una stringa contenente il destinatario.
 	 */
 	public void setTo(String to) {
 		this.to = to;
@@ -139,7 +139,7 @@ public class Message implements Serializable {
 
 	/**
 	 * Imposta il messaggio. 
-	 * @param subject una stringa con il messaggio.
+	 * @param message una stringa con il messaggio.
 	 */
 	public void setMessage(String message) {
 		this.message = message;

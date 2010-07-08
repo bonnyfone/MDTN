@@ -8,5 +8,6 @@ public class InfoActivity extends Activity {
 	        super.onCreate(savedInstanceState);
 
 	        setContentView(R.layout.tablayout_info);
+	        
 	    }
 }

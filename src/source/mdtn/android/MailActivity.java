@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -51,6 +52,23 @@ public class MailActivity extends Activity {
 		_message = (EditText)findViewById(R.id.mess);
 		_send = (Button)findViewById(R.id.send);
 		_cc = (CheckBox)findViewById(R.id.check);
+		
+		
+		// Restore preferences
+		SharedPreferences settings = getSharedPreferences("MDTN", 0);
+		
+		String oldFrom = settings.getString("from","mia@mail.it");
+		_from.setText(oldFrom);
+		
+		String oldTo = settings.getString("to","mobiledtn@gmail.com");
+		_to.setText(oldTo);
+		
+		String oldObj = settings.getString("obj","My message!");
+		_subject.setText(oldObj);
+		
+		String oldMess = settings.getString("mess","Hi, this is my message!");
+		_message.setText(oldMess);
+		
 		
 		
 		//Crea i dialog personalizzati
@@ -199,4 +217,19 @@ public class MailActivity extends Activity {
 		});
 
 	}
+	
+    @Override
+    protected void onStop(){
+       super.onStop();
+
+      //Salvataggio preferenze
+      SharedPreferences settings = getSharedPreferences("MDTN", 0);
+      SharedPreferences.Editor editor = settings.edit();
+      editor.putString("from",_from.getText().toString());
+      editor.putString("to",_to.getText().toString());
+      editor.putString("obj",_subject.getText().toString());
+      editor.putString("mess",_message.getText().toString());
+      
+      editor.commit();
+    }
 }

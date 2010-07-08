@@ -78,6 +78,7 @@ public class TcpAdapter {
 				s.setKeepAlive(true);
 
 				InputStream in = s.getInputStream();
+				Log.i("MDTN", "NOME FILE:"+fileName);
 				FileOutputStream fos = new FileOutputStream(fileName+".tmp");
 				byte[] buf = new byte[4096];
 				int read;

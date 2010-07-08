@@ -9,10 +9,10 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -82,9 +82,11 @@ public class StatusActivity extends Activity {
 
 		//Cliccando sulla notidica, mi riporta all'istanza del programma precedentemente avviata.
 		//Volendo, si può ottenere un altro comportamento.
-		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, this.getParent().getIntent(), 0);
+		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, this.getParent().getIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
+		
 		//		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-
+		
+		
 		String ns = Context.NOTIFICATION_SERVICE;
 		NotificationManager notificationManager = (NotificationManager) getSystemService(ns);
 
@@ -118,7 +120,8 @@ public class StatusActivity extends Activity {
 		CharSequence contentText = message;
 
 		notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
-
+		//notification.setLatestEventInfo(context, contentTitle, contentText,null);
+		
 		//HELLO_ID+1;
 		notificationManager.notify(toastCounter, notification);
 		toastCounter++;
@@ -141,6 +144,10 @@ public class StatusActivity extends Activity {
 
 		wifiManager= (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
 
+		// Restore preferences
+		SharedPreferences settings = getSharedPreferences("MDTN", 0);
+		String oldIp = settings.getString("ip","192.168.99.8");
+		_txtIp.setText(oldIp);
 
 
 		//Listener pulsante connessione
@@ -247,7 +254,7 @@ public class StatusActivity extends Activity {
 										_wifistate.setText("Connesso a "+info.getSSID());
 										_wifistate.setTextColor(0xFF00FF00);
 									}
-											
+
 
 								}else{
 									_wifistate.setText("Spento.");
@@ -300,5 +307,19 @@ public class StatusActivity extends Activity {
 
 
 	}
+	
+
+    @Override
+    protected void onStop(){
+       super.onStop();
+
+       //Salvataggio preferenze
+      SharedPreferences settings = getSharedPreferences("MDTN", 0);
+      SharedPreferences.Editor editor = settings.edit();
+      editor.putString("ip",_txtIp.getText().toString());
+
+      editor.commit();
+    }
+
 
 }

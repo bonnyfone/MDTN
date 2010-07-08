@@ -68,7 +68,7 @@ public class Networking {
 		try {
 			InetAddress myInet = InetAddress.getByName("google.com"); 
 			//System.out.println(myInet.getHostAddress()+ "    "+myInet.isReachable(1000));
-			return myInet.isReachable(1000);
+			return myInet.isReachable(3000);
 			
 		} catch (UnknownHostException e) {
 			//e.printStackTrace();

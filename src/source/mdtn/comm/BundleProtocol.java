@@ -1,17 +1,8 @@
 package source.mdtn.comm;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
 import source.mdtn.bundle.Bundle;
 import source.mdtn.server.Server;
 import source.mdtn.server.Service;
-import source.mdtn.util.Buffering;
-import source.mdtn.util.GenericResource;
 
 public class BundleProtocol {
 

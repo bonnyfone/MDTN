@@ -258,7 +258,10 @@ public class Service {
 				while ((line = bufRead.readLine()) != null){
 
 					File newFile = new File(Server.getDataPath()+line);
-					GenericResource newRes = new GenericResource("dtn://public",newFile.getName());
+					//URL dtnUrl = new URL("file://"+line);
+					int lim=line.lastIndexOf("/");
+					line.substring(0, lim);
+					GenericResource newRes = new GenericResource("dtn://"+line.substring(0, lim),line.substring(lim+1, line.length()));
 					newRes.autoGetSize(Server.getDataPath()+line);
 					newRes.setAsPublic();
 
@@ -336,8 +339,23 @@ public class Service {
 			//Individua il file
 			GenericResource res = (GenericResource)Buffering.toObject(toBeProcessed.getPayload().getPayloadData());
 			String EID = toBeProcessed.getPrimary().getSource().getHost();
+			System.out.println("Ris pubblic: "+res.getAddress());
 			String ip = res.getInfo();
-			String path = Server.getDataPath() + EID + "/" + res.getName();
+			
+			String path="";
+			
+			if(res.isPublic()){
+				URI x = new URI(res.getAddress());
+				path=Server.getDataPath() + x.getHost() + "/" +res.getName();
+			
+			}
+			else{
+				path = Server.getDataPath() + EID + "/" + res.getName();
+			}
+			
+			System.out.println("PATH:" +path);
+			System.out.println("IP: " +ip);
+			
 
 			s = new Socket(ip, 44444);
 			System.out.println("Client connected. Starting dump.");
@@ -361,6 +379,9 @@ public class Service {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -379,7 +400,9 @@ public class Service {
 			HttpURLConnection urlC = (HttpURLConnection) url.openConnection();
 			int estimatedSize=urlC.getContentLength();
 			
-			if(estimatedSize>Server.fileSizeLimit()){
+			long max = Server.fileSizeLimit();
+			if(max <=0) max= 1024*1024*1024;
+			if(estimatedSize> max){
 				String tooMuch = "Il file richiesto è troppo grosso (~"+estimatedSize/1024/1024+" mb,"
 								+" max "+Server.fileSizeLimit()/1024/1024+" mb)";
 				
@@ -461,9 +484,10 @@ public static void removeResource(Bundle toProcess){
 public static void main(String args[]){
 	String a[]={""};
 	//a[0]="http://mdtn.altervista.org";
-	a[0]="http://www.google.it/indeasdasdx.html";
+	a[0]="http://mdtn.altervista.org/tesi_final.pdf";
+	
 	try {
-		downloadFile("./",new URL(a[0]));
+		System.out.println(downloadFile("./",new URL(a[0])));
 	} catch (MalformedURLException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();

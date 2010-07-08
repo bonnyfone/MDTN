@@ -1,0 +1,166 @@
+%PDF-1.4
+%ÐÔÅØ
+5 0 obj
+<< /S /GoTo /D (chapter.1) >>
+endobj
+8 0 obj
+(Introduzione)
+endobj
+9 0 obj
+<< /S /GoTo /D (section.1.1) >>
+endobj
+12 0 obj
+(L'idea)
+endobj
+13 0 obj
+<< /S /GoTo /D (section.1.2) >>
+endobj
+16 0 obj
+(Scopo dello stage)
+endobj
+17 0 obj
+<< /S /GoTo /D (chapter.2) >>
+endobj
+20 0 obj
+(DTN: Delay Tolerant Network)
+endobj
+21 0 obj
+<< /S /GoTo /D (section.2.1) >>
+endobj
+24 0 obj
+(Che cos'\350 una DTN)
+endobj
+25 0 obj
+<< /S /GoTo /D (section.2.2) >>
+endobj
+28 0 obj
+(Funzionamento)
+endobj
+29 0 obj
+<< /S /GoTo /D (subsection.2.2.1) >>
+endobj
+32 0 obj
+(Packet switching vs Store-And-Forward)
+endobj
+33 0 obj
+<< /S /GoTo /D (subsection.2.2.2) >>
+endobj
+36 0 obj
+(Strategie di comunicazione)
+endobj
+37 0 obj
+<< /S /GoTo /D (subsection.2.2.3) >>
+endobj
+40 0 obj
+(Un nuovo livello: il Bundle Layer)
+endobj
+41 0 obj
+<< /S /GoTo /D (subsection.2.2.4) >>
+endobj
+44 0 obj
+(Bundle Protocol)
+endobj
+45 0 obj
+<< /S /GoTo /D (chapter.3) >>
+endobj
+48 0 obj
+(La piattaforma Android)
+endobj
+49 0 obj
+<< /S /GoTo /D (section.3.1) >>
+endobj
+52 0 obj
+(Panoramica generale)
+endobj
+53 0 obj
+<< /S /GoTo /D (section.3.2) >>
+endobj
+56 0 obj
+(L'architettura)
+endobj
+57 0 obj
+<< /S /GoTo /D (section.3.3) >>
+endobj
+60 0 obj
+(Ciclo di vita di un'applicazione)
+endobj
+61 0 obj
+<< /S /GoTo /D (section.3.4) >>
+endobj
+64 0 obj
+(Sviluppo)
+endobj
+65 0 obj
+<< /S /GoTo /D (subsection.3.4.1) >>
+endobj
+68 0 obj
+(Android SDK)
+endobj
+69 0 obj
+<< /S /GoTo /D (subsection.3.4.2) >>
+endobj
+72 0 obj
+(Integrazione con l'ambiente di sviluppo Eclipse)
+endobj
+73 0 obj
+<< /S /GoTo /D (chapter.4) >>
+endobj
+76 0 obj
+(Resoconto dell'attivit\340 di individuazione e analisi di un Framework per DTN)
+endobj
+77 0 obj
+<< /S /GoTo /D (section.4.1) >>
+endobj
+80 0 obj
+(La ricerca)
+endobj
+81 0 obj
+<< /S /GoTo /D (section.4.2) >>
+endobj
+84 0 obj
+(Bytewalla)
+endobj
+85 0 obj
+<< /S /GoTo /D (subsection.4.2.1) >>
+endobj
+88 0 obj
+(Funzionamento)
+endobj
+89 0 obj
+<< /S /GoTo /D (subsection.4.2.2) >>
+endobj
+92 0 obj
+(Architettura a layer)
+endobj
+93 0 obj
+<< /S /GoTo /D (subsection.4.2.3) >>
+endobj
+96 0 obj
+(Confronto con MDTN)
+endobj
+97 0 obj
+<< /S /GoTo /D (subsection.4.2.4) >>
+endobj
+100 0 obj
+(Analisi preliminare del codice e della documentazione)
+endobj
+101 0 obj
+<< /S /GoTo /D (section.4.3) >>
+endobj
+104 0 obj
+(Conclusione)
+endobj
+105 0 obj
+<< /S /GoTo /D (chapter.5) >>
+endobj
+108 0 obj
+(Analisi dei requisiti)
+endobj
+109 0 obj
+<< /S /GoTo /D (section.5.1) >>
+endobj
+112 0 obj
+(Funzionalit\340 del prodotto)
+endobj
+113 0 obj
+<< /S /GoTo /D (sect

@@ -18,6 +18,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -25,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -35,6 +35,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemLongClickListener;
 
+/**
+ * Classe grafica che rappresenta l'attività di gestione delle risorse (richiesta nuove risorse, download 
+ * e gestione). Viene richiamata dalla MainActivity all'interno di una TabView.
+ *
+ */
 public class FileActivity extends Activity {
 
 	/** Componente fondamentale che rappresenta un nodo di comunicazione DTN */
@@ -62,13 +67,16 @@ public class FileActivity extends Activity {
 	private ListView myList;
 	private TextView myLabelList;
 	private EditText myURL;
+	
+	/** Stringa contenente l'ultima richiesta inoltrata (preferenze) */
+	private String oldRequest;
 
 	public FileActivity(){}
 	public FileActivity(BundleNode refNode){this.refNode = refNode;}
 
 	/** Metodo che aggiorna la lista delle risorse locali */
 	private void updateLocalRes(){
-		/* ----------------- CODICE DI TESTING --------------------*/
+		
 		localRes.clear();
 		File SDCardRoot = Environment.getExternalStorageDirectory(); 
 		File dir = new File(SDCardRoot+"/MDTN_data/"); 
@@ -190,7 +198,7 @@ public class FileActivity extends Activity {
 				to);
 	}
 
-	/** Metodo che aggiorna tutte le liste */
+	/** Metodo che aggiorna tutte le liste delle risorse.*/
 	private void updateAllRes(){
 		updateLocalRes();
 		updateRemoteRes();
@@ -220,6 +228,9 @@ public class FileActivity extends Activity {
 		}
 	}
 
+	/**
+	 * Metodo che richiama il box di richiesta per una nuova risorsa.
+	 */
 	public void askNewAddress(){
 		
 		//Oggetti grafici e layout
@@ -232,7 +243,7 @@ public class FileActivity extends Activity {
 		image.setImageResource(R.drawable.androiddownload);
 
 		final EditText input = (EditText)layout.findViewById(R.id.text);
-		input.setText("http://mdtn.altervista.org/ex.pdf");
+		input.setText(oldRequest);
 		
 		//Messaggio di conferma:pubblico o no?
 		final AlertDialog.Builder publicOrNo = new AlertDialog.Builder(this);
@@ -247,12 +258,12 @@ public class FileActivity extends Activity {
 					toDownload = new URL(value);
 					GenericResource newRequest = new GenericResource(toDownload);
 					newRequest.setAsPublic();
-
+					oldRequest = value;
 					if(refNode.getMyAgent().isConnected()){//Se sono connesso..
 						if(refNode.getMyAgent().sendRequestForResource(newRequest))
 							Toast.makeText(getApplicationContext(), "La richiesta è stata inoltrata.\nVerrai notificato non appena la risorsa sarà disponibile.", Toast.LENGTH_LONG).show();
 						else
-							Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
+							Toast.makeText(getApplicationContext(), "Impossibile inoltrare la richiesta.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
 					}
 					else{
 						Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
@@ -271,10 +282,14 @@ public class FileActivity extends Activity {
 				String value = input.getText().toString();  
 				URL toDownload;
 				try {
+					oldRequest = value;
 					toDownload = new URL(value);
 					GenericResource newRequest = new GenericResource(toDownload);
 					if(refNode.getMyAgent().isConnected()){//Se sono connesso..
-						refNode.getMyAgent().sendRequestForResource(newRequest);
+						if(refNode.getMyAgent().sendRequestForResource(newRequest))
+							Toast.makeText(getApplicationContext(), "Richiesta inoltrata.\nVerrai notificato non appena il file sarà disponibile.", Toast.LENGTH_LONG).show();
+						else
+							Toast.makeText(getApplicationContext(), "Impossibile inoltrare la richiesta.\nControlla lo stato della connessione su Status.", Toast.LENGTH_LONG).show();
 					}
 					else{
 						Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
@@ -319,7 +334,11 @@ public class FileActivity extends Activity {
 		myList = (ListView)findViewById(R.id.mylist);
 		myLabelList = (TextView)findViewById(R.id.labellist);
 		//myURL = (EditText)findViewById(R.id.address);
-
+		
+		// Restore preferences
+		SharedPreferences settings = getSharedPreferences("MDTN", 0);
+		oldRequest = settings.getString("resource","http://mdtn.altervista.org/ex.pdf");
+		
 		//Imposta, di default, la visualizzazione della lista locale.
 		selector=0;
 
@@ -355,11 +374,9 @@ public class FileActivity extends Activity {
 				final ProgressDialog 	progres = ProgressDialog.show(FileActivity.this, "", 
 						"Sincronizzazione...", true);
 				progres.setCancelable(true);
-				//progres.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-				//progres.setIcon(R.drawable.ic_tab_artists_white);
-				//progres.setTitle("Connessione");
 				progres.show();
 
+				//Avvio thread di monitoraggio
 				Thread synchro =new Thread(){
 					public void run(){
 						refNode.getMyAgent().requestList();
@@ -426,6 +443,19 @@ public class FileActivity extends Activity {
 
 		updateUI();
 	}
+	
+    @Override
+    protected void onStop(){
+       super.onStop();
+
+      //Salvataggio preferenze
+      SharedPreferences settings = getSharedPreferences("MDTN", 0);
+      SharedPreferences.Editor editor = settings.edit();
+      editor.putString("resource",oldRequest);
+
+      
+      editor.commit();
+    }
 
 	/**
 	 * Metodo interno per la gestione delle operazioni sulle risorse locali
@@ -517,16 +547,19 @@ public class FileActivity extends Activity {
 						monitor.start();
 					}
 					else
-						Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_LONG).show();
 
 				}
 				else if(item==1){//Elimina
 					if(refNode.getMyAgent().isConnected()){
-						refNode.getMyAgent().deleteResource(sel);
+						if(refNode.getMyAgent().deleteResource(sel))
+							Toast.makeText(getApplicationContext(), "Richiesta di eliminazione inoltrata.\nRiesegui la sincronia per verificare i cambiamenti.", Toast.LENGTH_LONG).show();
+						else
+							Toast.makeText(getApplicationContext(), "Impossibile inoltrare la richiesta.\nControlla lo stato della connessione su Status.", Toast.LENGTH_LONG).show();
 						//TODO eliminare i file remoti
 					}
 					else
-						Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplicationContext(), "Non sei connesso al servizo MDTN.\nControlla lo stato della connessione su Status.", Toast.LENGTH_LONG).show();
 				}
 				else if(item==2){//Aggiorna
 					/*
@@ -548,7 +581,10 @@ public class FileActivity extends Activity {
 		alert.show();
 	}
 
-	//TODO testare
+	/**
+	 * Metodo interno per la gestione delle operazioni sulle risorse Pubbliche.
+	 * @param id indice della risorsa selezionata.
+	 */
 	public void handlePublic(int id){
 		//Safe check
 		if(id > publicRes.size())return;
@@ -602,7 +638,6 @@ public class FileActivity extends Activity {
 					 * updateUI();
 					 * (fatte comunque in chiusura)		
 					 */
-
 				}
 
 				Log.i("MDTN","Selezionato: "+item);
@@ -667,8 +702,7 @@ public class FileActivity extends Activity {
 		notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
 
 		notificationManager.notify(99, notification);
-		//		notificationManager.notify(toastCounter, notification);
-		//		toastCounter++;
+
 	}
 }
 

@@ -37,7 +37,10 @@ public class TcpAdapter {
 	/** Socket per trasferimento dati*/
 	private ServerSocket transferingSocket;
 	
+	/** Quantità di dati ricevuti.*/
 	private long dataReceived;
+	
+	/** Indicatore di completamento*/
 	private boolean finished;
 
 	
@@ -50,6 +53,10 @@ public class TcpAdapter {
 
 	}
 	
+	/**
+	 * Ritorna l'indirizzo ip corrente.
+	 * @return una stringa contenente un ip.
+	 */
 	public String getIpAddress(){
 		return socket.getLocalAddress().getHostAddress();
 	}
@@ -59,16 +66,27 @@ public class TcpAdapter {
 		connected=connect(ip,port);
 	}
 	
-	
+	/**
+	 * Ritorna la quantità di dati ricevuti.
+	 * @return un long contenente la quantità di dati ricevuti.
+	 */
 	public long getDataReceived(){
 		return dataReceived;
 	}
 	
+	/**
+	 * Ritorna lo stato di completamento del trasferimento.
+	 * @return un boolean che rappresenta questo stato.
+	 */
 	public boolean getFinished(){
 		return finished;
 	}
 	
-	//TODO TEST
+	/**
+	 * Abilita la ricezione di dati a basso livello per il trasferimento di file.
+	 * @param fileName file da salvare.
+	 * @return un boolean che rappresenta l'esito.
+	 */
 	public boolean activateDataTransfering(String fileName){
 			try{
 				dataReceived=0;

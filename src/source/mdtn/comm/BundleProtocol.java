@@ -4,9 +4,12 @@ import source.mdtn.bundle.Bundle;
 import source.mdtn.server.Server;
 import source.mdtn.server.Service;
 
+/**
+ * Classe che rappresenta un BundleProtocol.
+ */
 public class BundleProtocol {
 
-	/** modalità operativa (0=server, 1=client*/
+	/** modalità operativa (0=server, 1=client)*/
 	private int operativeMode;
 
 	/**
@@ -18,7 +21,11 @@ public class BundleProtocol {
 	}
 
 
-
+	/**
+	 * Processa il bundle.
+	 * @param toBeProcessed il bundle da processare.
+	 * @return un bundle di risposta, oppure null.
+	 */
 	public Bundle processBundle(Bundle toBeProcessed){
 
 		if(operativeMode==0){
@@ -39,8 +46,7 @@ public class BundleProtocol {
 	 * @return un bundle di risposta.
 	 */
 	private Bundle clientProcessBundle(Bundle toBeProcessed){
-
-		
+		//Attualmente, non è necessario nessun process lato client che sia platform-independent.
 		return null;
 	}
 
@@ -76,11 +82,7 @@ public class BundleProtocol {
 				}
 			};
 			handle.start();
-			/*
-			GenericResource res = (GenericResource)Buffering.toObject(toBeProcessed.getPayload().getPayloadData());
-			String EID = toBeProcessed.getPrimary().getSource().getHost();
-			return Service.returnResource(res,EID);
-			*/
+
 		}
 		else{//Altrimenti, salvataggio persistente del bundle su disco (RFC5050).
 			if(!toBeProcessed.store(Server.getBundlePath()))System.out.println("Errore di storage");	
@@ -88,7 +90,5 @@ public class BundleProtocol {
 
 		return null;
 	}
-	
-	
 
 }

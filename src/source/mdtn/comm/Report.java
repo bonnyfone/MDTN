@@ -8,6 +8,8 @@ import source.mdtn.util.Timing;
  */
 public class Report implements Serializable {
 
+	private static final long serialVersionUID = -2425822024675989447L;
+
 	/** Messaggio del rapporto. */
 	private String message;
 	

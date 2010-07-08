@@ -5,7 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * Classe che rappresenta il PrimaryBlock di un bundle.
+ * Classe che rappresenta il PrimaryBlock (RFC 5050).
  */
 public class PrimaryBlock implements Serializable{
 
@@ -54,11 +54,9 @@ public class PrimaryBlock implements Serializable{
 	public PrimaryBlock(){ //TODO: IL COSTRUTTORE CONTIENE CODICE DI TESTING! OCCHIO!
 		processingControlFlag = new boolean[21]; //inizializzazione "a zero" automatica, tutti i flag a false.
 
-		/*-- codice di prova --*/
-		blockLenght = 321;
 		creationTimestamp = System.currentTimeMillis() /1000;
 		creationSequenceNumber = 1;
-		lifetime = 20000;
+		lifetime = 86400;
 		fragmentOffset=-1;
 		totalAppDataLenght=-1;
 		try {
@@ -322,121 +320,211 @@ public class PrimaryBlock implements Serializable{
 	
 	
 	
-	/* AUTO GENERATED SET&GET */
 	
+	/**
+	 * Ritorna la versione del PrimaryBlock.
+	 */
 	public byte getVersion() {
 		return version;
 	}
 
-
+	/**
+	 * Imposta la versione del PrimaryBlock.
+	 * @param version un byte che rappresenta la versione.
+	 */
 	public void setVersion(byte version) {
 		this.version = version;
 	}
 
-
+	/**
+	 * Ritorna l'intero array di flag di controllo.
+	 * @return un array di boolean rappresentante la totalità dei flag.
+	 */
 	public boolean[] getProcessingControlFlag() {
 		return processingControlFlag;
 	}
 
 
+	/**
+	 * Imposta la totalità dei flag attraverso un array di boolean.
+	 * @param processingControlFlag un array di boolean.
+	 */
 	public void setProcessingControlFlag(boolean[] processingControlFlag) {
 		this.processingControlFlag = processingControlFlag;
 	}
 
 
+	/**
+	 * Ritorna la lunghezza del blocco.
+	 * @return un long che rappresenta la lunghezza del blocco.
+	 */
 	public long getBlockLenght() {
 		return blockLenght;
 	}
 
-
+	
+	/**
+	 * Imposta la lunghezza del blocco.
+	 * @param blockLenght un long da usare come lunghezza del blocco.
+	 */
 	public void setBlockLenght(long blockLenght) {
 		this.blockLenght = blockLenght;
 	}
 
 
+	/**
+	 * Ritorna il timestamp di creazione.
+	 * @return un long contenente il timestamp.
+	 */
 	public long getCreationTimestamp() {
 		return creationTimestamp;
 	}
 
 
+	/**
+	 * Imposta il timestamp di creazione.
+	 * @param creationTimestamp un long da usare come timestamp.
+	 */
 	public void setCreationTimestamp(long creationTimestamp) {
 		this.creationTimestamp = creationTimestamp;
 	}
 
 
+	/**
+	 * Ritorna il creationSequenceNumber.
+	 * @return un long che rappresenta il creationSequenceNumber.
+	 */
 	public long getCreationSequenceNumber() {
 		return creationSequenceNumber;
 	}
 
 
+	/**
+	 * Imposta il cretionSequnceNumber.
+	 * @param creationSequenceNumber un long da usare come creationSequnenceNumber.
+	 */
 	public void setCreationSequenceNumber(long creationSequenceNumber) {
 		this.creationSequenceNumber = creationSequenceNumber;
 	}
 
 
+	/**
+	 * Ritorna il lifetime.
+	 * @return un long che reppresenta il lifetime.
+	 */
 	public long getLifetime() {
 		return lifetime;
 	}
 
 
+	/**
+	 * Imposta il lifetime.
+	 * @param lifetime un long da usare come lifetime.
+	 */
 	public void setLifetime(long lifetime) {
 		this.lifetime = lifetime;
 	}
 
 
+	/**
+	 * Ritorna il fragmentOffset.
+	 * @return un long che rappresenta il fragmentOffset.
+	 */
 	public long getFragmentOffset() {
 		return fragmentOffset;
 	}
 
 
+	/**
+	 * Imposta il fragmentOffset.
+	 * @param fragmentOffset un long da usare come fragmentOffset.
+	 */
 	public void setFragmentOffset(long fragmentOffset) {
 		this.fragmentOffset = fragmentOffset;
 	}
 
 
+	/**
+	 * Ritorna la lunghezza dei dati applicazione.
+	 * @return un long che rappresenta la lunghezza dei dati.
+	 */
 	public long getTotalAppDataLenght() {
 		return totalAppDataLenght;
 	}
 
 
+	/**
+	 * Imposta la lunghezza dei dati applicazione.
+	 * @param totalAppDataLenght un long da usare come lunghezza.
+	 */
 	public void setTotalAppDataLenght(long totalAppDataLenght) {
 		this.totalAppDataLenght = totalAppDataLenght;
 	}
 	
+	/**
+	 * Ritorna URI della sorgente.
+	 * @return una URI.
+	 */
 	public URI getSource() {
 		return source;
 	}
 
 
+	/**
+	 * Imposta URI della sorgente.
+	 * @param source una URI da usare come sorgente.
+	 */
 	public void setSource(URI source) {
 		this.source = source;
 	}
 	
+	/**
+	 * Ritorna URI della destinazione.
+	 * @return una URI.
+	 */
 	public URI getDestination() {
 		return destination;
 	}
 
 
+	/**
+	 * Imposta URI della destinazione.
+	 * @param source una URI da usare come destinazione.
+	 */
 	public void setDestination(URI destination) {
 		this.destination = destination;
 	}
 
 
+	/**
+	 * Ritorna URI del nodo a cui inviare i report.
+	 * @return una URI.
+	 */
 	public URI getReportTo() {
 		return reportTo;
 	}
 
 
+	/**
+	 * Imposta URI del nodo a cui inviare i report.
+	 * @param reportTo
+	 */
 	public void setReportTo(URI reportTo) {
 		this.reportTo = reportTo;
 	}
 
-
+	/**
+	 * Ritorna URI del nodo custodian.
+	 * @return una URI.
+	 */
 	public URI getCustodian() {
 		return custodian;
 	}
 
-
+	/**
+	 * Imposta URI del nodo custodian.
+	 * @param reportTo
+	 */
 	public void setCustodian(URI custodian) {
 		this.custodian = custodian;
 	}

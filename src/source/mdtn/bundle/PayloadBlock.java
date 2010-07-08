@@ -1,17 +1,14 @@
 package source.mdtn.bundle;
 
-
+/**
+ * Classe che rappresenta un PayloadBlock (RFC5050)
+ */
 public class PayloadBlock extends Block {
 
 	private static final long serialVersionUID = 6423850683812810944L;
 
+	/** Typo di Payload (campo non previsto da RFC5050)*/
 	private String type;
-	/*
-	private int blockType = 1; //A payload block
-	private boolean processingControlFlag[];
-	private long blockLenght;
-	private byte payload[];
-	*/
 	
 	/** Costruttore standard di un PayloadBlock */
 	public PayloadBlock(){

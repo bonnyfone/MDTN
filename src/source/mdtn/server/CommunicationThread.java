@@ -39,8 +39,10 @@ public class CommunicationThread extends Thread {
 	/** ObjectStream di entrata (dati in ingresso)*/
 	private ObjectInputStream in;
 
+	/** Indirizzo ip del client gestito*/
 	private String clientIP;
 
+	/** Istanza del bundleProtocol*/
 	private BundleProtocol bp;
 
 
@@ -96,20 +98,6 @@ public class CommunicationThread extends Thread {
 					//Eventualmente, invio subito un bundle di risposta (non obbligatorio)
 					if(!(risp==null))send(risp);
 
-					/*
-				//Se è un pacchetto informativo, non serve salvare nulla
-				if(newBundle.getPayload().getType().equals("DISCOVERY")){
-					EIDclient=newBundle.getPrimary().getSource();
-				}
-				else{//Altrimenti, salvataggio persistente del bundle su disco (RFC5050).
-					newBundle.store(Server.getBundlePath());	
-				}
-					 */
-
-					/* Il nuovo bundle verrà processato automaticamente dal Thread demone di bundle-processing
-					 * del server. Il thread di comunicazione nel frattempo rimane libero per ricevere altri 
-					 * bundle.
-					 */
 				}
 			}
 			catch(EOFException eofe){myOwner.addLog("Received EOF exception, client bad-disconnected.");}

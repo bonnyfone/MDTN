@@ -14,6 +14,9 @@ import source.mdtn.util.GenericResource;
 import source.mdtn.util.Message;
 import source.mdtn.util.Timing;
 
+/**
+ * Classe-thread per la gestione del dispatching delle attività del server.
+ */
 public class Dispatcher extends Thread {
 
 	/** Oggetto di sincronizzazione. */
@@ -21,9 +24,6 @@ public class Dispatcher extends Thread {
 
 	/** Riferimento al server. */
 	private Server refServer;
-
-	/** Protocollo per interpretare i bundle. */
-	private BundleProtocol protocol;
 
 	/** Numero massimo di operazioni da eseguire in parallelo. */
 	private int maxOperation;
@@ -43,10 +43,14 @@ public class Dispatcher extends Thread {
 	/** Demone che si occupa di ripulire lo storage dai bundle processati. */
 	private Cleaner mygc;
 
+	/**
+	 * Costruttore del Dispatcher.
+	 * @param myServer riferimento al server.
+	 * @param sentinel oggetto per la sincronizzazione.
+	 */
 	public Dispatcher(Server myServer,Object sentinel){
 		refServer = myServer;
 		connLock = sentinel;
-		protocol = new BundleProtocol(0);
 		maxOperation = Server.maxParallelOp();
 		jobList = new Vector<Bundle>();
 		recepitList = new Vector<Bundle>();
@@ -56,9 +60,9 @@ public class Dispatcher extends Thread {
 		mygc.start();
 	}
 
+	@Override
 	public void run(){
 		//Avvia un thread per il monitoraggio del Bundle-storage che aggiorna la lista dei lavori.
-		//new Refresher().start();
 		try {
 			synchronized (connLock) {
 				while(true){
@@ -90,10 +94,16 @@ public class Dispatcher extends Thread {
 			t.start();
 		}
 
+		/**
+		 * Metodo che risveglia l'esecutore.
+		 */
 		public synchronized void wakeup(){
 			this.notifyAll();
 		}
 
+		/**
+		 * Metodo di processing dell'esecutore. Stabilisce ed esegue le operazioni da fare.
+		 */
 		public void process(){
 			while(true){
 				synchronized (this) {
@@ -224,11 +234,6 @@ public class Dispatcher extends Thread {
 		private void removeJob(Bundle toRemove){
 			if(toRemove==null)return;
 
-			/*System.out.println(Server.getBundlePath()+toRemove.getFilePath());
-			File f= new File(Server.getBundlePath()+toRemove.getFilePath());
-			if(f.delete())System.out.println("Cancellato!");
-			else System.out.println("NON Cancellato!");
-			 */
 			//Richiede al BundleGarbage collector di occuparsi di questo bundle, per cancellarlo.
 			mygc.addFileToDelete(Server.getBundlePath()+toRemove.getFilePath());
 
@@ -292,19 +297,26 @@ public class Dispatcher extends Thread {
 	 */
 	private class Cleaner extends Thread{
 
+		/**	Lista dei file da cancellare. */
 		private Vector<File> delList;
 
+		/**Costruttore del Cleaner.*/
 		public Cleaner(){
 			setDaemon(true);
 			delList = new Vector<File>();
 		}
 
+		/**
+		 * Metodo che aggiunge un file alla lista dei file da cancellare.
+		 * @param filepath percorso del file da cancellare.
+		 */
 		public void addFileToDelete(String filepath){
 			File f = new File(filepath);
 			if(f.exists())delList.addElement(f);
 			else System.out.println("NON ESISTE!");
 		}
 
+		@Override
 		public void run(){
 			while(true){
 				try {
@@ -323,10 +335,16 @@ public class Dispatcher extends Thread {
 		}
 	}
 
+	
 
 	/**
 	 * Classe thread interna per l'aggiornamento della joblist. Semplicemente, legge eventuali nuovi bundle
 	 * dal bundle storage, o recupera l'intero gruppo di bundle in seguito ad un riavvio/crash.
+	 * 
+	 * 
+	 * DEPRECATA!!
+	 * 
+	 * 
 	 */
 	/*
 	private class  Refresher extends Thread{

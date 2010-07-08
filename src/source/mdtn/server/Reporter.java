@@ -20,8 +20,13 @@ public class Reporter extends Thread {
 	/** Riferimento al server. */
 	private Server refServer;
 	
+	/** Riferimento alla lista dei clients.*/
 	private Vector<CommunicationThread> clients;
 	
+	/**
+	 *  Costruttore del Reporter
+	 * @param myServer riferimento al server
+	 */
 	public Reporter(Server myServer){
 		refServer=myServer;
 		clients=refServer.getClients();
@@ -29,6 +34,7 @@ public class Reporter extends Thread {
 		fileReaded = new Vector<String>();
 	}
 	
+	@Override
 	public void run(){
 		while(true){
 			
@@ -65,14 +71,6 @@ public class Reporter extends Thread {
 		}
 	}
 	
-	/*
-
-	 	QUUUUUUUUUUUAAAAAAAAAAAAAAAAA
-		Cancellare bene la ricevuta dopo invio!
-		Visualizzare i messaggi toast su android
-		
-	 */
-
 	
 	/**
 	 * Rimuovo il bundle-report da liste e disco.
@@ -81,11 +79,6 @@ public class Reporter extends Thread {
 	private void removeReport(Bundle toRemove){
 		if(toRemove==null)return;
 
-		/*System.out.println(Server.getBundlePath()+toRemove.getFilePath());
-		File f= new File(Server.getBundlePath()+toRemove.getFilePath());
-		if(f.delete())System.out.println("Cancellato!");
-		else System.out.println("NON Cancellato!");
-		 */
 		toRemove.delete(Server.getBundlePath());
 		//mygc.addFileToDelete(Server.getBundlePath()+toRemove.getFilePath());
 

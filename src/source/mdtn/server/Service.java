@@ -33,7 +33,9 @@ import source.mdtn.util.GenericResource;
 import source.mdtn.util.PolledInputStream;
 import source.mdtn.util.RealResource;
 
-
+/**
+ * Classe che si occupa di eseguire alcuni specifici servizi lato server.
+ */
 public class Service {
 
 	/**
@@ -56,9 +58,9 @@ public class Service {
 		String sendCc="&cc=";
 		if(cc)sendCc += from;
 		else sendCc += "null";
-		
+
 		String result="";
-		
+
 
 		//Crea la query string NON quotata
 		String composeUrl = "//www.mdtn.altervista.org/mailservice.php?k=" + key +
@@ -101,22 +103,6 @@ public class Service {
 		}
 		in.close();
 
-
-		//Stampa esito script
-		/*
-		System.out.println("\n#### Script output ####");
-		try {
-		  int b;
-		  while((b = is.read()) != -1 ){
-			  System.out.print((char)b);
-		  }
-
-		} finally {
-			System.out.println("\n#### end output ####");
-		  is.close();
-		}
-		 */
-		//System.out.println(result.trim());
 		return result.trim();
 	}
 
@@ -341,21 +327,21 @@ public class Service {
 			String EID = toBeProcessed.getPrimary().getSource().getHost();
 			System.out.println("Ris pubblic: "+res.getAddress());
 			String ip = res.getInfo();
-			
+
 			String path="";
-			
+
 			if(res.isPublic()){
 				URI x = new URI(res.getAddress());
 				path=Server.getDataPath() + x.getHost() + "/" +res.getName();
-			
+
 			}
 			else{
 				path = Server.getDataPath() + EID + "/" + res.getName();
 			}
-			
+
 			System.out.println("PATH:" +path);
 			System.out.println("IP: " +ip);
-			
+
 
 			s = new Socket(ip, 44444);
 			System.out.println("Client connected. Starting dump.");
@@ -385,7 +371,7 @@ public class Service {
 		}
 	}
 
-	
+
 	/**
 	 * Metodo che scarica un determinato file da internet.
 	 * @param savingPath percorso in cui salvare il file.
@@ -399,16 +385,16 @@ public class Service {
 			System.out.println("Opening connection to " + path + "...");
 			HttpURLConnection urlC = (HttpURLConnection) url.openConnection();
 			int estimatedSize=urlC.getContentLength();
-			
+
 			long max = Server.fileSizeLimit();
 			if(max <=0) max= 1024*1024*1024;
 			if(estimatedSize> max){
 				String tooMuch = "Il file richiesto è troppo grosso (~"+estimatedSize/1024/1024+" mb,"
-								+" max "+Server.fileSizeLimit()/1024/1024+" mb)";
-				
+				+" max "+Server.fileSizeLimit()/1024/1024+" mb)";
+
 				return tooMuch;
 			}
-			
+
 			System.out.println("Size "+estimatedSize);
 			urlC.setReadTimeout(1000*10);
 			urlC.setConnectTimeout(1000*10);
@@ -439,7 +425,7 @@ public class Service {
 				fos.write(buf, 0, size);
 				count+=size;
 			}
-			
+
 			/*i
 			int oneChar, count=0;
 			while ((oneChar=is.read()) != -1)
@@ -452,50 +438,55 @@ public class Service {
 			fos.close();
 			System.out.println(count + " byte(s) copied");
 			return "ok";
+		}
+		catch(FileNotFoundException fe){
+			return "La risorsa richiesta non esiste.";
+		}
+		catch(SocketTimeoutException se){
+			System.err.println(se.toString()); return "error: Errore Timeout in connessione/lettura.";
+		}
+		catch (MalformedURLException e)
+		{ System.err.println(e.toString()); return "L'indirizzo non è valido.";}
+		catch (IOException e)
+		{ System.err.println(e.toString()); return "error: Errore durante il download.";}
 	}
-	catch(FileNotFoundException fe){
-		return "La risorsa richiesta non esiste.";
+
+
+	/**
+	 * Rimuove una risorsa dal server.
+	 * @param toProcess il bundle che contiene la richiesta di eliminazione.
+	 */
+	public static void removeResource(Bundle toProcess){
+		//EID client, per individuare la cartella
+		String EID = toProcess.getPrimary().getSource().getHost().toString();
+		//Risorsa da eliminare
+		GenericResource toDelete = (GenericResource)Buffering.toObject((toProcess.getPayload().getPayloadData()));
+		System.out.println(EID);
+		File f = new File(Server.getDataPath()+EID+"/"+toDelete.getName());
+		f.delete();
+
+		Service.removePublicResource(EID+"/"+toDelete.getName());
+
 	}
-	catch(SocketTimeoutException se){
-		System.err.println(se.toString()); return "error: Errore Timeout in connessione/lettura.";
-	}
-	catch (MalformedURLException e)
-	{ System.err.println(e.toString()); return "L'indirizzo non è valido.";}
-	catch (IOException e)
-	{ System.err.println(e.toString()); return "error: Errore durante il download.";}
-}
 
 
+	/*
+		public static void main(String args[]){
+			String a[]={""};
+			//a[0]="http://mdtn.altervista.org";
+			a[0]="http://mdtn.altervista.org/tesi_final.pdf";
+		
+			try {
+				System.out.println(downloadFile("./",new URL(a[0])));
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//a[0]="http://pimpmyearns.altervista.org/";
+			//a[0]="http://news.google.it/";
+			//captureSite(a[0]);
+		}*/
 
-public static void removeResource(Bundle toProcess){
-	//EID client, per individuare la cartella
-	String EID = toProcess.getPrimary().getSource().getHost().toString();
-	//Risorsa da eliminare
-	GenericResource toDelete = (GenericResource)Buffering.toObject((toProcess.getPayload().getPayloadData()));
-	System.out.println(EID);
-	File f = new File(Server.getDataPath()+EID+"/"+toDelete.getName());
-	f.delete();
-
-	Service.removePublicResource(EID+"/"+toDelete.getName());
-
-}
-
-
-public static void main(String args[]){
-	String a[]={""};
-	//a[0]="http://mdtn.altervista.org";
-	a[0]="http://mdtn.altervista.org/tesi_final.pdf";
-	
-	try {
-		System.out.println(downloadFile("./",new URL(a[0])));
-	} catch (MalformedURLException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-	//a[0]="http://pimpmyearns.altervista.org/";
-	//a[0]="http://news.google.it/";
-	//captureSite(a[0]);
-}
 }
 
 

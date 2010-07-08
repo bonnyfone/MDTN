@@ -111,17 +111,9 @@ public class Server extends Thread {
 			
 			addLog("In ascolto (porta "+listeningPort+")...\n");		
 			
-			Service.removePublicResource("saads.ads.it");
-			//Service.addPublicResource("saads.ads.it");
+
 			Service.getPublicResourceList();
 			
-			/* Test */
-			/*Message x = new Message("fromasd","toasd","asd","asd");
-			byte b[]=Buffering.toBytes(x);
-			Message y = (Message)Buffering.toObject(b);
-			//Bundle y = (Bundle)Buffering.toObject(b);
-			System.out.println(y.getFrom()+" "+y.getTo());
-			 */
 
 		} catch (IOException e) {
 			addLog("Could not listen on port: "+listeningPort+".");
@@ -189,10 +181,18 @@ public class Server extends Thread {
 		return serverEID;
 	}
 	
+	/**
+	 * Ritorna la dimensione massima di file scaricabile.
+	 * @return un long che rappresenta la dimensione massima.
+	 */
 	public static long fileSizeLimit(){
 		return fileSizeLimit;
 	}
 	
+	/**
+	 * Ritorna il numero massimo di operazioni eseguibili in parallelo.
+	 * @return un intero che rappresenta il numero massimo di operazioni.
+	 */
 	public static int maxParallelOp(){
 		return maxParallelOperation;
 	}
@@ -213,12 +213,22 @@ public class Server extends Thread {
 
 		private static final long serialVersionUID = 6197952227066657715L;
 
+		/**TextArea dei log*/
 		JTextArea txtLog;
+		
+		/**TexField dell'ip*/
 		JTextField txtIp;
+		
+		/** Label dell'ip*/
 		JLabel labelIp;
+		
+		/** Label di stato della connessione*/
 		JLabel labelConn;
+		
+		/** Label con il numero di client connessi.*/
 		JLabel labelNumClients;
 
+		/**Costruttore della gui.*/
 		public ServerGui(){
 			setTitle("MDTN - Server");
 			setSize(500,500);

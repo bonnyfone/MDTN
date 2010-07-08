@@ -17,7 +17,6 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
@@ -56,21 +55,30 @@ public class FileActivity extends Activity {
 
 	/** Adapters per le liste */
 	
+	/**Adapters per la lista delle risorse locali.*/
 	private SimpleAdapter adapterLocal;
+	
+	/**Adapters per la lista delle risorse remote.*/
 	private SimpleAdapter adapterRemote;
+	
+	/**Adapters per la lista delle risorse pubbliche.*/
 	private SimpleAdapter adapterPublic;
 
 	/** Numero che indica quale lista è attualmente in uso <br> 0=local, 1=remote, 2=public*/
 	private int selector;
 
 	/** Componenti grafici */
+	
+	/** ListView contentente le varie liste delle risorse.*/
 	private ListView myList;
+	
+	/** Etichetta che contiene il nome della lista visualizzata.*/
 	private TextView myLabelList;
-	private EditText myURL;
 	
 	/** Stringa contenente l'ultima richiesta inoltrata (preferenze) */
 	private String oldRequest;
 
+	//Costruttori java-like
 	public FileActivity(){}
 	public FileActivity(BundleNode refNode){this.refNode = refNode;}
 
@@ -664,7 +672,7 @@ public class FileActivity extends Activity {
 	 */
 	private void addToast(String title, String message, boolean vibration, boolean light, boolean sound){
 		//Ottengo il notification manager
-		Intent notificationIntent = new Intent(this, MainActivity.class);
+		//Intent notificationIntent = new Intent(this, MainActivity.class);
 
 		//Cliccando sulla notidica, mi riporta all'istanza del programma precedentemente avviata.
 		//Volendo, si può ottenere un altro comportamento.

@@ -19,16 +19,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TabHost;
 
-
+/** Classe grafica principale che costituisce il blocco di avvio dell'applicazione client MDTN. 
+ * Crea una visualizzazione a tab collegate alle varie attività (invio email, gestione risorse, ecc).*/
 public class MainActivity extends TabActivity {
 	
 	/** Componente fondamentale che rappresenta un nodo di comunicazione DTN */
 	private static BundleNode myNode;
 	
+	/** Metodo statico che ritorna il bundlNode della MainActivity. Dovrà esistere una sola MainActivity,
+	 * quindi un solo bundleNode che identifica questo nodo.*/
 	public static BundleNode getServiceBundleNode(){
 		return myNode;
 	}
 	
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.main);
@@ -38,15 +42,17 @@ public class MainActivity extends TabActivity {
 	    TabHost.TabSpec spec;  // Reusable TabSpec for each tab
 	    Intent intent;  // Reusable Intent for each tab
 
-	    //----------------------CODICE DI TESTING ---------------
 	    URI clientEID=null;
 		try {
+			//Ottengo info dal telefono in uso.
 			TelephonyManager tele = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE); 
 			String imei = tele.getDeviceId();
+			
 			
 			clientEID = new URI("dtn://"+imei);
 			myNode = new BundleNode(clientEID);
 			Log.i("MDTM", clientEID.toString());
+			
 			//Preparo, se serve, la cartella di storage
 			File SDCardRoot = Environment.getExternalStorageDirectory();  
 			File file = new File(SDCardRoot+"/MDTN_data");
@@ -54,17 +60,12 @@ public class MainActivity extends TabActivity {
 				 Log.i("MDTN", "Cartella fatta!!");
 			 else
 				 Log.i("MDTN", "ERRORE CARTELLA! "+file.getPath());
-			/*
-			if(myNode.getMyAgent().connectToService("10.0.2.2"))
-				Log.i("CONN", "COLLEGATO!");
-			else
-				Log.i("CONN", "ERRORE DI COLLEGAMENTO!");
-			*/
+
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	    //----------------------FINE CODICE DI TESTING ---------------
+
 		
 		/* Tutte le attività condividono un unico componente comune, ovvero un oggetto di tipo BundleNode,
 		 * il quale incapsula l'intero funzionamento del servizio MDTN al suo interno. 
@@ -115,18 +116,8 @@ public class MainActivity extends TabActivity {
 
 	}
 	
-//	public void onContentChanged(){
-//        Context context = getApplicationContext();
-//        CharSequence text = "Tab switched";
-//        int duration = Toast.LENGTH_SHORT;
-//
-//        Toast toast = Toast.makeText(context, text, duration);
-//        toast.show();
-//	}
-	
-	
-	
 	/*  Gestione MENU */
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean result = super.onCreateOptionsMenu(menu);
@@ -141,7 +132,7 @@ public class MainActivity extends TabActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		switch (item.getItemId()) {
-		case 0: //Mostra messaggio: Vuoi uscire? SI,NO
+		case 0: //Mostra messaggio: Vuoi uscire? SI,NO e gestisce la chiusura dell'applicazione
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage("   Vuoi uscire?   ")
 			.setCancelable(false)

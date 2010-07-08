@@ -4,7 +4,6 @@ import source.mdtn.comm.BundleNode;
 import source.mdtn.util.Message;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -20,6 +19,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+/**
+ * Classe grafica per la gestione dell'attività di invio delle email.
+ */
 public class MailActivity extends Activity {
 
 	/** Componente fondamentale che rappresenta un nodo di comunicazione DTN */
@@ -33,19 +35,22 @@ public class MailActivity extends Activity {
 	private Button _send;
 	private CheckBox _cc;
 
-	public MailActivity(){
-
-	}
-
+	
+	//Costruttori java-like
+	public MailActivity(){}
 	public MailActivity(BundleNode refNode){
 		this.refNode = refNode;
 	}
 
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.tablayout_mail);
+		
+		//bind del bundlenode
 		refNode = MainActivity.getServiceBundleNode();
 
+		//bind oggetti grafici
 		_from = (EditText)findViewById(R.id.from);
 		_to = (EditText)findViewById(R.id.to);
 		_subject = (EditText)findViewById(R.id.subj);
@@ -108,31 +113,7 @@ public class MailActivity extends Activity {
 	               
 	           }});
 		final AlertDialog alertErr = builder.create();	
-		/*
-		//Vari alertDialog per segnalare l'esito delle richieste di invio mail
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("  Email inoltrata con successo.  ")
-		       .setCancelable(true)
-		       .setIcon(R.drawable.androidok)
-		       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-		           public void onClick(DialogInterface dialog, int id) {
-		               
-		           }
-		       });
-		
-		final AlertDialog alertOk = builder.create(); //Messaggio OK
-		
-		builder.setMessage(" Errore durante inoltro email.  ")
-	       .setCancelable(true)
-	       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-	           public void onClick(DialogInterface dialog, int id) {
-	               
-	           }
-	       });
-		
-		final AlertDialog alertErr = builder.create(); //Messaggio Errore
-		*/
-		
+				
 		/* Handler che riceve le indicazione sul tipo di messaggio da visualizzare */
 		final Handler handler = new Handler() {  
 			public void handleMessage(android.os.Message msg) {  
@@ -143,8 +124,7 @@ public class MailActivity extends Activity {
 			   }
 			}; 
 
-		
-		//Listener per controllare la validità dell'email
+				//Listener per controllare la validità dell'email
 		_from.addTextChangedListener(new TextWatcher() {
 			public void afterTextChanged(Editable s) {
 				if(Message.checkEmail(_from.getText().toString()))

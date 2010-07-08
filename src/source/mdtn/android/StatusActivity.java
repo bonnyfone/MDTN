@@ -8,7 +8,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -19,20 +18,33 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+/**
+ * Classe grafica per la gestione dell'attività di connessione al servizio MDTN.
+ */
 public class StatusActivity extends Activity {
 
 	/** Componente fondamentale che rappresenta un nodo di comunicazione DTN */
 	private BundleNode refNode;
 
 	/** Componenti grafici **/
+	
+	/**Pulsante di connessione.*/
 	private Button _buttonConnect;
+	/**Pulsante di disconnessione.*/
 	private Button _buttonDisconnect;
+	/**Pulsante per l'invio di un bundle di prova.*/
 	private Button _buttonSend;
+	/**Etichetta dello stato del servizio MDTN.*/
 	private TextView _labelStat;
+	/**Etichetta dei logs.*/
 	private TextView _labelLogs;
+	/**Etichetta dello stato del Wi-fi.*/
 	private TextView _wifistate;
+	/**Textbox per l'inserimento dell'ip del server.*/
 	private EditText _txtIp;
+	/**ProgressDialog per la visualizzazione del progres di connessione.*/
 	private ProgressDialog progres;
+	
 
 	/**Servizio wifi di sistema*/
 	private WifiManager wifiManager;
@@ -43,14 +55,11 @@ public class StatusActivity extends Activity {
 	/** Contatore dei toast-message */
 	int toastCounter;
 
+	/** Indirizzo ip*/
 	private String ip;
 
-	/** Costruttore di default */
+	/*Costruttori java-like*/
 	public StatusActivity(){lastLog=0;}
-
-	/** Costruttore avanzato che costruisce l'attività associandola al servizio MDTN.
-	 * @param refNode riferimento al BundleNode che rappresenta il nodo della comunicazione MDTN.
-	 */
 	public StatusActivity(BundleNode refNode){
 		this.refNode = refNode;
 		this.lastLog = 0;
@@ -63,11 +72,7 @@ public class StatusActivity extends Activity {
 		Log.i("MDTN", "Indirizzo"+this);
 	}
 
-	public void setBundleNode(BundleNode myNode){
-		this.refNode=myNode;
-	}
-
-
+	
 	/**
 	 * Metodo grafico che aggiunge una messaggio di notifica alla barra delle notifiche di Android.
 	 * @param title titolo del messaggio.
@@ -78,7 +83,7 @@ public class StatusActivity extends Activity {
 	 */
 	private void addToast(String title, String message, boolean vibration, boolean light, boolean sound){
 		//Ottengo il notification manager
-		Intent notificationIntent = new Intent(this, MainActivity.class);
+		//Intent notificationIntent = new Intent(this, MainActivity.class);
 
 		//Cliccando sulla notidica, mi riporta all'istanza del programma precedentemente avviata.
 		//Volendo, si può ottenere un altro comportamento.
@@ -110,10 +115,7 @@ public class StatusActivity extends Activity {
 			notification.vibrate = vibrate;
 		}
 
-
-
 		notification.flags |= Notification.FLAG_AUTO_CANCEL;
-
 
 		Context context = getApplicationContext();
 		CharSequence contentTitle = title;
@@ -219,11 +221,6 @@ public class StatusActivity extends Activity {
 					newBundle.getPayload().setType("DISCOVERY");
 					refNode.getMyAgent().sendBundle(newBundle);
 					refNode.addLog("Bundle inviato ("+newBundle.getPrimary().getCreationTimestamp()+")");
-
-					//WIFI on?
-					//final String mytest = Settings.System.getString(getContentResolver(), Settings.System.WIFI_ON);
-
-					//refNode.addLog(mytest);
 				}
 			}
 		});
@@ -242,7 +239,6 @@ public class StatusActivity extends Activity {
 						Runnable updateStat = new Runnable(){
 							public void run() {
 								//Wifi check
-
 								if(wifiManager.isWifiEnabled()){
 									WifiInfo info=wifiManager.getConnectionInfo();
 

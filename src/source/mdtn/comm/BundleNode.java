@@ -428,6 +428,7 @@ public class BundleNode {
 							Buffering.writeBytesToFile(SDCardRoot+"/MDTN_data/"+realFile.getName(), realFile.getData());
 							addLog("Ricevuto file "+realFile.getName());
 
+							
 							realFile=null;
 						}
 

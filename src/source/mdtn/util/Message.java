@@ -71,40 +71,76 @@ public class Message implements Serializable {
 	
 		
 	
-	/* Auto Set&Get */
+	/**
+	 * Ritorna il mittente del messaggio.
+	 * 
+	 * @return una stringa contenente il mittente.
+	 */
 	public String getFrom() {
 		return from;
 	}
 
+	/**
+	 * Imposta il mittende del messaggio.
+	 * @param from una stringa contenente il mittente.
+	 */
 	public void setFrom(String from) {
 		this.from = from;
 	}
 
+	/**
+	 * Ritorna il destinatario del messaggio.
+	 * @return una stringa con il destinatario.
+	 */
 	public String getTo() {
 		return to;
 	}
 
+	/**
+	 * Imposta il destinatario del messaggio.
+	 * @param from una stringa contenente il destinatario.
+	 */
 	public void setTo(String to) {
 		this.to = to;
 	}
 
+	/**
+	 * Ritorna l'oggetto del messaggio.
+	 * @return una stringa con l'oggetto del messaggio.
+	 */
 	public String getSubject() {
 		return subject;
 	}
 
+	
+	/**
+	 * Imposta l'oggetto del messaggio. 
+	 * @param subject una stringa con l'oggetto del messaggio.
+	 */
 	public void setSubject(String subject) {
 		this.subject = subject;
 	}
 
+	/**
+	 * Ritorna il messaggio.
+	 * @return una stringa con il messaggio.
+	 */
 	public String getMessage() {
 		return message;
 	}
 
+	/**
+	 * Ritorna l'opzione di invio copia in CC al mittente.
+	 * @return un booleano con lo stato dell'opzione.
+	 */
 	public boolean getCC() {
 		return cc;
 	}
 
-	
+	/**
+	 * Imposta il messaggio. 
+	 * @param subject una stringa con il messaggio.
+	 */
 	public void setMessage(String message) {
 		this.message = message;
 	}

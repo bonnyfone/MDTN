@@ -26,8 +26,11 @@ public class GenericResource implements Serializable{
 	/** Dimensioni della risorse (se note) in bytes.*/
 	private long size;
 	
-	private int iconType;
-	
+	/**
+	 * Costruttore di una risorsa.
+	 * @param dir directory
+	 * @param addr indirizzo
+	 */
 	public GenericResource(String dir, String addr){
 		size=-1;
 		resAddress = dir+"/"+addr;
@@ -36,6 +39,10 @@ public class GenericResource implements Serializable{
 		
 	}
 	
+	/**
+	 * Costruttore di una risorsa
+	 * @param addr URL della risorsa.
+	 */
 	public GenericResource(URL addr){
 		size=-1;
 		resAddress = addr.toString();
@@ -44,6 +51,10 @@ public class GenericResource implements Serializable{
 		isPublic=false;
 	}
 	
+	/**
+	 * Calcola il filesize in base al percorso.
+	 * @param path percorso del file.
+	 */
 	public void autoGetSize(String path){
 		File f = new File(path);
 		long newSize = f.length();
@@ -54,34 +65,64 @@ public class GenericResource implements Serializable{
 	
 	/*  Set & Get */
 	
+	/**
+	 * Ritorna l'indirizzo della risorsa.
+	 */
 	public String getAddress(){
 		return resAddress;
 	}
 	
+	/**
+	 * Ritorna il nome della risorsa.
+	 * @return una stringa con il nome.
+	 */
 	public String getName(){
 		return name;
 	}
 	
+	/**
+	 * Ritorna le informazioni della risorsa.
+	 * @return una stringa con le informazioni.
+	 */
 	public String getInfo(){
 		return overInfo;
 	}
 	
+	/**
+	 * Metodo che indica se la risorsa è pubblica.
+	 * @return un booleano che indica se la risorsa è pubblica.
+	 */
 	public boolean isPublic(){
 		return isPublic;
 	}
 	
+	/**
+	 * Imposta le informazioni della risorsa.
+	 * @param myInfo una stringa con le informazioni.
+	 */
 	public void setInfo(String myInfo){
 		overInfo=myInfo;
 	}
 	
+	/**
+	 * Imposta le dimensioni della risorsa.
+	 * @param s un long che rappresenta le dimensioni.
+	 */
 	public void setSize(long s){
 		size=s;
 	}
 	
+	/**
+	 * Ritorna le dimensioni della risorsa.
+	 * @return un long che rappresenta le dimensioni della risorsa.
+	 */
 	public long getSize(){
 		return size;
 	}
 	
+	/**
+	 * Imposta la risorsa come pubblica.
+	 */
 	public void setAsPublic(){
 		isPublic=true;
 	}

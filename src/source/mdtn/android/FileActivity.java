@@ -89,6 +89,10 @@ public class FileActivity extends Activity {
 		
 		localRes.clear();
 		File SDCardRoot = Environment.getExternalStorageDirectory(); 
+		if(SDCardRoot==null){
+			Toast.makeText(this, "Impossibile accedere alla cartella locale di MDTN.\nControlla che la scheda di memoria SD sia attiva sul telefono.", Toast.LENGTH_SHORT).show();
+			return;
+		}
 		File dir = new File(SDCardRoot+"/MDTN_data/"); 
 
 		//Ottengo la lista dei file, filtrata opportunamente per estensione.
@@ -98,6 +102,11 @@ public class FileActivity extends Activity {
 			}
 		});
 
+		if(children==null){
+			Toast.makeText(this, "Impossibile accedere alla cartella locale di MDTN.\nControlla che la scheda di memoria SD sia attiva sul telefono.", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		
 		//carico i file nel modello
 		for(int i=0; i<children.length; i++){
 			GenericResource gr = new GenericResource(dir.toString(),children[i]);
@@ -221,7 +230,8 @@ public class FileActivity extends Activity {
 		case(0): 
 			myList.setAdapter(adapterLocal);
 		myLabelList.setText("Risorse locali");
-		adapterLocal.notifyDataSetChanged();
+		if(adapterLocal!=null)
+			adapterLocal.notifyDataSetChanged();
 		break;
 
 		case(1):
@@ -256,13 +266,34 @@ public class FileActivity extends Activity {
 		final EditText input = (EditText)layout.findViewById(R.id.text);
 		input.setText(oldRequest);
 		
+		
+		
+		/* ------------------     FUTURE DEV     -----------------------*/
+		/* -------------------------------------------------------------*/
+		/* -------------------------------------------------------------*/
 		/* ---------- Selezione del carrier di destinazione ------------*/
+		/* -------------------------------------------------------------*/
+		/* -------------------------------------------------------------*/
+		
+		/* La selezione del carrier di destinazione permette di selezionare su quale
+		 * carrier scaricare le risorse. La lista dei carrier viene letta dal file esterno,
+		 *  "res/values/dest.xm" 
+		 * */
+		
 		Spinner dest = (Spinner)layout.findViewById(R.id.destination);
 	    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
 	            this, R.array.carriers, android.R.layout.simple_spinner_item);
 	    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	    dest.setAdapter(adapter);
 
+	    /* ************* Implementazione futura... ************ */
+	    
+	    /* -------------------------------------------------------------*/
+	    /* -------------------------------------------------------------*/
+	    /* -------------------------------------------------------------*/
+	    /* -------------------------------------------------------------*/
+	    /* -------------------------------------------------------------*/
+	    
 		
 		//Messaggio di conferma:pubblico o no?
 		final AlertDialog.Builder publicOrNo = new AlertDialog.Builder(this);
@@ -410,9 +441,9 @@ public class FileActivity extends Activity {
 							}
 						}
 						progres.cancel();
-						updateAllRes();
+						
 						Runnable update = new Runnable() {
-							public void run() {updateUI();	}
+							public void run() {updateAllRes(); updateUI();	}
 						};
 						runOnUiThread(update);
 
@@ -542,6 +573,12 @@ public class FileActivity extends Activity {
 
 				if(item==0){//Download
 					if(refNode.getMyAgent().isConnected()){
+						
+						if(adapterLocal==null){
+							Toast.makeText(getApplicationContext(), "Impossibile scaricare il file in quanto non si ha accesso alla cartella locale di MDTN.\nControlla che la scheda di memoria SD sia attiva sul telefono.", Toast.LENGTH_LONG).show();
+							return;
+						}
+						
 						if(!refNode.getMyAgent().getDataFinished()){
 							Toast.makeText(getApplicationContext(), "Stai già scaricando un file.\nAttendi il termine del download prima di richiedere un nuovo file.", Toast.LENGTH_LONG).show();
 							return;
@@ -622,6 +659,12 @@ public class FileActivity extends Activity {
 
 				if(item==0){//Download
 					if(refNode.getMyAgent().isConnected()){
+						
+						if(adapterLocal==null){
+							Toast.makeText(getApplicationContext(), "Impossibile scaricare il file in quanto non si ha accesso alla cartella locale di MDTN.\nControlla che la scheda di memoria SD sia attiva sul telefono.", Toast.LENGTH_LONG).show();
+							return;
+						}
+						
 						if(!refNode.getMyAgent().getDataFinished()){
 							Toast.makeText(getApplicationContext(), "Stai già scaricando un file.\nAttendi il termine del download prima di richiedere un nuovo file.", Toast.LENGTH_LONG).show();
 							return;

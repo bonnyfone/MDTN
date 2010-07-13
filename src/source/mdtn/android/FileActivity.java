@@ -25,11 +25,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -243,7 +245,8 @@ public class FileActivity extends Activity {
 		
 		//Oggetti grafici e layout
 		Context mContext = getApplicationContext();
-		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
+		//LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = (LayoutInflater) this.getSystemService(LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.request_dialog,
 				(ViewGroup) findViewById(R.id.layout_root));
 
@@ -253,11 +256,20 @@ public class FileActivity extends Activity {
 		final EditText input = (EditText)layout.findViewById(R.id.text);
 		input.setText(oldRequest);
 		
+		/* ---------- Selezione del carrier di destinazione ------------*/
+		Spinner dest = (Spinner)layout.findViewById(R.id.destination);
+	    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+	            this, R.array.carriers, android.R.layout.simple_spinner_item);
+	    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+	    dest.setAdapter(adapter);
+
+		
 		//Messaggio di conferma:pubblico o no?
 		final AlertDialog.Builder publicOrNo = new AlertDialog.Builder(this);
 		publicOrNo.setTitle("Bacheca pubblica");
 		publicOrNo.setMessage("Vuoi rendere pubblica questa risorsa?");
 		
+		//pubblico
 		publicOrNo.setPositiveButton(" Si ", new DialogInterface.OnClickListener() {  
 			public void onClick(DialogInterface dialog, int whichButton) {  
 				String value = input.getText().toString();  
@@ -285,6 +297,7 @@ public class FileActivity extends Activity {
 			}  
 		});
 
+		//non pubblico
 		publicOrNo.setNegativeButton("No", new DialogInterface.OnClickListener() {  
 			public void onClick(DialogInterface dialog, int whichButton) {  
 				String value = input.getText().toString();  

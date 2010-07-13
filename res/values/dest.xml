@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dest">Carrier di destinazione</string>
+    <string-array name="carriers">
+        <item>Linea 1</item>
+        <item>Linea 2</item>
+        <item>Linea 3</item>
+        <item>Linea 4</item>
+        <item>Linea 5</item>
+        <item>Linea 6</item>
+        <item>Linea 7</item>
+        <item>Linea 8</item>
+        <item>Linea 9</item>
+        <item>Linea A</item>
+        <item>Linea B</item>
+    </string-array>
+</resources>

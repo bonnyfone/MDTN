@@ -1,12 +1,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/layout_root" android:orientation="horizontal"
+	android:id="@+id/layout_root" android:orientation="vertical"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:padding="10dp">
+
 
 	<ImageView android:id="@+id/image" android:layout_width="wrap_content"
 		android:layout_height="fill_parent" android:layout_marginRight="10dp" />
 
 	<EditText android:id="@+id/text" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" />
+
+    <TextView android:id="@+id/label1"
+              android:layout_width="wrap_content"
+              android:layout_height="fill_parent"
+              android:textColor="#FFF"
+	      android:text="Carrier di destinazione"
+	      android:layout_marginTop="20dp"
+              />
+
+	<Spinner 
+        	android:id="@+id/destination"
+        	android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:prompt="@string/dest"
+	    />
+
+
 
 </LinearLayout>

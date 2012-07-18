@@ -1,0 +1,7 @@
+Official article: 
+-http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=6005741&tag=1
+-http://www.megadevs.com/docs/MDTN.pdf
+
+
+Abstract:
+Infrastructure networks like Internet have some coverage gaps (e.g. rural areas) where no service connectivity is provided. Cellular networks could be used in alternative but they usually associate their services with a usage cost. Nowadays, the growing number of mobile devices equipped with a wireless interface and the end-user trend to shift toward wireless technology has opened new possibilities for networking. Opportunistic networking seems a feasible solution in filling in these coverage gaps by providing service connectivity where it is not sustained by an infrastructure. In this context we provide a delay tolerant platform that ensures service connectivity where it is absent. Our approach follows the Delay/Disruption Tolerant Networking (DTN) paradigm by implementing a store-and-forward communication model between mobile users and carrier entities (e.g. buses), where a user delegates the carrier a task (bundle), the carrier stores it locally and whenever service connectivity is available (e.g. wi-fi at the bus station) tries to accomplish it, successively notifying the user of the task output next time they encounter again.
